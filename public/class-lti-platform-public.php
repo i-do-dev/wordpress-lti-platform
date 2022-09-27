@@ -66,7 +66,7 @@ class LTI_Platform_Public
         $this->version = $version;
     }
 
-    private function parseCustomParameters($customparams)  
+    private function parse_custom_parameters($customparams)  
     {
         $custom = array();
         $params = null;
@@ -82,7 +82,7 @@ class LTI_Platform_Public
         return $params;
     }
 
-    private function checkContentType($contenturl)    
+    private function check_content_type($contenturl)    
     {
         if (str_contains($contenturl['path'], '/mod/curriki') && str_contains($contenturl['query'], 'activity=')) {
             parse_str($contenturl['query'], $params);
@@ -99,9 +99,9 @@ class LTI_Platform_Public
                 $post = get_post(intval(sanitize_text_field($_GET['post'])));
                 $link_atts = $this->get_link_atts($post, sanitize_text_field($_GET['id']));
                 $contenturl = parse_url($link_atts['url']);
-                $contentpublicurl = $this->checkContentType($contenturl);
+                $contentpublicurl = $this->check_content_type($contenturl);
                 $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
-                $customparams = $this->parseCustomParameters($tool->getSetting('custom'));
+                $customparams = $this->parse_custom_parameters($tool->getSetting('custom'));
                 $contentpublicurl = $customparams['custom_currikistudiohost'] . $contentpublicurl;
                 $page = <<< EOD
 <html>
