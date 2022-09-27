@@ -66,9 +66,56 @@ class LTI_Platform_Public
         $this->version = $version;
     }
 
+    private function parseCustomParameters($customparams)  
+    {
+        $custom = array();
+        $params = null;
+        if (!empty($customparams)) {
+            parse_str(str_replace('&#13;&#10;', '&', $customparams), $custom);
+            foreach ($custom as $name => $value) {
+                $name = preg_replace('/[^a-z0-9]/', '_', strtolower(trim($name)));
+                if (!empty($name)) {
+                    $params["custom_{$name}"] = $value;
+                }
+            }
+        }
+        return $params;
+    }
+
+    private function checkContentType($contenturl)    
+    {
+        if (str_contains($contenturl['path'], '/mod/curriki') && str_contains($contenturl['query'], 'activity=')) {
+            parse_str($contenturl['query'], $params);
+            $contentpublicurl = "/lti-tools/activity/" . $params['activity'];
+        }
+
+        return $contentpublicurl;
+    }
+
     public function parse_request()
     {
         if (isset($_GET[LTI_Platform::get_plugin_name()])) {
+            if (!is_user_logged_in()) {                                              
+                $post = get_post(intval(sanitize_text_field($_GET['post'])));
+                $link_atts = $this->get_link_atts($post, sanitize_text_field($_GET['id']));
+                $contenturl = parse_url($link_atts['url']);
+                $contentpublicurl = $this->checkContentType($contenturl);
+                $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+                $customparams = $this->parseCustomParameters($tool->getSetting('custom'));
+                $contentpublicurl = $customparams['custom_currikistudiohost'] . $contentpublicurl;
+                $page = <<< EOD
+<html>
+<head>
+    <title>1EdTech LTI message</title>
+</head>
+<body>
+    <iframe style="border: none; overflow: scroll;" width="100%" height="100%" src="$contentpublicurl" allowfullscreen="true"></iframe>
+</body>
+</html>
+EOD;
+                echo $page;
+                exit;
+            }
             if (isset($_GET['tools'])) {
                 header('Content-type: text/html');
                 $allowed = array('div' => array('class' => true), 'h2' => array(), 'p' => array(), 'br' => array(), 'input' => array('type' => true, 'name' => true, 'class' => true, 'value' => true, 'toolname' => true), 'button' => array('class' => true, 'id' => true, 'disabled' => true));
@@ -106,6 +153,8 @@ class LTI_Platform_Public
         }
         if ($ok) {
             LTI\Tool::$defaultTool = $tool;
+            $requestState = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.',  $_REQUEST['state'])[1]))));
+            Activity::validate(trim(LTI\Tool::$defaultTool->messageUrl), trim($requestState->target_link_uri));
             $platform = $this->get_platform();
             $platform->handleRequest();
         } else {
@@ -243,7 +292,9 @@ class LTI_Platform_Public
                 $url = "{$tool->messageUrl}{$link_atts['url']}";
             } elseif (strpos($link_atts['url'], $tool->messageUrl) === 0) {
                 $url = $link_atts['url'];
-            } else {
+            }elseif (str_contains(parse_url($tool->messageUrl)['path'], '/mod/curriki')) {  
+                $url = $link_atts['url'];
+            }  else {
                 $ok = false;
                 $reason = __('Invalid url attribute', LTI_Platform::get_plugin_name());
             }
@@ -346,7 +397,7 @@ class LTI_Platform_Public
             }
             LTI\Tool::$defaultTool = $tool;
             $platform = $this->get_platform();
-            echo($platform->sendMessage($url, $msg, $params));
+            echo ($platform->sendMessage($url, $msg, $params, '_self', "{$user->ID}", "{$post->ID}"));
             $day = date('Y-m-d');
             if ($day !== date('Y-m-d', $tool->lastAccess)) {
                 $tool->lastAccess = strtotime($day);  // Update last access
