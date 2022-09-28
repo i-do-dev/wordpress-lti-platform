@@ -248,8 +248,6 @@ class LTI_Platform_Public
                 $url = "{$tool->messageUrl}{$link_atts['url']}";
             } elseif (strpos($link_atts['url'], $tool->messageUrl) === 0) {
                 $url = $link_atts['url'];
-            }elseif (str_contains(parse_url($tool->messageUrl)['path'], '/mod/curriki')) {  
-                $url = $link_atts['url'];
             }  else {
                 $ok = false;
                 $reason = __('Invalid url attribute', LTI_Platform::get_plugin_name());
@@ -288,6 +286,7 @@ class LTI_Platform_Public
                 $params['accept_multiple'] = 'false';
                 $params['accept_presentation_document_targets'] = 'embed,frame,iframe,window,popup';
                 $params['content_item_return_url'] = get_option('siteurl') . '/?' . LTI_Platform::get_plugin_name() . '&content&tool=' . urlencode($link_atts['tool']);
+                $url = $tool->contentItemUrl;
             }
             if (($target === 'popup') || ($target === 'iframe') || ($target === 'embed')) {
                 $width = $tool->getSetting('presentationWidth');
