@@ -131,6 +131,8 @@ class LTI_Platform
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/autoload.php';
 
+        require_once plugin_dir_path(dirname(__FILE__)) . 'activity/Activity.php';
+        
         /**
          * The class responsible for orchestrating the actions and filters of the
          * core plugin.

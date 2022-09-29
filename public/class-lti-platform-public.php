@@ -69,6 +69,9 @@ class LTI_Platform_Public
     public function parse_request()
     {
         if (isset($_GET[LTI_Platform::get_plugin_name()])) {
+            if (!is_user_logged_in()) {                                              
+                Activity::is_public();
+            }
             if (isset($_GET['tools'])) {
                 header('Content-type: text/html');
                 $allowed = array('div' => array('class' => true), 'h2' => array(), 'p' => array(), 'br' => array(), 'input' => array('type' => true, 'name' => true, 'class' => true, 'value' => true, 'toolname' => true), 'button' => array('class' => true, 'id' => true, 'disabled' => true));
@@ -106,6 +109,8 @@ class LTI_Platform_Public
         }
         if ($ok) {
             LTI\Tool::$defaultTool = $tool;
+            $requestState = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.',  $_REQUEST['state'])[1]))));
+            Activity::validate(trim(LTI\Tool::$defaultTool->messageUrl), trim($requestState->target_link_uri));
             $platform = $this->get_platform();
             $platform->handleRequest();
         } else {
@@ -243,7 +248,7 @@ class LTI_Platform_Public
                 $url = "{$tool->messageUrl}{$link_atts['url']}";
             } elseif (strpos($link_atts['url'], $tool->messageUrl) === 0) {
                 $url = $link_atts['url'];
-            } else {
+            }  else {
                 $ok = false;
                 $reason = __('Invalid url attribute', LTI_Platform::get_plugin_name());
             }
@@ -281,6 +286,7 @@ class LTI_Platform_Public
                 $params['accept_multiple'] = 'false';
                 $params['accept_presentation_document_targets'] = 'embed,frame,iframe,window,popup';
                 $params['content_item_return_url'] = get_option('siteurl') . '/?' . LTI_Platform::get_plugin_name() . '&content&tool=' . urlencode($link_atts['tool']);
+                $url = $tool->contentItemUrl;
             }
             if (($target === 'popup') || ($target === 'iframe') || ($target === 'embed')) {
                 $width = $tool->getSetting('presentationWidth');
@@ -346,7 +352,7 @@ class LTI_Platform_Public
             }
             LTI\Tool::$defaultTool = $tool;
             $platform = $this->get_platform();
-            echo($platform->sendMessage($url, $msg, $params));
+            echo ($platform->sendMessage($url, $msg, $params, '_self', "{$user->ID}", "{$post->ID}"));
             $day = date('Y-m-d');
             if ($day !== date('Y-m-d', $tool->lastAccess)) {
                 $tool->lastAccess = strtotime($day);  // Update last access
@@ -367,7 +373,7 @@ class LTI_Platform_Public
         return $post;
     }
 
-    private function get_link_atts($post, $id)
+    public static function get_link_atts($post, $id)
     {
         $link_atts = array();
         $pattern = get_shortcode_regex(array(LTI_Platform::get_plugin_name()));
