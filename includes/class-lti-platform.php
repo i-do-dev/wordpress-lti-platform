@@ -131,7 +131,7 @@ class LTI_Platform
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'vendor/autoload.php';
 
-        require_once plugin_dir_path(dirname(__FILE__)) . 'activity/Activity.php';
+        require_once plugin_dir_path(dirname(__FILE__)) . 'activity/load.php';
         
         /**
          * The class responsible for orchestrating the actions and filters of the
@@ -209,6 +209,7 @@ class LTI_Platform
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 
         $this->loader->add_action('init', 'LTI_Platform_Tool', 'register');
+        $this->loader->add_action('add_meta_boxes', 'LtiResourceHooks', 'add_post_meta_box');
 
         $this->loader->add_filter('posts_orderby', 'LTI_Platform_Tool_List_Table', 'tools_orderby', 10, 2);
     }
