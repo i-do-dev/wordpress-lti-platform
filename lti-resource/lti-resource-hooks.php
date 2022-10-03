@@ -25,6 +25,15 @@ class LtiResourceHooks
     }
 
     public static function render_lti_resource_meta_box(){
-        echo 'Render Custome Fields here ................';
+        ?>
+            <h4>Deep Linking</h4>
+            <div style="width: 100%;">
+                <label for="toolurl">Tool Url</label>
+                <input type="text" name="toolurl" style="width: 100%;" />
+            </div>
+            <div style="width: 100%;display: inline-block;margin-top: 10px;">
+                <a class="preview button" href="#">Select Content<span class="screen-reader-text"> (opens in a new tab)</span></a>
+            </div>
+        <?php
     }
 }
