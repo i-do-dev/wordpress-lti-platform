@@ -218,7 +218,7 @@ class LTI_Platform_Tool extends Tool
                 'search_items'       => __( 'Search Resources' ),
                 'not_found'          => __( 'No resources found' ),
                 'not_found_in_trash' => __( 'No resources found in the Trash' ), 
-                'parent_item_colon'  => ’,
+                'parent_item_colon'  => "",
                 'menu_name'          => 'LTI Resources'
             ),
             'public' => true,

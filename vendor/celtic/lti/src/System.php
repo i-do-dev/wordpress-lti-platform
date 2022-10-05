@@ -579,7 +579,6 @@ trait System
      */
     public function signParameters($url, $type, $version, $params)
     {
-      // print_r("in signParameters" ); print_r($url);die();
         if (!empty($url)) {
 // Add standard parameters
             $params['lti_version'] = $version;
@@ -640,8 +639,6 @@ trait System
                 $url = Tool::$defaultTool->initiateLoginUrl;
             }
         } else {
-         //   print_r($url);die();
-         //   print_r($url);die();
             $params = $this->signParameters($url, $type, $version, $params);
         }
         
@@ -681,7 +678,6 @@ trait System
      */
     public function signServiceRequest($url, $method, $type, $data = null)
     {
-      //  print_r("in signServiceRequest" ); print_r($url);die();
         $header = '';
         if (!empty($url)) {
             $header = $this->addSignature($url, $data, $method, $type);
@@ -702,7 +698,6 @@ trait System
      */
     public function doServiceRequest($service, $method, $format, $data)
     {
-      //  print_r("in doServiceRequest" ); print_r($service);die();
         $header = $this->addSignature($service->endpoint, $data, $method, $format);
 
 // Connect to platform
@@ -741,8 +736,6 @@ trait System
      */
     public function addSignature($endpoint, $data, $method = 'POST', $type = null, $nonce = '', $hash = null, $timestamp = null)
     {
-
-       // print_r($_GET);die();
         if ($this->useOAuth1()) {
             return $this->addOAuth1Signature($endpoint, $data, $method, $type, $hash, $timestamp);
         } else {
@@ -1374,11 +1367,6 @@ trait System
      */
     private function addJWTSignature($endpoint, $data, $method, $type, $nonce, $timestamp)
     {
-
-        //$endpoint=$endpoint."/?activity=3";
-       // print_r($method);die();
-      // echo "<pre>";
-      // print_r(debug_backtrace());die();
         $ok = false;
         if (is_array($data)) {
             $ok = true;
@@ -1446,7 +1434,6 @@ trait System
                 $paramName = 'client_assertion';
             }
         }
-       // print_r($payload);die( );
         if ($ok) {
             if (empty($timestamp)) {
                 $timestamp = time();
