@@ -74,7 +74,7 @@ class LTI_Platform_Public
             }
             if (isset($_GET['tools'])) {
                 header('Content-type: text/html');
-                $allowed = array('div' => array('class' => true), 'h2' => array(), 'p' => array(), 'br' => array(), 'input' => array('type' => true, 'name' => true, 'class' => true, 'value' => true, 'toolname' => true), 'button' => array('class' => true, 'id' => true, 'disabled' => true));
+                $allowed = array('div' => array('class' => true), 'h2' => array(), 'table' => array('style' => true), 'span' => array('class' => true), 'td' => array(), 'tr' => array('class' => true),  'p' => array(), 'br' => array(), 'input' => array('type' => true, 'name' => true, 'class' => true, 'value' => true, 'toolname' => true), 'button' => array('class' => true, 'id' => true, 'disabled' => true));
                 echo(wp_kses($this->get_tools_list(), $allowed));
             } else if (isset($_GET['usecontentitem'])) {
                 header('Content-type: application/json');
@@ -199,7 +199,10 @@ class LTI_Platform_Public
         $post = $this->get_post(intval(sanitize_text_field($_GET['post'])));
         $ok = !empty($post);
         if (!$ok) {
-            $reason = __('Missing or invalid post attribute in link', LTI_Platform::get_plugin_name());
+           $post =new \stdClass();
+           $post->ID = 9999;
+           $post->post_title = "";
+           $ok = true;
         } else if (!$deeplink) {
             $ok = !empty($_GET['id']);
             if (!$ok) {
@@ -444,39 +447,36 @@ class LTI_Platform_Public
         }
         ksort($tools, SORT_STRING);
 
-        $list = <<< EOD
+        $list = '
 <div class="lti-platform-modal">
   <div class="lti-platform-modal-content">
     <h2>LTI Tool</h2>
-    <p>
+    <div>
 
-EOD;
+';
         if (!empty($tools)) {
-            $list .= <<< EOD
-      Select the LTI tool you want to add a link for:
-EOD;
+            $list .= 'Select the LTI tool you want to add a link for:';
+            $list .= ' <table style="width:100%">';
             foreach ($tools as $tool) {
-                $list .= <<< EOD
-<br>
-      &nbsp;&nbsp;<input type="radio" name="tool" class="lti-platform-tool" value="{$hereAttr($tool->code)}" toolname="{$hereAttr($tool->name)}">&nbsp;{$hereValue($tool->name)}
-EOD;
+                $list .= '<tr class="tool-input-tr">';
+                $list .= '<td><input type="radio" name="tool" class="lti-platform-tool" value="'.$tool->code.'" toolname="'.$tool->name.'">' . $tool->name .'</td>';
+                $list .= '<td><span class="dashicons dashicons-search"></span></td>';
+                $list .=  '</tr>';
             }
+            $list .= ' </table>';
         } else {
-            $list .= <<< EOD
-      There are no enabled LTI tools defined.
-EOD;
+            $list .= 'There are no enabled LTI tools defined.';
         }
-        $list .= <<< EOD
+        $list .= '
 
-    </p>
+    </div>
     <p>
       <button class="button button-primary" id="lti-platform-select" disabled>Select</button>
       <button class="button" id="lti-platform-cancel">Cancel</button>
     </p>
   </div>
 </div>
-
-EOD;
+';
 
         return $list;
     }
@@ -538,8 +538,15 @@ EOD;
         wdw.LtiPlatformText = '{$linktext}';
       }
       var id = Math.random().toString(16).substr(2, 8);
-      wdw.LtiPlatformProps.onChange(wdw.wp.richText.insert(wdw.LtiPlatformProps.value, '[{$plugin_name} {$attr}]' + wdw.LtiPlatformText + '[/{$plugin_name}]'));
-      wdw.LtiPlatformProps.onFocus();
+      var ltiToolUrl =  wdw.document.getElementById("lti_tool_url");
+      if(ltiToolUrl){
+        ltiToolUrl.value= "{$item->url}";
+        wdw.document.getElementById("title").value = "{$item->title}";
+        wdw.document.getElementById("title-prompt-text").classList.add("screen-reader-text");
+      }else{
+        wdw.LtiPlatformProps.onChange(wdw.wp.richText.insert(wdw.LtiPlatformProps.value, '[{$plugin_name} {$attr}]' + wdw.LtiPlatformText + '[/{$plugin_name}]'));
+        wdw.LtiPlatformProps.onFocus();
+      }
       window.close();
 
 EOD;
