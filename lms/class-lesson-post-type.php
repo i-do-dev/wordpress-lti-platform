@@ -80,14 +80,14 @@
    }
 
    public function options_metabox() {
-         add_meta_box(
-            'lesson-options-class',      // Unique ID
-            esc_html__('Lesson Options', 'lesson-options'),    // Title
-            array(self::instance(), 'options_metabox_html'),   // Callback function
-            $this->_post_type,       // Admin page (or post type)
-            'side',         // Context
-            'default'         // Priority
-        );
+      $this->add_meta_box([
+         'lesson-options-class',      // Unique ID
+         esc_html__('Lesson Options', 'lesson-options'),    // Title
+         array(self::instance(), 'options_metabox_html'),   // Callback function
+         $this->_post_type,       // Admin page (or post type)
+         'side',         // Context
+         'default'         // Priority
+      ]);
    }
 
    public function options_metabox_html($post = null)
