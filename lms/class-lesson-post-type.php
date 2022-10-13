@@ -36,7 +36,6 @@
       parent::__construct();
    }
 
-
    /**
     * Register lesson post type.
     */
@@ -81,19 +80,96 @@
    }
 
    public function options_metabox() {
-      $this->add_meta_box([
-         'lesson-options-class',      // Unique ID
-         esc_html__( 'Lesson Options', 'lesson-options' ),    // Title
-         array(self::instance(), 'options_metabox_html'),   // Callback function
-         $this->_post_type,         // Admin page (or post type)
-         'side',         // Context
-         'default'         // Priority
-      ]);
+         add_meta_box(
+            'lesson-options-class',      // Unique ID
+            esc_html__('Lesson Options', 'lesson-options'),    // Title
+            array(self::instance(), 'options_metabox_html'),   // Callback function
+            $this->_post_type,       // Admin page (or post type)
+            'side',         // Context
+            'default'         // Priority
+        );
    }
 
-   public function options_metabox_html() {
+   public function options_metabox_html($post = null)
+   {
+      $args = array(
+         'post_type'=> 'tl_course',
+         'orderby'    => 'ID',
+         'post_status' => 'publish,draft',
+         'order'    => 'DESC',
+         'posts_per_page' => -1 
+         );
+      $courses = get_posts( $args );
+      $selectedCourse =  isset($_GET['courseid']) ? $_GET['courseid'] : get_post_meta($post->ID, 'tl_course_id', true);
+      $output = '  <h4>Select Course</h4>';
+      $output .= '<select name="tl_course_id" style="margin-top:-10px"> 
+               <option disabled selected>Select a course</option>';
+      foreach($courses as $course){
+         if($selectedCourse == $course->ID){
+            $selected = "selected";
+           }else{
+            $selected = "";
+           }
+            $output .= '<option value="'.$course->ID .'" '.$selected.' >'. $course->post_title .' </option>';
+      }
+      $output .= '</select>';
+      echo $output ;
       ?>
-      <p><strong>Related Course (Project)</strong> will be mentioned here ..</p>
+      <h4 >LTI Deep Linking</h4>
+      <div style="width: 100%;margin-top:-10px">
+         <input type="text" required id="lti_tool_url" name="lti_tool_url" value="<?php echo get_post_meta($post->ID, 'lti_tool_url', true)?>" style="width: 100%;" />
+         <input type="hidden" id="lti_tool_code" name="lti_tool_code" value="<?php echo get_post_meta($post->ID, 'lti_tool_code', true) ?>" style="width: 100%;" />
+         <input type="hidden" id="lti_content_title" name="lti_content_title" value="<?php echo get_post_meta($post->ID, 'lti_content_title', true) ?>" style="width: 100%;" />
+         <input type="hidden" id="lti_custom_attr" name="lti_custom_attr" value="<?php echo get_post_meta($post->ID, 'lti_custom_attr', true) ?>" style="width: 100%;" />
+         <input type="hidden" id="lti_post_attr_id" name="lti_post_attr_id" value="<?php echo get_post_meta($post->ID, 'lti_post_attr_id', true) ?>" style="width: 100%;" />
+      </div>
+      <div id="preview_lit_connections" style="width: 100%;display: inline-block;margin-top: 10px;">
+         <div class="preview button" href="#">Select Content<span class="screen-reader-text"> (opens in a new tab)</span></div>
+      </div>
       <?php
    }
+
+   public function save_tl_post($post_id = null)
+   {
+       if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_lesson' == $_POST['post_type']) {
+               update_post_meta($post_id, 'lti_tool_url',$_POST['lti_tool_url']);
+               update_post_meta($post_id, 'lti_tool_code', $_POST['lti_tool_code']);
+               update_post_meta($post_id, 'lti_content_title', $_POST['lti_content_title']);
+               update_post_meta($post_id, 'lti_custom_attr', $_POST['lti_custom_attr']);
+               update_post_meta($post_id, 'lti_post_attr_id', $_POST['lti_post_attr_id']);
+               update_post_meta($post_id, 'tl_course_id', $_POST['tl_course_id']);
+       }
+   }
+
+   public function tl_post_content($more_link_text = null, $strip_teaser = false)
+   {
+       global $post;
+       $postData = self::get_post($post->ID);
+       if (isset($postData->post_type) && $postData->post_type == "tl_lesson") {
+           $content = get_post_meta($post->ID);
+           $attrId =  isset($content['lti_post_attr_id'][0]) ? $content['lti_post_attr_id'][0] : "";
+           $title =  isset($content['lti_content_title'][0]) ? $content['lti_content_title'][0] : "";
+           $toolCode =  isset($content['lti_tool_code'][0]) ?$content['lti_tool_code'][0] : "";
+           $customAttr =  isset($content['lti_custom_attr'][0]) ? $content['lti_custom_attr'][0] : "";
+           $toolUrl =  isset($content['lti_tool_url'][0]) ? $content['lti_tool_url'][0] : "";
+           $plugin_name = LTI_Platform::get_plugin_name();
+           $content = '<p>' . $post->post_content . '</p>';
+           $content.= '<p> [' . $plugin_name . ' tool=' . $toolCode . ' id=' . $attrId . ' title=\"' . $title . '\" url=' . $toolUrl . ' custom=' . $customAttr . ']' . "". '[/' . $plugin_name . ']  </p>';
+       } else {
+           $content = get_the_content($more_link_text, $strip_teaser);
+           return  $content;
+       }
+       return $content;
+   }
+
+   private function get_post($post_id)
+   {
+       $post = null;
+       if (current_user_can('read_post', $post_id)) {
+           $post = get_post($post_id);
+       }
+
+       return $post;
+   }
+
  }

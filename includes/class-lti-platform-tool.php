@@ -205,26 +205,6 @@ class LTI_Platform_Tool extends Tool
 
     public static function register()
     {
-        register_post_type('lti-resource', 
-            array( 'labels' => array(
-                'name' => __('LTI Resources', LTI_Platform::get_plugin_name()),
-                'singular_name' => __('LTI Resource', LTI_Platform::get_plugin_name()),
-                'add_new' => __('Add New'),
-                'add_new_item' => __('Add New Resource'),
-                'edit_item'          => __( 'Edit Resource' ),
-                'new_item'           => __( 'New Resource' ),
-                'all_items'          => __( 'All LTI Resources' ),
-                'view_item'          => __( 'View Resource' ),
-                'search_items'       => __( 'Search Resources' ),
-                'not_found'          => __( 'No resources found' ),
-                'not_found_in_trash' => __( 'No resources found in the Trash' ), 
-                'parent_item_colon'  => "",
-                'menu_name'          => 'LTI Resources'
-            ),
-            'public' => true,
-            'menu_position' => 5,
-            'has_archive'   => true,
-        ));
         register_post_type(self::POST_TYPE,
             array(
                 'labels' => array(

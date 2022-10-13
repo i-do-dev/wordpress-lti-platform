@@ -83,6 +83,17 @@ var LtiPlatformProps = null;
         $(this).find('td input[type=radio]').prop('checked', true);
         $('#lti-platform-select').prop("disabled", false); 
       });
+
+      $(".course_remove_lesson").on('click', function () {
+       var deletedLessons = $("#course_removed_lessons").val();
+       $(this).parent().fadeOut();
+       if(deletedLessons){
+        $("#course_removed_lessons").val(deletedLessons + "," + $(this).attr('lesson_id'));
+       }else{
+        $("#course_removed_lessons").val($(this).attr('lesson_id'));
+       }
+      });
+
     });
   });
 })(jQuery);
