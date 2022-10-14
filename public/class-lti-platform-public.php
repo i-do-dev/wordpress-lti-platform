@@ -256,6 +256,17 @@ class LTI_Platform_Public
                 $reason = __('Invalid url attribute', LTI_Platform::get_plugin_name());
             }
         }
+        if(isset($post->post_type) && $post->post_type == "tl_lesson" && !$ok){
+            $link_atts['tool'] = get_post_meta($post->ID, 'lti_tool_code', true); 
+            $link_atts['title'] =  get_post_meta($post->ID, 'lti_content_title', true); 
+            $link_atts['url'] = get_post_meta($post->ID, 'lti_tool_url', true); 
+            $link_atts['custom'] = get_post_meta($post->ID, 'lti_custom_attr', true);
+            $target = "embed";
+            $link_atts['id'] = get_post_meta($post->ID, 'lti_post_attr_id', true);
+            $url = $link_atts['url'];
+            $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+            $ok = true;
+        }
         if ($ok) {
             $options = LTI_Platform_Tool::getOptions();
             $user = wp_get_current_user();
@@ -448,12 +459,12 @@ class LTI_Platform_Public
         ksort($tools, SORT_STRING);
 
         $list = '
-<div class="lti-platform-modal">
-  <div class="lti-platform-modal-content">
-    <h2>LTI Tool</h2>
-    <div>
+        <div class="lti-platform-modal">
+        <div class="lti-platform-modal-content">
+            <h2>LTI Tool</h2>
+            <div>
 
-';
+        ';
         if (!empty($tools)) {
             $list .= 'Select the LTI tool you want to add a link for:';
             $list .= ' <table style="width:100%">';
@@ -468,15 +479,14 @@ class LTI_Platform_Public
             $list .= 'There are no enabled LTI tools defined.';
         }
         $list .= '
-
-    </div>
-    <p>
-      <button class="button button-primary" id="lti-platform-select" disabled>Select</button>
-      <button class="button" id="lti-platform-cancel">Cancel</button>
-    </p>
-  </div>
-</div>
-';
+            </div>
+            <p>
+                <button class="button button-primary" id="lti-platform-select" disabled>Select</button>
+                <button class="button" id="lti-platform-cancel">Cancel</button>
+            </p>
+        </div>
+        </div>
+        ';
 
         return $list;
     }
@@ -498,18 +508,19 @@ class LTI_Platform_Public
         $platform->handleRequest();
 
         $html = <<< EOD
-<html>
-  <head>
-    <title>Content</title>
-    <script>
-      var wdw = window.opener;
+        <html>
+        <head>
+            <title>Content</title>
+            <script>
+            var wdw = window.opener;
 
 EOD;
         if ($platform->ok) {
             $linktext = $tool->name;
             $item = $platform->contentItem;
             $attr = "tool={$code}";
-            $attr .= ' id=' . strtolower(LTI\Util::getRandomString());
+            $randomId = strtolower(LTI\Util::getRandomString());
+            $attr .= ' id=' . $randomId;
             if (!empty($item->title)) {
                 $attr .= static::setAttribute('title', $item->title);
                 $linktext = $item->title;
@@ -532,39 +543,46 @@ EOD;
             if (!empty($item->custom)) {
                 $attr .= static::setAttribute('custom', $item->custom);
             }
+            $activity = isset($item->custom['activity']) ? $item->custom['activity'] : "";
             $plugin_name = LTI_Platform::get_plugin_name();
             $html .= <<< EOD
-      if (!wdw.LtiPlatformText) {
-        wdw.LtiPlatformText = '{$linktext}';
-      }
-      var id = Math.random().toString(16).substr(2, 8);
-      var ltiToolUrl =  wdw.document.getElementById("lti_tool_url");
-      if(ltiToolUrl){
-        ltiToolUrl.value= "{$item->url}";
-        wdw.document.getElementById("title").value = "{$item->title}";
-        wdw.document.getElementById("title-prompt-text").classList.add("screen-reader-text");
-      }else{
-        wdw.LtiPlatformProps.onChange(wdw.wp.richText.insert(wdw.LtiPlatformProps.value, '[{$plugin_name} {$attr}]' + wdw.LtiPlatformText + '[/{$plugin_name}]'));
-        wdw.LtiPlatformProps.onFocus();
-      }
-      window.close();
-
-EOD;
+            if (!wdw.LtiPlatformText) {
+                wdw.LtiPlatformText = '{$linktext}';
+            }
+            var id = Math.random().toString(16).substr(2, 8);
+            var ltiToolUrl =  wdw.document.getElementById("lti_tool_url");
+            var ltiToolCode =  wdw.document.getElementById("lti_tool_code");
+            var ltiContetntTitle =  wdw.document.getElementById("lti_content_title");
+            var ltiCustomAttr =  wdw.document.getElementById("lti_custom_attr");
+            var ltiPostAttrId =  wdw.document.getElementById("lti_post_attr_id");
+            if(ltiToolUrl){
+                ltiToolUrl.value= "{$item->url}";
+                ltiToolCode.value= "{$code}";
+                ltiContetntTitle.value= "{$item->title}";
+                ltiCustomAttr.value= "custom=activity={$activity}";
+                ltiPostAttrId.value= "{$randomId}";
+                wdw.document.getElementById("title").value = "{$item->title}";
+                wdw.document.getElementById("title-prompt-text").classList.add("screen-reader-text");
+            }else{
+                wdw.LtiPlatformProps.onChange(wdw.wp.richText.insert(wdw.LtiPlatformProps.value, '[{$plugin_name} {$attr}]' + wdw.LtiPlatformText + '[/{$plugin_name}]'));
+                wdw.LtiPlatformProps.onFocus();
+            }
+            window.close();
+            EOD;
         } else {
             $html .= <<< EOD
-      window.close();
-      wdw.alert('Sorry, unable to verify the selected content');
+            window.close();
+            wdw.alert('Sorry, unable to verify the selected content');
 
-EOD;
+        EOD;
         }
         $html .= <<< EOD
-    </script>
-  </head>
-  <body>
-  </body>
-</html>
-
-EOD;
+        </script>
+        </head>
+        <body>
+        </body>
+        </html>
+    EOD;
         $allowed = array('html' => array(), 'head' => array(), 'title' => array(), 'script' => array(), 'body' => array());
         echo wp_kses($html, $allowed);
     }

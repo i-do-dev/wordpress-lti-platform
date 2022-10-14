@@ -1,6 +1,5 @@
 <?php
 require_once plugin_dir_path(dirname(__FILE__)) . 'lti-resource/Activity.php';
-require_once plugin_dir_path(dirname(__FILE__)) . 'lti-resource/lti-resource-hooks.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/tl-constants.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-abstract-tl-post-type.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-course-post-type.php';

@@ -48,9 +48,11 @@
 		
 		add_action( 'init', array( $this, 'register' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
-		/* add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
-		add_action( 'before_delete_post', array( $this, '_before_delete_post' ) );
-		add_action( 'deleted_post', array( $this, '_deleted_post' ) );
+		add_action( 'save_post', array( $this, 'save_tl_post' ), 10, 2 );
+		add_action( 'the_content', array( $this, 'tl_post_content' ));
+		//add_filter( 'pre_post_link', array( $this, 'custom_pre_post_link' ), 10, 2 );
+		//add_action( 'deleted_post', array( $this, 'deleted_post'));
+		/*add_action( 'before_delete_post', array( $this, '_before_delete_post' ) );
 		add_action( 'wp_trash_post', array( $this, '_before_trash_post' ) );
 		add_action( 'trashed_post', array( $this, '_trashed_post' ) ); */
 
@@ -97,5 +99,8 @@
 	
 	public function add_meta_boxes () {}
 
+	public function save_tl_post () {}
+	
+	public function tl_post_content () {}
 
  }

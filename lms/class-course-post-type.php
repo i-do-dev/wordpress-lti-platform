@@ -36,7 +36,6 @@
       parent::__construct();
    }
 
-
    /**
     * Register course post type.
     */
@@ -91,15 +90,38 @@
       ]);
    }
 
-   public function options_metabox_html() {
+   public function options_metabox_html($post = null) {
+      $args = array(
+         'posts_per_page'   => -1,
+         'post_type'        => 'tl_lesson',
+         'meta_query' => array(
+            array(
+               'key'   => 'tl_course_id',
+               'value' =>  $post->ID
+            )
+         )
+      );
+      $result = get_posts( $args );
       ?>
       <a href="<?php echo admin_url().'post-new.php?post_type='.TL_LESSON_CPT.'&courseid='. get_the_ID() ?>" class="button "><span class="dashicons dashicons-plus" style="margin-top: 6px"></span>&nbsp;Add New Lessons</a>
       <h3>Lessons</h3>
-      <p><a href="#">Lesson 1 (Palylist)</a></p>
-      <p><a href="#">Lesson 2 (Palylist)</a></p>
-      <p><a href="#">Lesson 3 (Palylist)</a></p>
-      <p><a href="#">Lesson 4 (Palylist)</a></p>
-      <?php
+      <input type="hidden" name="course_removed_lessons" id="course_removed_lessons">
+      <?php 
+      foreach($result as $result){
+         echo '<p><a href="'.get_permalink($result->ID).'" target="blank">'.$result->post_title.'</a> &nbsp;<span class="dashicons dashicons-trash course_remove_lesson" lesson_id="'.$result->ID.'"></span></p>';
+      }
    }
 
- }
+   public function save_tl_post($post_id = null)
+   {
+      if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_course' == $_POST['post_type']) {  
+         $postIds = preg_split('@,@', $_POST['course_removed_lessons'], -1, PREG_SPLIT_NO_EMPTY);
+         if($postIds){
+            foreach($postIds as $postId){
+               wp_trash_post( $postId );
+            }
+         }
+
+      }
+   }
+}
