@@ -47,23 +47,41 @@ class Activity
     public static function is_public()
     {
         $post = get_post(intval(sanitize_text_field($_GET['post'])));
-        $link_atts = LTI_Platform_Public::get_link_atts($post, sanitize_text_field($_GET['id']));
-        $contenturl = parse_url($link_atts['url']);
-        $contentpublicurl = self::check_content_type($contenturl);
-        $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+        $post_lti_tool = get_post_meta($post->ID, 'lti_tool_code')[0];
+        $tool = LTI_Platform_Tool::fromCode($post_lti_tool, LTI_Platform::$ltiPlatformDataConnector);
+        $post_lti_custom_attr = explode('=', get_post_meta($post->ID, 'lti_custom_attr')[0]);
         $customparams = self::parse_custom_parameters($tool->getSetting('custom'));
-        $contentpublicurl = $customparams['custom_currikistudiohost'] . $contentpublicurl;
-        $page = <<< EOD
+        $link_atts = LTI_Platform_Public::get_link_atts($post, sanitize_text_field($_GET['id']));
+        
+        if (isset($customparams["custom_currikisite"])) {
+            $curriki_site = $customparams["custom_currikisite"];
+            $lti_content_url = null;
+            if (in_array('activity', $post_lti_custom_attr)) {
+                $lti_content_url = $curriki_site . "/lti-tools/activity/" . $post_lti_custom_attr[array_search("activity", $post_lti_custom_attr) + 1];
+            }
+            
+            if ($lti_content_url) {
+
+            $page = <<< EOD
 <html>
 <head>
 <title>1EdTech LTI message</title>
 </head>
 <body>
-<iframe style="border: none; overflow: scroll;" width="100%" height="100%" src="$contentpublicurl" allowfullscreen="true"></iframe>
+<iframe style="border: none; overflow: scroll;" width="100%" height="100%" src="$lti_content_url" allowfullscreen="true"></iframe>
 </body>
 </html>
 EOD;
-        echo $page;
-        exit;
+            echo $page;
+            exit;
+            } else {
+                echo '';
+                exit;
+            }
+        } else {
+            echo '';
+            exit;
+        }
+
     }
 }

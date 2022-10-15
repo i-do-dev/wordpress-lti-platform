@@ -143,9 +143,8 @@
 
    public function tl_post_content($more_link_text = null, $strip_teaser = false)
    {
-       global $post;
-       $postData = self::get_post($post->ID);
-       if (isset($postData->post_type) && $postData->post_type == "tl_lesson") {
+       $post = get_post();
+       if (isset($post->post_type) && $post->post_type == "tl_lesson") {
            $content = get_post_meta($post->ID);
            $attrId =  isset($content['lti_post_attr_id'][0]) ? $content['lti_post_attr_id'][0] : "";
            $title =  isset($content['lti_content_title'][0]) ? $content['lti_content_title'][0] : "";
@@ -160,16 +159,6 @@
            return  $content;
        }
        return $content;
-   }
-
-   private function get_post($post_id)
-   {
-       $post = null;
-       if (current_user_can('read_post', $post_id)) {
-           $post = get_post($post_id);
-       }
-
-       return $post;
    }
 
  }
