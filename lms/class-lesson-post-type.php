@@ -81,7 +81,10 @@
          'rewrite'            => array(
             'slug'       => 'tl/lessons',
             'with_front' => false
-         )
+         ),
+         'show_in_rest'       => true,
+         'rest_base'          => 'tl_lesson',
+
       );
 
       return $args;
@@ -98,9 +101,20 @@
          array(self::instance(), 'options_metabox_html'),   // Callback function
          $this->_post_type,       // Admin page (or post type)
          'side',         // Context
-         'default'         // Priority
+         'default',         // Priority
+         'show_in_rest' => true,     
       ]);
    }
+
+   function post_meta_request_params( $args, $request )
+	{
+      $args += array(
+			'meta_key'   => $request['meta_key'],
+			'meta_value' => $request['meta_value'],
+			'meta_query' => $request['meta_query'],
+		);
+	    return $args;
+	}
 
    public function options_metabox_html($post = null)
    {
@@ -129,7 +143,7 @@
       ?>
       <h4 >LTI Deep Linking</h4>
       <div style="width: 100%;margin-top:-10px">
-         <input type="text" required id="lti_tool_url" name="lti_tool_url" value="<?php echo get_post_meta($post->ID, 'lti_tool_url', true)?>" style="width: 100%;" />
+         <input type="text" id="lti_tool_url" name="lti_tool_url" value="<?php echo get_post_meta($post->ID, 'lti_tool_url', true)?>" style="width: 100%;" />
          <input type="hidden" id="lti_tool_code" name="lti_tool_code" value="<?php echo get_post_meta($post->ID, 'lti_tool_code', true) ?>" style="width: 100%;" />
          <input type="hidden" id="lti_content_title" name="lti_content_title" value="<?php echo get_post_meta($post->ID, 'lti_content_title', true) ?>" style="width: 100%;" />
          <input type="hidden" id="lti_custom_attr" name="lti_custom_attr" value="<?php echo get_post_meta($post->ID, 'lti_custom_attr', true) ?>" style="width: 100%;" />
@@ -165,12 +179,28 @@
            $toolUrl =  isset($content['lti_tool_url'][0]) ? $content['lti_tool_url'][0] : "";
            $plugin_name = LTI_Platform::get_plugin_name();
            $content = '<p>' . $post->post_content . '</p>';
-           $content.= '<p> [' . $plugin_name . ' tool=' . $toolCode . ' id=' . $attrId . ' title=\"' . $title . '\" url=' . $toolUrl . ' custom=' . $customAttr . ']' . "". '[/' . $plugin_name . ']  </p>';
+           if($attrId){
+             $content.= '<p> [' . $plugin_name . ' tool=' . $toolCode . ' id=' . $attrId . ' title=\"' . $title . '\" url=' . $toolUrl . ' custom=' . $customAttr . ']' . "". '[/' . $plugin_name . ']  </p>';
+           }
        } else {
            $content = get_the_content($more_link_text, $strip_teaser);
            return  $content;
        }
        return $content;
+   }
+
+   public function insert_post_api($post, $request)
+   {
+      if(isset($request['meta']['lti_content_id'])){
+         update_post_meta($post->ID,'lti_content_id', $request['meta']['lti_content_id']);
+         update_post_meta($post->ID,'tl_course_id', $request['meta']['tl_course_id']);
+         update_post_meta($post->ID,'lti_tool_url', $request['meta']['lti_tool_url']);
+         update_post_meta($post->ID,'lti_tool_code', $request['meta']['lti_tool_code']);
+         update_post_meta($post->ID,'lti_custom_attr', $request['meta']['lti_custom_attr']);
+         update_post_meta($post->ID,'lti_content_title', $request['meta']['lti_content_title']);
+         update_post_meta($post->ID,'lti_post_attr_id', $request['meta']['lti_post_attr_id']);
+         
+      }
    }
 
  }

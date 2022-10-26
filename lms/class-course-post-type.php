@@ -69,7 +69,9 @@
          'rewrite'            => array(
             'slug'       => 'tl/courses',
             'with_front' => false
-         )
+         ),
+         'show_in_rest'       => true,
+         'rest_base'          => 'tl_courses',
       );
 
       return $args;
@@ -86,9 +88,20 @@
          array(self::instance(), 'options_metabox_html'),   // Callback function
          $this->_post_type,         // Admin page (or post type)
          'side',         // Context
-         'default'         // Priority
+         'default',         // Priority
+         'show_in_rest' => true,
       ]);
    }
+
+   function post_meta_request_params( $args, $request )
+	{
+      $args += array(
+			'meta_key'   => $request['meta_key'],
+			'meta_value' => $request['meta_value'],
+			'meta_query' => $request['meta_query'],
+		);
+	    return $args;
+	}
 
    public function options_metabox_html($post = null) {
       $args = array(
@@ -124,4 +137,12 @@
 
       }
    }
+
+   public function insert_post_api($post, $request)
+   {
+      if(isset($request['meta']['lti_content_id'])){
+         update_post_meta($post->ID,'lti_content_id', $request['meta']['lti_content_id']);
+      }
+   }
+   
 }

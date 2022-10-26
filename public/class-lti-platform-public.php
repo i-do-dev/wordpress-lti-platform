@@ -561,8 +561,7 @@ EOD;
                 ltiContetntTitle.value= "{$item->title}";
                 ltiCustomAttr.value= "custom=activity={$activity}";
                 ltiPostAttrId.value= "{$randomId}";
-                wdw.document.getElementById("title").value = "{$item->title}";
-                wdw.document.getElementById("title-prompt-text").classList.add("screen-reader-text");
+                wdw.document.getElementsByClassName("wp-block wp-block-post-title").value = "{$item->title}";
             }else{
                 wdw.LtiPlatformProps.onChange(wdw.wp.richText.insert(wdw.LtiPlatformProps.value, '[{$plugin_name} {$attr}]' + wdw.LtiPlatformText + '[/{$plugin_name}]'));
                 wdw.LtiPlatformProps.onFocus();
