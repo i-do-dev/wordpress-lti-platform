@@ -50,6 +50,8 @@
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( $this, 'save_tl_post' ), 10, 2 );
 		add_action( 'the_content', array( $this, 'tl_post_content' ));
+		add_action( 'rest_'.$this->_post_type.'_query', array( $this, 'post_meta_request_params' ),10, 2 );
+		add_action( 'rest_insert_'.$this->_post_type, array( $this, 'insert_post_api' ),10, 2 );
 		//add_filter( 'pre_post_link', array( $this, 'custom_pre_post_link' ), 10, 2 );
 		//add_action( 'deleted_post', array( $this, 'deleted_post'));
 		/*add_action( 'before_delete_post', array( $this, '_before_delete_post' ) );
