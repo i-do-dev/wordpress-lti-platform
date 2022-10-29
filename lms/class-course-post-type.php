@@ -121,7 +121,13 @@
       <input type="hidden" name="course_removed_lessons" id="course_removed_lessons">
       <?php 
       foreach($result as $result){
-         echo '<p><a href="'.get_permalink($result->ID).'" target="blank">'.$result->post_title.'</a> &nbsp;<span class="dashicons dashicons-trash course_remove_lesson" lesson_id="'.$result->ID.'"></span></p>';
+         echo '<p><a href="'.get_permalink($result->ID).'" target="blank">'.$result->post_title.'</a>
+          &nbsp;
+          <a style="color:inherit;" class="dashicons dashicons-edit course_remove_lesson" href="'. get_edit_post_link($result->ID).'" target="blank"></a>
+          &nbsp;
+          <span class="dashicons dashicons-trash course_remove_lesson" lesson_id="'.$result->ID.'"></span>
+          
+          </p>';
       }
    }
 
