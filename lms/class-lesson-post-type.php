@@ -163,6 +163,9 @@
                update_post_meta($post_id, 'lti_content_title', $_POST['lti_content_title']);
                update_post_meta($post_id, 'lti_custom_attr', $_POST['lti_custom_attr']);
                update_post_meta($post_id, 'lti_post_attr_id', $_POST['lti_post_attr_id']);
+               if($_POST['tl_course_id'] != get_post_meta($post_id, 'tl_course_id', true)){
+                  update_post_meta($post_id,'lti_course_id', "");
+               }
                update_post_meta($post_id, 'tl_course_id', $_POST['tl_course_id']);
        }
    }
@@ -199,7 +202,7 @@
          update_post_meta($post->ID,'lti_custom_attr', $request['meta']['lti_custom_attr']);
          update_post_meta($post->ID,'lti_content_title', $request['meta']['lti_content_title']);
          update_post_meta($post->ID,'lti_post_attr_id', $request['meta']['lti_post_attr_id']);
-         
+         update_post_meta($post->ID,'lti_course_id', $request['meta']['lti_course_id']);
       }
    }
 
