@@ -40,7 +40,7 @@
     * Register lesson post type.
     */
    public function args_register_post_type() : array {
-      /*
+      
       add_rewrite_tag( '%course%', '([^&]+)', 'post_type='.TL_LESSON_CPT.'&course_title=' );
       add_permastruct('lessons', 'tl/courses/%course%/lessons/%'.'lessons'.'%', false,  ['walk_dirs' => false]);
       add_rewrite_rule('^tl/courses/([^/]+)/lessons/([^/]+)?','index.php?'.TL_LESSON_CPT.'=$matches[2]','top');
@@ -49,8 +49,19 @@
          $vars[] = 'course_title';
          return $vars;
       } );
-      */
-      // Above commented script makes URL like: http://localhost/wordpress/tl/courses/some-course-title/lessons/some-lesson-title/
+      
+      add_filter('post_type_link', function ( $url, $post ) {
+
+         if ($post->post_type === $this->_post_type) {
+            $course_id = get_post_meta($post->ID, 'tl_course_id', true);
+            $course_post = get_post($course_id);
+            if (intval($course_id)) {
+               $url = site_url("tl/courses/" . $course_post->post_name . "/lessons/" . $post->post_name);
+            }
+         }
+
+         return $url;
+      },10, 2);
 
       $labels           = array(
          'name'               => _x( 'Lessons', 'Post Type General Name', 'tinylms' ),
