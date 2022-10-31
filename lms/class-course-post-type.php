@@ -40,6 +40,15 @@
     * Register course post type.
     */
    public function args_register_post_type() : array {
+
+      add_filter( 'single_template', function ( $page_template ) {
+         global $post;
+         if ( $post->post_type == "tl_course" ) {
+            $page_template = dirname( __FILE__ ) . '/templates/course/course.php';
+        }
+        return $page_template;
+      },20, 1);
+
       $labels           = array(
          'name'               => _x( 'Courses', 'Post Type General Name', 'tinylms' ),
          'singular_name'      => _x( 'Course', 'Post Type Singular Name', 'tinylms' ),
