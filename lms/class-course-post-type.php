@@ -41,15 +41,18 @@
     */
    public function args_register_post_type() : array {
 
-      add_filter( 'single_template', function ( $page_template ) {
-         global $post;
-         if ( $post->post_type == "tl_course" ) {
-            $page_template = dirname( __FILE__ ) . '/templates/course/course.php';
-        }
-        return $page_template;
-      },20, 1);
+      $located = locate_template( 'single-tl_course.php' );
+      if(empty($located)){
+         add_filter( 'single_template', function ( $page_template, $type ) {
+            global $post;
+            if ( $post->post_type == "tl_course" ) {
+               $page_template = dirname( __FILE__ ) . '/templates/course/single-tl_course.php';
+         }
+         return $page_template;
+         },20, 2);
+      }
 
-      $labels           = array(
+      $labels           =     array(
          'name'               => _x( 'Courses', 'Post Type General Name', 'tinylms' ),
          'singular_name'      => _x( 'Course', 'Post Type Singular Name', 'tinylms' ),
          'menu_name'          => __( 'Courses', 'tinylms' ),
@@ -86,6 +89,38 @@
       return $args;
    }
 
+   public function register_texonomy(){
+      $labels = array(
+         'name'              => _x( 'Tags', 'taxonomy general name' ),
+         'singular_name'     => _x( 'Tag', 'taxonomy singular name' ),
+         'search_items'      => __( 'Search Tags' ),
+         'all_items'         => __( 'All Tags' ),
+         'edit_item'         => __( 'Edit Tag' ),
+         'update_item'       => __( 'Update Tag' ),
+         'add_new_item'      => __( 'Add New Tag' ),
+         'new_item_name'     => __( 'New Tag Name' ),
+         'menu_name'         => __( 'Tag' ),
+       );
+     
+       $args = array(
+         'hierarchical'          => false,
+         'labels'                => $labels,
+         'show_ui'               => true,
+         'show_admin_column'     => true,
+         'query_var'             => true,
+         'rewrite'               => array( 'slug' => 'tl_course_tag' ),
+         'show_in_rest'          => true,
+         'rest_base'             => 'tl_course_tag',
+         'rest_controller_class' => 'WP_REST_Terms_Controller',
+       );
+
+       register_taxonomy( 
+         'tl_course_tag', //taxonomy 
+         $this->_post_type, //post-type
+        $args);
+
+
+   }
    public function add_meta_boxes() {
       $this->options_metabox();
    }

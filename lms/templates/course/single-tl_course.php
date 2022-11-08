@@ -1,6 +1,6 @@
 <?php
 /*
-Template Name: Example
+Template Name: Course-template
 */
 ?>
 <!doctype html>
@@ -19,7 +19,10 @@ Template Name: Example
 		</header>
 		<div id="primary" class="content-area">
 			<main id="main" class="site-main" role="main">
-				<h3>Lessons</h3>
+				<?php  
+				echo "<p>" . $post->post_content ." </p>";
+				?>
+				<h3>Lessons </h3>
 				<?php
 				// Start the loop.
 				$args = array(
