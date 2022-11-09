@@ -47,6 +47,7 @@
 		}
 		
 		add_action( 'init', array( $this, 'register' ) );
+		add_action( 'init', array( $this, 'register_texonomy' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( $this, 'save_tl_post' ), 10, 2 );
 		add_action( 'the_content', array( $this, 'tl_post_content' ));
