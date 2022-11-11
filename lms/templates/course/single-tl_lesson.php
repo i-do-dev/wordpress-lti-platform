@@ -19,7 +19,9 @@ Template Name: Course-template
 		</header>
 		<div id="primary" class="content-area">
 			<main id="main" class="site-main" role="main">
-				<?php  echo "<p>" . $post->post_content . " </p>"; ?>
+				<?php
+				echo "<p>" . $post->post_content . " </p>";
+				?>
 				<h3>Lessons </h3>
 				<?php
 				// Start the loop.
@@ -44,7 +46,7 @@ Template Name: Course-template
 				?>
 				<div>
 					<?php
-					$tags = get_the_terms($post->ID, 'tl_course_tag');
+					$tags = get_the_terms($post->ID, 'tl_lesson_tag');
 					if ($tags) {
 						foreach ($tags as $tag) {
 							$tag_link = get_tag_link($tag->term_id);
