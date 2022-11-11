@@ -19,9 +19,7 @@ Template Name: Course-template
 		</header>
 		<div id="primary" class="content-area">
 			<main id="main" class="site-main" role="main">
-				<?php  
-				echo "<p>" . $post->post_content ." </p>";
-				?>
+				<?php  echo "<p>" . $post->post_content . " </p>"; ?>
 				<h3>Lessons </h3>
 				<?php
 				// Start the loop.
@@ -44,6 +42,19 @@ Template Name: Course-template
 				}
 				echo "</ul>";
 				?>
+				<div>
+					<?php
+					$tags = get_the_terms($post->ID, 'tl_course_tag');
+					if ($tags) {
+						foreach ($tags as $tag) {
+							$tag_link = get_tag_link($tag->term_id);
+							$html = "<a href='{$tag_link}' title='{$tag->name} Tag' class='{$tag->slug}'>{$tag->name}</a>";
+							$tag_names[] = $html;
+						}
+						echo  "<span class='dashicons dashicons-tag'></span>&nbsp&nbsp" . implode(', ', $tag_names);
+					}
+					?>
+				</div>
 			</main><!-- .site-main -->
 		</div><!-- .content-area -->
 		<footer class="wp-block-template-part site-footer">
