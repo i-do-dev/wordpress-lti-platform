@@ -63,6 +63,17 @@
          return $url;
       },10, 2);
 
+      $located = locate_template( 'single-tl_lesson.php' );
+      if(empty($located)){
+         add_filter( 'single_template', function ( $page_template, $type ) {
+            global $post;
+            if ( $post->post_type == "tl_lesson" ) {
+               $page_template = dirname( __FILE__ ) . '/templates/course/single-tl_lesson.php';
+         }
+         return $page_template;
+         },20, 2);
+      }
+
       $labels           = array(
          'name'               => _x( 'Lessons', 'Post Type General Name', 'tinylms' ),
          'singular_name'      => _x( 'Lesson', 'Post Type Singular Name', 'tinylms' ),
