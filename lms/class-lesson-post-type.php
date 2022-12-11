@@ -259,4 +259,9 @@
       }
    }
 
+   function modify_list_row_actions( $actions) {
+          return $actions;
+   }
+   public function register_views() {
+   }
  }

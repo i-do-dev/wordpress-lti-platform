@@ -51,6 +51,15 @@
          return $page_template;
          },20, 2);
       }
+      
+		global $wpdb;
+		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."tiny_lms_grades(
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			lesson_id bigint(20) default NULL,
+         score FLOAT default NULL,
+			user_id bigint(20) default NULL,
+			PRIMARY KEY (id)
+		)");
 
       $labels           =     array(
          'name'               => _x( 'Courses', 'Post Type General Name', 'tinylms' ),
@@ -85,10 +94,9 @@
          'show_in_rest'       => true,
          'rest_base'          => 'tl_courses',
       );
-
       return $args;
    }
-
+   
    public function register_texonomy(){
       $labels = array(
          'name'              => _x( 'Tags', 'taxonomy general name' ),
@@ -195,4 +203,26 @@
       }
    }
    
+   function modify_list_row_actions( $actions, $post ) {
+      if ($post->post_type=='tl_course')
+          {
+              $actions['duplicate'] = '<a href="'. site_url().'/wp-admin/admin.php?page=grades&course_id='.$post->ID.'" title="" rel="permalink">GradeBook</a>';
+          }
+          return $actions;
+   }
+
+   public  function grade_view() {
+      require_once plugin_dir_path(dirname(__FILE__)) . 'lms/templates/course/grades.php';
+   }
+
+   public  function grade_book_view() {
+      require_once plugin_dir_path(dirname(__FILE__)) . 'lms/templates/course/grade_book.php';
+   }
+
+   public function register_views() {
+      add_menu_page('Customer Request View', 'Customer Requests', 'manage_options',  'grades',  array($this, 'grade_view' ), 'dashicons-tag', 6  );
+      add_menu_page('Customer Request View', 'Customer Requests', 'manage_options',  'gradebook',  array($this, 'grade_book_view' ), 'dashicons-tag', 6  );
+      remove_menu_page('grades');
+      remove_menu_page('gradebook');
+     }
 }
