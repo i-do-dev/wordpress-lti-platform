@@ -91,7 +91,7 @@ function get_course_participants($lessonIds)
     $lessonIds = join(",",$lessonIds);   
     $usersTable= $wpdb->prefix . "users";
     $gradesTable=  $wpdb->prefix . "tiny_lms_grades";
-    return $wpdb->get_results("SELECT * FROM ".$usersTable." inner join ".$gradesTable." on ".$usersTable.".ID=".$gradesTable.".user_id where ".$gradesTable.".lesson_id In (".$lessonIds.")");
+    return $wpdb->get_results("SELECT * FROM ".$usersTable." inner join ".$gradesTable." on ".$usersTable.".ID=".$gradesTable.".user_id where ".$gradesTable.".lesson_id In (".$lessonIds.") group by ".$usersTable.".ID");
 }
 
 
