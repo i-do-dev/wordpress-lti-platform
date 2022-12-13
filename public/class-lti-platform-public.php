@@ -280,7 +280,7 @@ class LTI_Platform_Public
                 'context_title' => $post->post_title,
                 'context_type' => 'CourseSection',
                 'launch_presentation_document_target' => ($target !== 'popup') ? $target : 'window',
-                'tool_consumer_info_product_family_code' => 'WordPress',
+                'tool_consumer_info_product_family_code' => 'moodle',
                 'tool_consumer_info_version' => get_bloginfo('version'),
                 'tool_consumer_instance_name' => get_bloginfo('name'),
                 'tool_consumer_instance_description' => get_bloginfo('description'),
@@ -354,6 +354,10 @@ class LTI_Platform_Public
                         $params["custom_{$name}"] = $value;
                     }
                 }
+            }
+            if(isset($_GET['is_summary'])){
+                $params["custom_is_summary"] = 1;
+                $params["custom_student_id"] = $_GET['student_id'];
             }
             if (!empty($tool->getSetting('custom'))) {
                 parse_str(str_replace('&#13;&#10;', '&', $tool->getSetting('custom')), $custom);

@@ -1390,6 +1390,16 @@ trait System
                     $payload['azp'] = $this->clientId;
                     $payload[Util::JWT_CLAIM_PREFIX . '/claim/deployment_id'] = $this->deploymentId;
                     $payload[Util::JWT_CLAIM_PREFIX . '/claim/target_link_uri'] = $endpoint;
+                    $payload['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['scope']=
+                    array("https://purl.imsglobal.org/spec/lti-ags/scope/lineitem"
+                        ,"https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly"
+                        ,"https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly"
+                        ,"https://purl.imsglobal.org/spec/lti-ags/scope/score"
+                    );
+                    $payload['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem']=
+                    site_url()."/wp-json/lms/v1?lesson=". $data['context_id'] ;
+                    $payload['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']=
+                    "321";
                     $paramName = 'id_token';
                 } else {
                     if (!empty($this->platform)) {
@@ -1444,6 +1454,7 @@ trait System
                 $jwt = Jwt::getJwtClient();
                 $params[$paramName] = $jwt::sign($payload, $this->signatureMethod, $privateKey, $kid, $jku, $this->encryptionMethod,
                         $publicKey);
+
             } catch (\Exception $e) {
                 $params = array();
             }
