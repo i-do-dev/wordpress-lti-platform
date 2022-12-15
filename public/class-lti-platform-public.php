@@ -565,14 +565,13 @@ EOD;
                 ltiContetntTitle.value= "{$item->title}";
                 ltiCustomAttr.value= "custom=activity={$activity}";
                 ltiPostAttrId.value= "{$randomId}";
-               var title =  wdw.document.getElementById("title");
-               if(title){
+                var title =  wdw.document.getElementById("title");
+                if(title){
                 title.value = "{$item->title}";
                 wdw.document.getElementById("title-prompt-text").classList.add("screen-reader-text");
-               }else{
+                }else{
                 wdw.document.getElementsByClassName("wp-block wp-block-post-title")[0].innerHTML="{$item->title}";
-               }
-               
+                }     
             }else{
                 wdw.LtiPlatformProps.onChange(wdw.wp.richText.insert(wdw.LtiPlatformProps.value, '[{$plugin_name} {$attr}]' + wdw.LtiPlatformText + '[/{$plugin_name}]'));
                 wdw.LtiPlatformProps.onFocus();
