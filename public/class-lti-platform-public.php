@@ -363,7 +363,28 @@ class LTI_Platform_Public
                 parse_str(str_replace('&#13;&#10;', '&', $tool->getSetting('custom')), $custom);
                 foreach ($custom as $name => $value) {
                     $name = preg_replace('/[^a-z0-9]/', '_', strtolower(trim($name)));
+                    $course = get_post(get_post_meta($post->ID, 'tl_course_id', true));
                     if (!empty($name)) {
+                        if ($course) {
+                            if ($value === '$Context.id') {
+                                $value = $course->ID;
+                            }
+                            if ($value === '$CourseSection.title') {
+                                $value = $course->post_title;
+                            }
+                            if ($value === '$CourseSection.label') {
+                                $value = $course->post_name;
+                            }
+                            if ($value === '$Person.email.primary') {
+                                $value = $user->user_email;
+                            }
+                            if ($value === '$Person.name.given') {
+                                $value = $user->first_name;
+                            }
+                            if ($value === '$Person.name.family') {
+                                $value = $user->last_name;
+                            }
+                        }
                         $params["custom_{$name}"] = $value;
                     }
                 }
