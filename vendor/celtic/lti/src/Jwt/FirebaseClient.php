@@ -1,8 +1,10 @@
 <?php
-
 namespace ceLTIc\LTI\Jwt;
 
+require_once plugin_dir_path(realpath(__DIR__ . '/../../..')) . 'firebase/php-jwt/src/JWTLti.php';
+
 use Firebase\JWT\JWT;
+use Firebase\JWT\JWTLti;
 use Firebase\JWT\JWK;
 use Firebase\JWT\Key;
 use ceLTIc\LTI\Http\HttpMessage;
@@ -72,8 +74,8 @@ class FirebaseClient implements ClientInterface
         $sections = explode('.', $jwtString);
         $ok = count($sections) === 3;
         if ($ok) {
-            $headers = json_decode(JWT::urlsafeB64Decode($sections[0]));
-            $payload = json_decode(JWT::urlsafeB64Decode($sections[1]));
+            $headers = json_decode(JWTLti::urlsafeB64Decode($sections[0]));
+            $payload = json_decode(JWTLti::urlsafeB64Decode($sections[1]));
             $ok = !is_null($headers) && !is_null($payload);
         }
         if ($ok) {
@@ -230,11 +232,11 @@ class FirebaseClient implements ClientInterface
         } elseif (!empty($jku)) {
             $publicKey = $this->fetchPublicKey($jku);
         }
-        JWT::$leeway = Jwt::$leeway;
+        JWTLti::$leeway = Jwt::$leeway;
         $retry = false;
         do {
             try {
-                JWT::decode($this->jwtString, $publicKey);
+                JWTLti::decode($this->jwtString, $publicKey);
                 $ok = true;
             } catch (\Exception $e) {
                 Util::logError($e->getMessage());
@@ -275,10 +277,10 @@ class FirebaseClient implements ClientInterface
             Util::logError($errorMessage);
             throw new \Exception($errorMessage);
         }
-        $jwtString = JWT::encode($payload, $privateKey, $signatureMethod, $kid);
+        $jwtString = JWTLti::encode($payload, $privateKey, $signatureMethod, $kid);
         $sections = explode('.', $jwtString);
-        self::$lastHeaders = json_decode(JWT::urlsafeB64Decode($sections[0]));
-        self::$lastPayload = json_decode(JWT::urlsafeB64Decode($sections[1]));
+        self::$lastHeaders = json_decode(JWTLti::urlsafeB64Decode($sections[0]));
+        self::$lastPayload = json_decode(JWTLti::urlsafeB64Decode($sections[1]));
 
         return $jwtString;
     }
@@ -358,8 +360,8 @@ class FirebaseClient implements ClientInterface
             $details = openssl_pkey_get_details($res);
             $key = [
                 'kty' => 'RSA',
-                'n' => JWT::urlsafeB64Encode($details['rsa']['n']),
-                'e' => JWT::urlsafeB64Encode($details['rsa']['e']),
+                'n' => JWTLti::urlsafeB64Encode($details['rsa']['n']),
+                'e' => JWTLti::urlsafeB64Encode($details['rsa']['e']),
                 'alg' => $signatureMethod,
                 'use' => 'sig'
             ];
