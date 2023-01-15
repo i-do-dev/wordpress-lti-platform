@@ -247,6 +247,21 @@
 
    public function insert_post_api($post, $request)
    {
+      $course_id = intval(trim($request['meta']['tl_course_id']));
+      $playlist_title = isset($request['meta']['lti_content_title']) ? trim($request['meta']['lti_content_title']) : "Section";
+      $course_post_sections = get_post_meta($course_id, "lxp_sections", true);
+      
+      if ($course_post_sections) {
+         $course_post_sections = json_decode($course_post_sections);
+         $title_found = array_search($playlist_title, $course_post_sections, true);
+         if (gettype($title_found) === "boolean" && !$title_found) {
+            $course_post_sections[] = $playlist_title;
+            update_post_meta($course_id,'lxp_sections', json_encode($course_post_sections));
+         }
+      } else {
+         add_post_meta($course_id, "lxp_sections", json_encode([$playlist_title]), true);
+      }      
+
       if(isset($request['meta']['lti_content_id'])){
          update_post_meta($post->ID,'lti_content_id', $request['meta']['lti_content_id']);
          update_post_meta($post->ID,'tl_course_id', $request['meta']['tl_course_id']);
@@ -262,6 +277,7 @@
    function modify_list_row_actions( $actions) {
           return $actions;
    }
+
    public function register_views() {
    }
  }
