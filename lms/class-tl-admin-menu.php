@@ -46,5 +46,12 @@ class TL_Admin_Menu
 			'dashicons-welcome-learn-more',
 			'3.14'
 		);
+    
+    add_submenu_page( 'tiny_lms',"Category", 'Categories',
+    'manage_options', 'edit-tags.php?taxonomy=tl_course_category&post_type=tl_course');
+
+    add_submenu_page( 'tiny_lms',"Tags", 'Tags',
+    'manage_options', 'edit-tags.php?taxonomy=tl_lesson_tag&post_type=tl_course');
+    
     }
 }

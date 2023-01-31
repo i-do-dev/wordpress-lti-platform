@@ -97,7 +97,7 @@
       return $args;
    }
    
-   public function register_texonomy(){
+   public function register_taxonomies(){
       $labels = array(
          'name'              => _x( 'Tags', 'taxonomy general name' ),
          'singular_name'     => _x( 'Tag', 'taxonomy singular name' ),
@@ -128,6 +128,24 @@
         $args);
 
 
+        register_taxonomy( 'tl_course_category', $this->_post_type, array(
+            "hierarchical" => true,
+            "label" => "Categories",
+            "singular_label" => "Category",
+            'query_var' => true,
+            'public' => true,
+            'has_archive' => true,
+            'show_ui' => true,
+            '_builtin' => true,
+            'show_in_nav_menus' => true,
+            'show_admin_column'     => true,
+            'rewrite' => array( 'slug' => 'tl_course_category', 'with_front' => false ),
+            'show_in_rest'          => true,
+            'rest_base'             => 'tl_course_category',
+            'rest_controller_class' => 'WP_REST_Terms_Controller',
+            'menu_icon'             => 'dashicons-location',
+            'show_in_menu'       => 'tiny_lms',
+          ));
    }
    public function add_meta_boxes() {
       $this->options_metabox();

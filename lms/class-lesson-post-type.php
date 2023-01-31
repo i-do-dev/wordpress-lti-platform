@@ -112,7 +112,7 @@
       return $args;
    }
 
-   public function register_texonomy(){
+   public function register_taxonomies(){
       $labels = array(
          'name'              => _x( 'Tags', 'taxonomy general name' ),
          'singular_name'     => _x( 'Tag', 'taxonomy singular name' ),
