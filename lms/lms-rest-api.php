@@ -26,6 +26,13 @@ class LMS_REST_API
 				'permission_callback' => '__return_true',
 			),
 		));
+		register_rest_route('lms/v1', '/get/playlists', array(
+			array(
+				'methods' => WP_REST_Server::READABLE,
+				'callback' => array('LMS_REST_API', 'get_playlists'),
+				'permission_callback' => '__return_true',
+			),
+		));
 	}
 	public static function return_token($request = null)
 	{
@@ -56,4 +63,11 @@ class LMS_REST_API
 			));
 		}
 	}
+
+	public static function get_playlists($request = null)
+	{
+		$playlists = get_post_meta($_GET['course_id'], "lxp_sections", true);
+		return json_decode($playlists);
+	}
+
 }

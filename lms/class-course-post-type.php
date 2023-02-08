@@ -51,7 +51,6 @@
          return $page_template;
          },20, 2);
       }
-      
 		global $wpdb;
 		$wpdb->query("CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."tiny_lms_grades(
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -62,17 +61,17 @@
 		)");
 
       $labels           =     array(
-         'name'               => _x( 'Courses', 'Post Type General Name', 'tinylms' ),
+         'name'               => _x( 'LXP Courses', 'Post Type General Name', 'tinylms' ),
          'singular_name'      => _x( 'Course', 'Post Type Singular Name', 'tinylms' ),
-         'menu_name'          => __( 'Courses', 'tinylms' ),
+         'menu_name'          => __( 'LXP Courses', 'tinylms' ),
          'parent_item_colon'  => __( 'Parent Item:', 'tinylms' ),
-         'all_items'          => __( 'Courses', 'tinylms' ),
+         'all_items'          => __( 'LXP Courses', 'tinylms' ),
          'view_item'          => __( 'View Course', 'tinylms' ),
          'add_new_item'       => __( 'Add New Course', 'tinylms' ),
          'add_new'            => __( 'Add New', 'tinylms' ),
          'edit_item'          => __( 'Edit Course', 'tinylms' ),
          'update_item'        => __( 'Update Course', 'tinylms' ),
-         'search_items'       => __( 'Search Courses', 'tinylms' ),
+         'search_items'       => __( 'Search LXP Courses', 'tinylms' ),
          'not_found'          => sprintf( __( 'You haven\'t had any courses yet. Click <a href="%s">Add new</a> to start', 'tinylms' ), admin_url( 'post-new.php?post_type=tl_course' ) ),
          'not_found_in_trash' => __( 'No course found in Trash', 'tinylms' ),
       );
@@ -84,7 +83,7 @@
          'publicly_queryable' => true,
          'show_ui'            => true,
          'has_archive'        => true,
-         'show_in_menu'       => 'tiny_lms',
+         'show_in_menu'       => true,
          'show_in_admin_bar'  => true,
          'show_in_nav_menus'  => true,
          'rewrite'            => array(
@@ -93,7 +92,20 @@
          ),
          'show_in_rest'       => true,
          'rest_base'          => 'tl_courses',
+         'capability_type' => 'post',
+         'capabilities' => array(
+             'edit_post' => 'edit_lxp_course',
+             'publish_posts' => 'publish_lxp_courses',
+             'read_post' => 'read_lxp_course',
+             'read_private_posts' => 'read_private_lxp_courses',
+             'delete_post' => 'delete_lxp_course',
+             'delete_posts' => 'delete_lxp_courses',
+             'create_posts' => 'create_lxp_courses',
+             'create_post' => 'create_lxp_course'
+         )
       );
+
+      $this->register_texonomy();
       return $args;
    }
    
@@ -120,6 +132,12 @@
          'show_in_rest'          => true,
          'rest_base'             => 'tl_course_tag',
          'rest_controller_class' => 'WP_REST_Terms_Controller',
+         'capabilities' => array(
+            'manage_terms'	=>	'manage_tag_lxp_course',
+            'edit_terms'	=>	'edit_tag_lxp_course',
+            'delete_terms'	=>	'delete_tag_lxp_course',
+            'assign_terms'	=>	'assign_tag_lxp_course',
+         ),
        );
 
        register_taxonomy( 
@@ -127,8 +145,31 @@
          $this->_post_type, //post-type
         $args);
 
-
+        register_taxonomy( 'tl_course_category', $this->_post_type, array(
+            "hierarchical" => true,
+            "label" => "Categories",
+            "singular_label" => "Category",
+            'query_var' => true,
+            'public' => true,
+            'has_archive' => true,
+            'show_ui' => true,
+            '_builtin' => true,
+            'show_in_nav_menus' => true,
+            'show_admin_column'     => true,
+            'rewrite' => array( 'slug' => 'tl_course_category', 'with_front' => false ),
+            'show_in_rest'          => true,
+            'rest_base'             => 'tl_course_category',
+            'rest_controller_class' => 'WP_REST_Terms_Controller',
+            'menu_icon'             => 'dashicons-location',
+            'capabilities' => array(
+               'manage_terms'	=>	'manage_category_lxp_course',
+               'edit_terms'	=>	'edit_category_lxp_course',
+               'delete_terms'	=>	'delete_category_lxp_course',
+               'assign_terms'	=>	'assign_category_lxp_course',
+            ),
+          ));
    }
+
    public function add_meta_boxes() {
       $this->options_metabox();
    }
@@ -204,7 +245,7 @@
    }
    
    function modify_list_row_actions( $actions, $post ) {
-      if ($post->post_type=='tl_course')
+      if ($post->post_type=='tl_course' && current_user_can( 'grades_lxp_course' ))
           {
               $actions['duplicate'] = '<a href="'. site_url().'/wp-admin/admin.php?page=grades&course_id='.$post->ID.'" title="" rel="permalink">GradeBook</a>';
           }
