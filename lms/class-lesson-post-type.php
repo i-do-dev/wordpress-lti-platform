@@ -75,17 +75,17 @@
       }
 
       $labels           = array(
-         'name'               => _x( 'Lessons', 'Post Type General Name', 'tinylms' ),
+         'name'               => _x( 'LXP Lessons', 'Post Type General Name', 'tinylms' ),
          'singular_name'      => _x( 'Lesson', 'Post Type Singular Name', 'tinylms' ),
-         'menu_name'          => __( 'Lessons', 'tinylms' ),
+         'menu_name'          => __( 'LXP Lessons', 'tinylms' ),
          'parent_item_colon'  => __( 'Parent Item:', 'tinylms' ),
-         'all_items'          => __( 'Lessons', 'tinylms' ),
+         'all_items'          => __( 'LXP Lessons', 'tinylms' ),
          'view_item'          => __( 'View Lesson', 'tinylms' ),
          'add_new_item'       => __( 'Add New Lesson', 'tinylms' ),
          'add_new'            => __( 'Add New', 'tinylms' ),
          'edit_item'          => __( 'Edit Lesson', 'tinylms' ),
          'update_item'        => __( 'Update Lesson', 'tinylms' ),
-         'search_items'       => __( 'Search Lessons', 'tinylms' ),
+         'search_items'       => __( 'Search LXP Lessons', 'tinylms' ),
          'not_found'          => sprintf( __( 'You haven\'t had any lessons yet. Click <a href="%s">Add new</a> to start', 'tinylms' ), admin_url( 'post-new.php?post_type=tl_lesson' ) ),
          'not_found_in_trash' => __( 'No lesson found in Trash', 'tinylms' ),
       );
@@ -97,7 +97,7 @@
          'publicly_queryable' => true,
          'show_ui'            => true,
          'has_archive'        => true,
-         'show_in_menu'       => 'tiny_lms',
+         'show_in_menu'       => true,
          'show_in_admin_bar'  => true,
          'show_in_nav_menus'  => true,
          'rewrite'            => array(
@@ -106,9 +106,20 @@
          ),
          'show_in_rest'       => true,
          'rest_base'          => 'tl_lesson',
+         'capability_type' => 'post',
+         'capabilities' => array(
+             'edit_post' => 'edit_lxp_lesson',
+             'publish_posts' => 'publish_lxp_lessons',
+             'read_post' => 'read_lxp_lesson',
+             'read_private_posts' => 'read_private_lxp_lessons',
+             'delete_post' => 'delete_lxp_lesson',
+             'delete_posts' => 'delete_lxp_lessons',
+             'create_posts' => 'create_lxp_lessons',
+             'create_post' => 'create_lxp_lesson'
+         )
 
       );
-
+      self::register_texonomy();
       return $args;
    }
 
@@ -135,6 +146,12 @@
          'show_in_rest'          => true,
          'rest_base'             => 'tl_lesson_tag',
          'rest_controller_class' => 'WP_REST_Terms_Controller',
+         'capabilities' => array(
+            'manage_terms'	=>	'manage_tag_lxp_lesson',
+            'edit_terms'	=>	'edit_tag_lxp_lesson',
+            'delete_terms'	=>	'delete_tag_lxp_lesson',
+            'assign_terms'	=>	'assign_tag_lxp_lesson',
+         ),
        );
 
        register_taxonomy( 

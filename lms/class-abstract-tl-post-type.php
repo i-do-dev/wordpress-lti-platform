@@ -50,7 +50,6 @@ require_once( LMS__PLUGIN_DIR . 'lms-rest-api.php' );
 			
 		}
 		add_action( 'init', array( $this, 'register' ) );
-		add_action( 'init', array( $this, 'register_texonomy' ) );
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( $this, 'save_tl_post' ), 10, 2 );
 		add_action( 'the_content', array( $this, 'tl_post_content' ));
@@ -59,7 +58,6 @@ require_once( LMS__PLUGIN_DIR . 'lms-rest-api.php' );
 		add_action( 'rest_api_init', array( 'LMS_REST_API', 'init' ) );
 		add_filter( 'post_row_actions', array( $this, 'modify_list_row_actions' ), 10, 2 );
 		add_action( 'admin_menu', array($this, 'register_views' ));	
-
     }
 
     /**

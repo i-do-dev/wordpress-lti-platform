@@ -23,3 +23,28 @@
   width: 80%;
   max-width: 400px;
 }
+
+.chip-close {
+  cursor: pointer;
+  top: 50%;
+  right: 0%;
+  padding: 1px 4px;
+  transform: translate(0%, -50%);
+}
+
+.chip-close:hover {background: #bbb;}
+
+.chip {
+  display: inline-block;
+  padding: 0 25px;
+  height: 50px;
+  font-size: 16px;
+  line-height: 50px;
+  border-radius: 25px;
+  background-color: #f1f1f1;
+}
+
+.edit-trek-options {
+  cursor: pointer;
+  margin-top: 13%;
+}

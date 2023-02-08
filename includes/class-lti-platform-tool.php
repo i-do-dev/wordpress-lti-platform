@@ -227,8 +227,96 @@ class LTI_Platform_Tool extends Tool
                 'public' => false,
                 'capability_type' => 'page',
         ));
+       self::lxp_add_user_roles();
         add_shortcode(LTI_Platform::get_plugin_name(), array('LTI_Platform_Tool', 'shortcode'));
     }
+
+    public static function lxp_add_user_roles() {
+
+        add_role(
+            'lxp_teacher',
+            'Lxp Teacher ',
+            array()
+        );
+
+        add_role(
+            'lxp_student',
+            'Lxp Student ',
+            array()
+        );
+        
+        $course_cap = "lxp_course";
+	    $lesson_cap = "lxp_lesson";
+    
+        $teacher = get_role( "lxp_teacher" );
+        if ( $teacher ) {
+            $teacher->add_cap( 'read_' . $course_cap );
+            $teacher->add_cap( 'read_private_' . $course_cap . "s"  );
+            
+            $teacher->add_cap( 'create_' . $course_cap );
+            $teacher->add_cap( 'create_' . $course_cap . "s" );
+            $teacher->add_cap( 'delete_' . $course_cap );  
+            $teacher->add_cap( 'lxp_teacher' . $course_cap."s");
+            $teacher->add_cap( 'edit_' . $course_cap );
+            $teacher->add_cap( 'edit_' . $course_cap."s");
+            $teacher->add_cap( 'publish_' . $course_cap . "s" );
+
+            $teacher->add_cap( 'read_' . $lesson_cap );
+            $teacher->add_cap( 'create_' . $lesson_cap );
+            $teacher->add_cap( 'create_' . $lesson_cap . "s" );
+            $teacher->add_cap( 'delete_' . $lesson_cap );
+            $teacher->add_cap( 'edit_' . $lesson_cap );
+            $teacher->add_cap( 'edit_' . $lesson_cap . "s" );
+            $teacher->add_cap( 'publish_' . $lesson_cap . "s" );
+
+            $teacher->add_cap( 'grades_' . $course_cap );
+        }
+    
+        $student = get_role( 'lxp_student' );
+        if ( $student ) {
+            $student->add_cap( 'read_' . $course_cap );
+            $student->add_cap( 'read_' . $lesson_cap );
+        }
+
+        $admin = get_role( 'administrator' );
+        if ( $admin ) {
+            $admin->add_cap( 'read_' . $course_cap );
+            $admin->add_cap( 'read_private_' . $course_cap . "s" );
+            $admin->add_cap( 'create_' . $course_cap );
+            $admin->add_cap( 'create_' . $course_cap."s" );
+            $admin->add_cap( 'delete_' . $course_cap );
+            $admin->add_cap( 'delete_' . $course_cap."s");
+            $admin->add_cap( 'edit_' . $course_cap );
+            $admin->add_cap( 'edit_' . $course_cap."s");
+            $admin->add_cap( 'publish_' . $course_cap . "s" );
+
+            $admin->add_cap( 'read_' . $lesson_cap );
+            $admin->add_cap( 'read_private_' . $course_cap );
+            $admin->add_cap( 'create_' . $lesson_cap );
+            $admin->add_cap( 'create_' . $lesson_cap."s" );
+            $admin->add_cap( 'delete_' . $lesson_cap );
+            $admin->add_cap( 'delete_' . $lesson_cap."s" );
+            $admin->add_cap( 'edit_' . $lesson_cap . "s" );
+            $admin->add_cap( 'edit_' . $lesson_cap );
+            $admin->add_cap( 'publish_' . $lesson_cap . "s" );
+
+            $admin->add_cap( 'manage_category_' . $course_cap );
+            $admin->add_cap( 'edit_category_' . $course_cap );
+            $admin->add_cap( 'delete_category_' . $course_cap );
+            $admin->add_cap( 'assign_category_' . $course_cap );
+
+            $admin->add_cap( 'manage_tag_' . $lesson_cap );
+            $admin->add_cap( 'edit_tag_' . $lesson_cap );
+            $admin->add_cap( 'delete_tag_' . $lesson_cap );
+            $admin->add_cap( 'assign_tag_' . $lesson_cap );
+
+            $admin->add_cap( 'manage_tag_' . $course_cap );
+            $admin->add_cap( 'edit_tag_' . $course_cap );
+            $admin->add_cap( 'delete_tag_' . $course_cap );
+            $admin->add_cap( 'assign_tag_' . $course_cap );
+        }
+    }
+
 
     public static function shortcode($atts, $content, $tag)
     {
