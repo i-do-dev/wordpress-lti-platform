@@ -70,8 +70,8 @@ class LTI_Platform_Admin
     {
         if (($hook === 'post-new.php') || ($hook === 'post.php')) {
             wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/lti-platform-post.css', array(), $this->version);
-            wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lti-platform-post.js',
-                array('wp-element', 'wp-editor', 'wp-rich-text'), $this->version, false);
+            wp_enqueue_script("script-ck-editor", 'https://cdn.ckeditor.com/4.20.1/full/ckeditor.js', array(), $this->version);
+            wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lti-platform-post.js', array('wp-element', 'wp-editor', 'wp-rich-text'), $this->version, false);
         } elseif (($hook === "settings_page_{$this->plugin_name}-settings") || ($hook === "settings_page_{$this->plugin_name}-edit")) {
             wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/lti-platform-settings.js');
         }

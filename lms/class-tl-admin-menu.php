@@ -20,7 +20,7 @@ class TL_Admin_Menu
 
 
     public function __construct() {
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		//add_action( 'admin_menu', array( $this, 'admin_menu' ) );
     }
 
     /**
@@ -37,14 +37,14 @@ class TL_Admin_Menu
 	 * Register for menu for admin
 	 */
 	public function admin_menu() {
-		add_menu_page(
-			__( 'Learning Management System', 'tinylms' ),
-			'Tiny LMS',
-			'manage_options',
-			'tiny_lms',
-			'',
-			'dashicons-welcome-learn-more',
-			'3.14'
-		);
+		// add_menu_page(
+		// 	__( 'Learning Management System', 'tinylms' ),
+		// 	'Tiny LMS',
+		// 	'manage_options',
+		// 	'tiny_lms',
+		// 	'',
+		// 	'dashicons-welcome-learn-more',
+		// 	'3.14'
+		// );
     }
 }
