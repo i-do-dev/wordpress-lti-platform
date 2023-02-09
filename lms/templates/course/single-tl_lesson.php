@@ -43,7 +43,41 @@ Template Name: Course-template
 					echo '</li>';
 				}
 				echo "</ul>";
+
+				$content = get_post_meta($post->ID);
+
+				$attrId =  isset($content['lti_post_attr_id'][0]) ? $content['lti_post_attr_id'][0] : "";
+				$title =  isset($content['lti_content_title'][0]) ? $content['lti_content_title'][0] : "";
+				$toolCode =  isset($content['lti_tool_code'][0]) ?$content['lti_tool_code'][0] : "";
+				$customAttr =  isset($content['lti_custom_attr'][0]) ? $content['lti_custom_attr'][0] : "";
+				$toolUrl =  isset($content['lti_tool_url'][0]) ? $content['lti_tool_url'][0] : "";
+				$plugin_name = LTI_Platform::get_plugin_name();
+				$content = '<p>' . $post->post_content . '</p>';
+				if($attrId){
+					$content.= '<p> [' . $plugin_name . ' tool=' . $toolCode . ' id=' . $attrId . ' title=\"' . $title . '\" url=' . $toolUrl . ' custom=' . $customAttr . ']' . "". '[/' . $plugin_name . ']  </p>';
+				}
+				echo $content;
+
+				// if ( have_posts() ) : while ( have_posts() ) : the_post();
+				while ( have_posts() ) {
+					the_post();
+					echo the_title();
+					echo the_content();
+				} 
+				/* 
+				$post = get_post();
+				if (isset($post->post_type) && $post->post_type == "tl_lesson") {
+					
+				} else {
+					$content = get_the_content($more_link_text, $strip_teaser);
+					return  $content;
+				}
+				return  $content;
+				 */
+				// https://edtechmasters.us?lti-platform&post=221468&id=63c4f42d40e99/
 				?>
+				
+				<iframe style="border: none;width: 100%;height: 400px;" class="" src="<?php echo site_url() ?>?lti-platform&post=<?php echo $post->ID ?>&id=<?php echo $attrId ?>"  allowfullscreen></iframe>
 				<div>
 					<?php
 					$tags = get_the_terms($post->ID, 'tl_lesson_tag');

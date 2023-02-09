@@ -45,6 +45,17 @@ class TL_TREK_Post_Type extends TL_Post_Type
    public function args_register_post_type(): array
    {
 
+      $located = locate_template( 'single-tl_trek.php' );
+      if(empty($located)){
+         add_filter( 'single_template', function ( $page_template, $type ) {
+            global $post;
+            if ( $post->post_type == TL_TREK_CPT ) {
+                  $page_template = dirname( __FILE__ ) . '/templates/trek/single-tl_trek.php';
+            }
+            return $page_template;
+         },20, 2);
+      }
+
       global $wpdb;
       $wpdb->query("CREATE TABLE IF NOT EXISTS " . $wpdb->prefix . "trek_sections(
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -83,7 +94,7 @@ class TL_TREK_Post_Type extends TL_Post_Type
          'show_in_admin_bar'  => true,
          'show_in_nav_menus'  => true,
          'rewrite'            => array(
-            'slug'       => 'tl/trek',
+            'slug'       => 'trek',
             'with_front' => false
          ),
          'show_in_rest'       => false,
@@ -196,7 +207,7 @@ class TL_TREK_Post_Type extends TL_Post_Type
              }
              $selectOption .= '</select>';
             if ($value->type == "content") {
-               $append =   "<b>Content</b> <textarea  class='ckeditor'  rows='12' cols='50' name='option_content[]' /> " . $value->content . "  </textarea> ";
+               $append =   "<b>Content</b> <textarea  class='ckeditor'  rows='12' cols='50' name='option_content[]' /> " . stripslashes($value->content) . "  </textarea> ";
             } else {
                $append = "<b>Link</b> </br><input type='text'  value='" . $value->link . "'  name='option_content[]' style='width:50%'/> ";
             }

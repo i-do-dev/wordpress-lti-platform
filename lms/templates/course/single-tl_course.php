@@ -4,13 +4,14 @@ get_header();
 
 $show_default_title = get_post_meta(get_the_ID(), '_et_pb_show_title', true);
 
-$is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
+// $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
+$is_page_builder_used = false;
 
 ?>
 
 <div id="main-content">
 	<?php
-	if (et_builder_is_product_tour_enabled()) :
+	if (false) :
 		// load fullwidth page in Product Tour mode
 		while (have_posts()) : the_post(); ?>
 
@@ -70,9 +71,9 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
 									<?php
 									if (!post_password_required()) :
 
-										et_divi_post_meta();
+										// et_divi_post_meta();
 
-										$thumb = '';
+										/* $thumb = '';
 
 										$width = (int) apply_filters('et_pb_index_blog_image_width', 1080);
 
@@ -80,12 +81,12 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
 										$classtext = 'et_featured_image';
 										$titletext = get_the_title();
 										$alttext = get_post_meta(get_post_thumbnail_id(), '_wp_attachment_image_alt', true);
-										$thumbnail = get_thumbnail($width, $height, $classtext, $alttext, $titletext, false, 'Blogimage');
+										$thumbnail = ''; //get_thumbnail($width, $height, $classtext, $alttext, $titletext, false, 'Blogimage');
 										$thumb = $thumbnail["thumb"];
 
-										$post_format = et_pb_post_format();
+										$post_format = false; // et_pb_post_format();
 
-										if ('video' === $post_format && false !== ($first_video = et_get_first_video())) {
+										if ('video' === $post_format && false !== ($first_video = false)) {
 											printf(
 												'<div class="et_main_video_container">
 											%1$s
@@ -96,11 +97,11 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
 											print_thumbnail($thumb, $thumbnail["use_timthumb"], $alttext, $width, $height);
 										} else if ('gallery' === $post_format) {
 											et_pb_gallery_images();
-										}
+										} */
 									?>
 
 									<?php
-										$text_color_class = et_divi_get_post_text_color();
+										/* $text_color_class = et_divi_get_post_text_color();
 
 										$inline_style = et_divi_get_post_bg_inline_style();
 
@@ -143,7 +144,7 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
 												);
 
 												break;
-										}
+										} */
 
 									endif;
 									?>
@@ -198,14 +199,14 @@ $is_page_builder_used = et_pb_is_pagebuilder_used(get_the_ID());
 							</div>
 							<div class="et_post_meta_wrapper">
 								<?php
-								if (et_get_option('divi_468_enable') === 'on') {
+								/* if (et_get_option('divi_468_enable') === 'on') {
 									echo '<div class="et-single-post-ad">';
 									if (et_get_option('divi_468_adsense') !== '') echo et_core_intentionally_unescaped(et_core_fix_unclosed_html_tags(et_get_option('divi_468_adsense')), 'html');
-									else { ?>
-										<a href="<?php echo esc_url(strval(et_get_option('divi_468_url'))); ?>"><img src="<?php echo esc_attr(et_get_option('divi_468_image')); ?>" alt="468" class="foursixeight" /></a>
-								<?php 	}
-									echo '</div>';
-								}
+									else {  */?>
+										<!-- <a href="<?php // echo esc_url(strval(et_get_option('divi_468_url'))); ?>"><img src="<?php //echo esc_attr(et_get_option('divi_468_image')); ?>" alt="468" class="foursixeight" /></a> -->
+								<?php /*	}
+								 	echo '</div>';
+								} */
 
 								/**
 								 * Fires after the post content on single posts.
