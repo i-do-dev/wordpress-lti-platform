@@ -359,6 +359,9 @@ class LTI_Platform_Public
                 $params["custom_is_summary"] = 1;
                 $params["custom_student_id"] = $_GET['student_id'];
             }
+            if(isset($_GET['slideNumber'])){
+                $params["custom_slideNumber"] = $_GET['slideNumber'];
+            }
             if (!empty($tool->getSetting('custom'))) {
                 parse_str(str_replace('&#13;&#10;', '&', $tool->getSetting('custom')), $custom);
                 foreach ($custom as $name => $value) {
