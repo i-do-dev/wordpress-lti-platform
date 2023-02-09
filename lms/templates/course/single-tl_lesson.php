@@ -75,9 +75,14 @@ Template Name: Course-template
 				return  $content;
 				 */
 				// https://edtechmasters.us?lti-platform&post=221468&id=63c4f42d40e99/
+				$queryParam = '';
+				if(isset($_GET['slide'])){
+					$queryParam = "&slideNumber=". $_GET['slide'];
+				}
+				$toolUrl = $toolUrl . $queryParam;
 				?>
 				
-				<iframe style="border: none;width: 100%;height: 400px;" class="" src="<?php echo site_url() ?>?lti-platform&post=<?php echo $post->ID ?>&id=<?php echo $attrId ?>"  allowfullscreen></iframe>
+				<iframe style="border: none;width: 100%;height: 400px;" class="" src="<?php echo site_url() ?>?lti-platform&post=<?php echo $post->ID ?>&id=<?php echo $attrId ?><?php echo $queryParam ?>"  allowfullscreen></iframe>
 				<div>
 					<?php
 					$tags = get_the_terms($post->ID, 'tl_lesson_tag');
