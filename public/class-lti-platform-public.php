@@ -69,7 +69,7 @@ class LTI_Platform_Public
     public function parse_request()
     {
         if (isset($_GET[LTI_Platform::get_plugin_name()])) {
-            if (!is_user_logged_in() && !isset($_GET['content'])) {                                              
+            if (!is_user_logged_in() && !isset($_GET['content']) && !isset($_GET['keys'])) {                                              
                 Activity::is_public();
             }
             if (isset($_GET['tools'])) {
