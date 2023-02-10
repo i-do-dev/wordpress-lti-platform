@@ -74,6 +74,9 @@ while (have_posts()) : the_post();
       .copy-anchor-icon-img {
         margin-left: 5px;
       }
+      a:target {
+        background-color: yellow !important;
+      }
     </style>
   </head>
   <body>
