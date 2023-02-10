@@ -224,7 +224,9 @@ class TL_TREK_Post_Type extends TL_Post_Type
 
       public function trek_options_metabox_html($post = null)
       {
-
+         $screen = isset($_GET['action']) && $_GET['action'] === "edit" ? "edit" : "add";
+         $removeBtn = $screen === "add" ? '<span class="chip-close">&times;</span>' : '';
+         
          global $wpdb;
          $query = "SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id=" . $post->ID;
          $options =  $wpdb->get_results($query);
@@ -233,8 +235,9 @@ class TL_TREK_Post_Type extends TL_Post_Type
             $output .= "<div id='chips-alternate'>No section avialable. Create one using form given below.</div>";
          }
          foreach ($options as $key => $value) {
-            $output .=   '<div class="chip" identifier="' . $key . '" option-body-id="option-body-' . $key . '" > <span id="chip-title-' . $key . '"> ' . $value->title . ' </span> <span class="dashicons dashicons-edit edit-trek-options"></span> <span class="chip-close">&times;</span> </div>';
+            $output .=   '<div class="chip" identifier="' . $key . '" option-body-id="option-body-' . $key . '" > <span id="chip-title-' . $key . '"> ' . $value->title . ' </span> <span class="dashicons dashicons-edit edit-trek-options"></span> ' . $removeBtn . ' </div>';
          }
+         
          echo $output;
          ?>
   
