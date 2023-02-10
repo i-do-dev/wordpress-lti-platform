@@ -1,30 +1,12 @@
-<?php
-$treks_src = plugin_dir_url( __FILE__ ) . 'treks-src';
-// Start the loop.
-$courseId =  isset($_GET['courseid']) ? $_GET['courseid'] : get_post_meta($post->ID, 'tl_course_id', true);
-$args = array(
-	'posts_per_page'   => -1,
-	'post_type'        => 'tl_lesson',
-	'meta_query' => array(
-		array(
-			'key'   => 'tl_course_id',
-			'value' =>  $courseId
-		)
-	)
-);
-$lessons = get_posts($args);
-$button_styles = array();
-while (have_posts()) : the_post();
-?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><?php the_title(); ?></title>
-    <link href="<?php echo $treks_src; ?>/style/common.css" rel="stylesheet" />
-    <link href="<?php echo $treks_src; ?>/style/treksstyle.css" rel="stylesheet" />
+    <title>Document</title>
+    <link href="./style/common.css" rel="stylesheet" />
+    <link href="./style/treksstyle.css" rel="stylesheet" />
 
     <link
       rel="stylesheet"
@@ -32,49 +14,6 @@ while (have_posts()) : the_post();
       integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
       crossorigin="anonymous"
     />
-
-    <style type="text/css">
-      .trek-section-nav-anchor {
-        text-decoration: none;
-      }
-      .trek-main-heading {
-        font-size: 1.5rem;
-      }
-
-      .digital-student-journal-section {
-        justify-content: end;
-      }
-      .digital-student-journal-btn {
-        width: 110% !important;
-      }
-      .trek-main-heading-wrapper {
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        margin-bottom: 10px;
-      }
-      .trek-main-heading-top-link {
-        margin-left: auto;
-        background-color: #eaedf1;
-        color: #979797;
-        border: 1.5px solid #979797;
-        padding: 6px;
-        text-decoration: auto;
-        font-size: 0.85rem;
-      }
-      .central-cncpt-section h1 {
-        font-size: 1.6rem;
-      }
-      .central-cncpt-section h2 {
-        font-size: 1.4rem;
-      }
-      .central-cncpt-section h3 {
-        font-size: 1.3rem;
-      }
-      .copy-anchor-icon-img {
-        margin-left: 5px;
-      }
-    </style>
   </head>
   <body>
     <!-- Menu -->
@@ -84,7 +23,7 @@ while (have_posts()) : the_post();
           <div class="header-logo-search">
             <!-- logo -->
             <div class="header-logo">
-              <img src="<?php echo $treks_src; ?>/assets/img/header_logo.svg" alt="svg" />
+              <img src="./assets/img/header_logo.svg" alt="svg" />
             </div>
           </div>
         </a>
@@ -104,7 +43,7 @@ while (have_posts()) : the_post();
             <div class="header-logo-search">
               <!-- searching input -->
               <div class="header-search">
-                <img src="<?php echo $treks_src; ?>/assets/img/header_search.svg" alt="svg" />
+                <img src="./assets/img/header_search.svg" alt="svg" />
                 <input placeholder="Search" />
               </div>
             </div>
@@ -114,7 +53,7 @@ while (have_posts()) : the_post();
               <!-- notification -->
               <div class="header-notification">
                 <img
-                  src="<?php echo $treks_src; ?>/assets/img/header_bell-notification.svg"
+                  src="./assets/img/header_bell-notification.svg"
                   alt="svg"
                 />
               </div>
@@ -122,7 +61,7 @@ while (have_posts()) : the_post();
               <div class="header-user">
                 <!-- User Avatar -->
                 <div class="user-avatar">
-                  <img src="<?php echo $treks_src; ?>/assets/img/header_avatar.svg" alt="svg" />
+                  <img src="./assets/img/header_avatar.svg" alt="svg" />
                 </div>
                 <!-- User short detail -->
                 <div class="user-detail">
@@ -131,7 +70,7 @@ while (have_posts()) : the_post();
                 </div>
                 <!-- Arrow for open menu -->
                 <div class="user-options">
-                  <img src="<?php echo $treks_src; ?>/assets/img/header_arrow open.svg" alt="svg" />
+                  <img src="./assets/img/header_arrow open.svg" alt="svg" />
                 </div>
               </div>
             </div>
@@ -146,19 +85,19 @@ while (have_posts()) : the_post();
       <nav class="nav-section">
         <ul>
           <li>
-            <img src="<?php echo $treks_src; ?>/assets/img/nav_dashboard-dots_gray.svg" />
+            <img src="./assets/img/nav_dashboard-dots_gray.svg" />
             <a href="/">Dashboard</a>
           </li>
           <li class="nav-section-selected">
-            <img src="<?php echo $treks_src; ?>/assets/img/nav_treks_selected.svg" />
+            <img src="./assets/img/nav_treks_selected.svg" />
             <a href="/">TREKs</a>
           </li>
           <li>
-            <img src="<?php echo $treks_src; ?>/assets/img/nav_students.svg" />
+            <img src="./assets/img/nav_students.svg" />
             <a href="/">Students</a>
           </li>
           <li>
-            <img src="<?php echo $treks_src; ?>/assets/img/nav_reports.svg" />
+            <img src="./assets/img/nav_reports.svg" />
             <a href="/">Reports</a>
           </li>
         </ul>
@@ -168,10 +107,10 @@ while (have_posts()) : the_post();
       <section class="my-trk-bc-section">
         <div class="my-trk-bc-section-div">
           <!-- breadcrumbs -->
-          <img class="bc-img-1" src="<?php echo $treks_src; ?>/assets/img/bc_img.svg" />
+          <img class="bc-img-1" src="./assets/img/bc_img.svg" />
           <p>My TREKs</p>
-          <img class="bc-img-2" src="<?php echo $treks_src; ?>/assets/img/bc_arrow_right.svg" />
-          <p><?php the_title(); ?></p>
+          <img class="bc-img-2" src="./assets/img/bc_arrow_right.svg" />
+          <p>5.12A Interdependence</p>
         </div>
       </section>
       <!-- My TREKs Detail -->
@@ -179,47 +118,70 @@ while (have_posts()) : the_post();
         <div class="my-trk-detail-section-div">
           <!-- TREKs image  -->
           <div class="my-trk-detail-img">
-            <!-- <img src="<?php //echo $treks_src; ?>/assets/img/tr_main.png" /> -->
-            <?php the_post_thumbnail('medium'); ?>
+            <img src="./assets/img/tr_main.png" />
           </div>
           <!-- TREKs detail -->
           <div class="my-trk-detail-prep">
             <!-- Title -->
             <div class="detail-prep-title">
-              <h2><?php the_title(); ?></h2>
+              <h2>5.12A Interdependence</h2>
             </div>
             <!-- Description -->
             <div class="detail-prep-desc">
-				      <p><?php echo $post->post_content; ?></p>
+              <p>
+                Student Expectation: Observe and describe how a variety of
+                organisms survive by interacting with biotic and abiotic factors
+                in a healthy ecosystem.<br />
+                Readiness Standard | Organisms & Environments Strand
+              </p>
             </div>
-
-            <!-- Navigation -->
+            <!-- Tags -->
             <div class="detail-prep-tags">
-              <?php
-                global $wpdb;
-                $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections WHERE trek_id={$post->ID}");
-                if ( $trek_sections ) {
-                  foreach ( $trek_sections as $trek_section ) {
-                    $button_style = strtolower($trek_section->title);
-                    $defined_button_styles = ['overview', 'recall', 'apply'];
-                    $button_style = in_array($button_style, $defined_button_styles) ? $button_style : 'pa';
-                    $button_styles[trim($trek_section->title)] = "$button_style-poly-body";
-              ?>
-                  <!-- Navigation Button -->
-                  <a href="#<?php echo implode('_', explode(' ', $trek_section->title));?>" class="trek-section-nav-anchor"> 
-                    <div class="tags-body <?php echo $button_style; ?>-poly-body">
-                      <div class="tags-body-polygon">
-                        <span><?php echo substr($trek_section->title, 0, 1);?></span>
-                      </div>
-                      <div class="tags-body-detail">
-                        <span><?php echo $trek_section->title;?></span>
-                      </div>
-                    </div>
-                  </a>
-              <?php
-                    }
-                }
-              ?>
+              <!-- overview tag -->
+              <div class="tags-body overview-poly-body">
+                <div class="tags-body-polygon">
+                  <span>O</span>
+                </div>
+                <div class="tags-body-detail">
+                  <span>Overview</span>
+                </div>
+              </div>
+              <!-- Recall -->
+              <div class="tags-body recall-poly-body">
+                <div class="tags-body-polygon">
+                  <span>R</span>
+                </div>
+                <div class="tags-body-detail">
+                  <span>Recall</span>
+                </div>
+              </div>
+              <!-- Practice A -->
+              <div class="tags-body pa-poly-body">
+                <div class="tags-body-polygon">
+                  <span>P</span>
+                </div>
+                <div class="tags-body-detail">
+                  <span>Practice A</span>
+                </div>
+              </div>
+              <!-- Practice B -->
+              <div class="tags-body pb-poly-body">
+                <div class="tags-body-polygon">
+                  <span>P</span>
+                </div>
+                <div class="tags-body-detail">
+                  <span>Practice B</span>
+                </div>
+              </div>
+              <!-- Apply -->
+              <div class="tags-body apply-poly-body">
+                <div class="tags-body-polygon">
+                  <span>A</span>
+                </div>
+                <div class="tags-body-detail">
+                  <span>Apply</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -229,47 +191,12 @@ while (have_posts()) : the_post();
       <section class="trk-assign-section">
         <div class="trk-assign-section-div">
           <p>TREKs assigned to</p>
-          <a href="#">0 Students</a>
+          <a href="#">9 Students</a>
         </div>
       </section>
-      <?php 
-        if ( $trek_sections ) {
-          foreach ( $trek_sections as $trek_section ) {
-      ?>
-            <section class="central-cncpt-section">
-              <!-- section heading -->
-              <div class="trek-main-heading-wrapper">
-                <h1 class="trek-main-heading" id="<?php echo implode('_', explode(' ', $trek_section->title));?>"><?php echo $trek_section->title;?></h1>
-                <a href="#" class="trek-main-heading-top-link">&uarr;Top</a>
-              </div>
-              
-              <!-- digital journal link -->
-              <?php
-                $digital_journal_link = null;
-                foreach($lessons as $lesson){ if (trim($trek_section->title) === trim($lesson->post_title)) { $digital_journal_link = get_permalink($lesson->ID); }; }
-              ?>
 
-              <div class="digital-student-journal-section my-trk-detail-section-div">
-                <div class="detail-prep-tags">
-                  <a href="<?php echo $digital_journal_link ?>" target="_blank" class="trek-section-nav-anchor"> 
-                    <div class="digital-student-journal-btn tags-body <?php echo $button_styles[trim($trek_section->title)]; ?>">
-                      <div class="tags-body-detail">
-                        <span>Digital Student Journal</span>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              <?php echo stripslashes($trek_section->content);?>
-
-            </section>    
-      <?php
-          }
-        }
-      ?>
       <!-- Central Concepts  -->
-      <!-- <section class="central-cncpt-section">
+      <section class="central-cncpt-section">
         <div class="central-cncpt-section-div">
           <h3 class="text-style-heading-s2-cm">Central Concepts</h3>
           <div class="central-cncpt-list-div">
@@ -290,11 +217,11 @@ while (have_posts()) : the_post();
           </div>
         </div>
       </section>
- -->
+
       <!--  Central Concepts  4 topic detail -->
-      <!-- <section class="central-topic-section">
+      <section class="central-topic-section">
         <div class="central-topic-section-div">
-          
+          <!-- Recall -->
           <div class="central-topic-each-list">
             <div class="list-heading">
               <h4 class="text-style-heading-s2-cm recall-cc-heading">Recall</h4>
@@ -308,7 +235,7 @@ while (have_posts()) : the_post();
               </p>
             </div>
           </div>
-         
+          <!-- Practice A -->
           <div class="central-topic-each-list">
             <div class="list-heading">
               <h4 class="text-style-heading-s2-cm pa-cc-heading">Practice A</h4>
@@ -323,7 +250,7 @@ while (have_posts()) : the_post();
               </p>
             </div>
           </div>
-         
+          <!-- Practice B -->
           <div class="central-topic-each-list">
             <div class="list-heading">
               <h4 class="text-style-heading-s2-cm pb-cc-heading">Practice B</h4>
@@ -338,7 +265,7 @@ while (have_posts()) : the_post();
               </p>
             </div>
           </div>
-          
+          <!-- Apply -->
           <div class="central-topic-each-list">
             <div class="list-heading">
               <h4 class="text-style-heading-s2-cm apply-cc-heading">Apply</h4>
@@ -355,24 +282,24 @@ while (have_posts()) : the_post();
           </div>
         </div>
       </section>
- -->
+
       <!--Integrated Standards Alignment  -->
-      <!-- <section class="intg-stand-section">
+      <section class="intg-stand-section">
         <div class="intg-stand-section-div">
-          
+          <!-- heading -->
           <div class="intg-stand-heading">
             <h3 class="text-style-heading-s2-cm">
               Integrated Standards Alignment
             </h3>
           </div>
 
-          
+          <!-- Looking Behind: -->
           <div class="intg-stand-detail-list">
             <div class="intg-stand-list">
               <h4>Looking Behind:</h4>
               <p class="text-style-prep-cm">Grades 3 and 4</p>
             </div>
-            
+            <!-- list detail -->
             <div class="intg-stand-detail">
               <ul class="main-detail">
                 <li class="text-style-prep-cm">Science</li>
@@ -391,13 +318,13 @@ while (have_posts()) : the_post();
               </ul>
             </div>
           </div>
-          
+          <!-- Looking Ahead: -->
           <div class="intg-stand-detail-list">
             <div class="intg-stand-list">
               <h4>Looking Ahead::</h4>
               <p class="text-style-prep-cm">Grades 3 and 4</p>
             </div>
-           
+            <!-- list detail -->
             <div class="intg-stand-detail">
               <ul class="main-detail">
                 <li class="text-style-prep-cm">Science</li>
@@ -416,7 +343,7 @@ while (have_posts()) : the_post();
             </div>
           </div>
         </div>
-      </section> -->
+      </section>
     </section>
 
     <script
@@ -424,55 +351,12 @@ while (have_posts()) : the_post();
       integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
       crossorigin="anonymous"
     ></script>
-    <script src="<?php echo $treks_src; ?>/js/Animated-Circular-Progress-Bar-with-jQuery-Canvas-Circle-Progress/dist/circle-progress.js"></script>
-    <script src="<?php echo $treks_src; ?>/js/custom.js"></script>
+    <script src="./js/Animated-Circular-Progress-Bar-with-jQuery-Canvas-Circle-Progress/dist/circle-progress.js"></script>
+    <script src="./js/custom.js"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
       crossorigin="anonymous"
     ></script>
-    
-    <script type="text/javascript">
-
-      jQuery(document).ready(function() {
-        
-        var trekUrl = "<?php echo get_permalink($post->ID); ?>";
-
-        // set copy icons to links
-        jQuery("a").each(function() {
-          if ($(this).attr("id")) {
-            // prevent link action from navigation if it is #
-            if ($(this).attr("href") === "#") {
-              $(this).on('click', function(e) {
-                e.preventDefault();
-              });
-            }
-
-            $( '<a class="copy-anchor" href="#' + $(this).attr("id") + '" id="' + $(this).attr("id") + '_Copy_Link"><img class="copy-anchor-icon-img" src="<?php echo $treks_src; ?>/assets/img/link_icon.png" width="20" height="20" /></a>' ).insertAfter( $(this) );
-            jQuery('#' + jQuery(this).attr("id") + '_Copy_Link').on('click', function(e) {
-              e.preventDefault();
-
-              var targetLinkArr = jQuery(this).attr("href").split('#');
-              targetLinkId = targetLinkArr.length === 2 ? targetLinkArr[1] : null;
-              if (targetLinkId) {
-                var trekTargetUrl = trekUrl + "#" + targetLinkId;
-                console.log("copy -- ", trekTargetUrl);
-
-                document.addEventListener('copy', function(e) {
-                    e.clipboardData.setData('text/plain', trekTargetUrl);
-                    e.preventDefault();
-                }, true);
-
-                document.execCommand('copy');  
-              }
-            })
-          }
-        });
-
-      });
-
-
-    </script>
   </body>
 </html>
-<?php endwhile; ?>
