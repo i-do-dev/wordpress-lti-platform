@@ -150,7 +150,7 @@ while (have_posts()) : the_post();
         <ul>
           <li>
             <img src="<?php echo $treks_src; ?>/assets/img/nav_dashboard-dots_gray.svg" />
-            <a href="/">Dashboard</a>
+            <a href="<?php echo site_url("dashboard") ?>">Dashboard</a>
           </li>
           <li class="nav-section-selected">
             <img src="<?php echo $treks_src; ?>/assets/img/nav_treks_selected.svg" />
@@ -183,7 +183,7 @@ while (have_posts()) : the_post();
           <!-- TREKs image  -->
           <div class="my-trk-detail-img">
             <!-- <img src="<?php //echo $treks_src; ?>/assets/img/tr_main.png" /> -->
-            <?php the_post_thumbnail('medium'); ?>
+            <?php the_post_thumbnail('medium', array( 'class' => 'rounded' )); ?>
           </div>
           <!-- TREKs detail -->
           <div class="my-trk-detail-prep">

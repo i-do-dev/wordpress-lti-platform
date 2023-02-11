@@ -57,7 +57,14 @@ class Activity
             $curriki_site = $customparams["custom_currikisite"];
             $lti_content_url = null;
             if (in_array('activity', $post_lti_custom_attr)) {
-                $lti_content_url = $curriki_site . "/lti-tools/activity/" . $post_lti_custom_attr[array_search("activity", $post_lti_custom_attr) + 1];
+                $queryParamArr = array();
+                $params_data = '';
+                if (isset($_GET['slideNumber'])) {
+                    $queryParamArr['slideNumber'] = $_GET['slideNumber'];
+                }
+                $params_data = http_build_query($queryParamArr);
+                $params_data = strlen($params_data) > 0 ? "?$params_data" : '';
+                $lti_content_url = $curriki_site . "/lti-tools/activity/" . $post_lti_custom_attr[array_search("activity", $post_lti_custom_attr) + 1] . $params_data;
             }
             
             if ($lti_content_url) {
