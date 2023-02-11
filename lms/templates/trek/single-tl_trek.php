@@ -80,21 +80,17 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
       a:target {
         background-color: yellow !important;
       }
-
-      h2 a {
-        text-decoration: none !important;
+      
+      a {
+        color: #434343 !important;
       }
-
-      h3 a {
-        text-decoration: none !important;
+      
+      ul {
+        padding-left: 2rem !important;
       }
-
-      h4 a {
-        text-decoration: none !important;
-      }
-
-      h5 a {
-        text-decoration: none !important;
+      table tr td {
+        padding-top: 0.8rem !important;
+        padding-left: 0.5rem !important;
       }
     </style>
   </head>
