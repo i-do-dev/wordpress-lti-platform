@@ -15,6 +15,8 @@ $args = array(
 $lessons = get_posts($args);
 $button_styles = array();
 while (have_posts()) : the_post();
+global $wpdb;
+$trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections WHERE trek_id={$post->ID}");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,8 +76,25 @@ while (have_posts()) : the_post();
       .copy-anchor-icon-img {
         margin-left: 5px;
       }
+      
       a:target {
         background-color: yellow !important;
+      }
+
+      h2 a {
+        text-decoration: none !important;
+      }
+
+      h3 a {
+        text-decoration: none !important;
+      }
+
+      h4 a {
+        text-decoration: none !important;
+      }
+
+      h5 a {
+        text-decoration: none !important;
       }
     </style>
   </head>
@@ -199,8 +218,6 @@ while (have_posts()) : the_post();
             <!-- Navigation -->
             <div class="detail-prep-tags">
               <?php
-                global $wpdb;
-                $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections WHERE trek_id={$post->ID}");
                 if ( $trek_sections ) {
                   foreach ( $trek_sections as $trek_section ) {
                     $button_style = strtolower($trek_section->title);
@@ -271,155 +288,7 @@ while (have_posts()) : the_post();
           }
         }
       ?>
-      <!-- Central Concepts  -->
-      <!-- <section class="central-cncpt-section">
-        <div class="central-cncpt-section-div">
-          <h3 class="text-style-heading-s2-cm">Central Concepts</h3>
-          <div class="central-cncpt-list-div">
-            <ul>
-              <li class="text-style-prep-cm">
-                All of life depends on basic needs including food, shelter, air,
-                and space for habitat.
-              </li>
-              <li class="text-style-prep-cm">
-                All living organisms interact with other living and nonliving
-                parts of their ecosystems.
-              </li>
-              <li class="text-style-prep-cm">
-                Living organisms rely on this integration of living and
-                nonliving components to grow and reproduce.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
- -->
-      <!--  Central Concepts  4 topic detail -->
-      <!-- <section class="central-topic-section">
-        <div class="central-topic-section-div">
-          
-          <div class="central-topic-each-list">
-            <div class="list-heading">
-              <h4 class="text-style-heading-s2-cm recall-cc-heading">Recall</h4>
-            </div>
-
-            <div class="list-detail">
-              <h5>Review: “What Do Living Things Need?”</h5>
-              <p class="text-style-prep-cm">
-                Students recall prior knowledge of the basic needs of all
-                organisms in their environment with transparent thinking.
-              </p>
-            </div>
-          </div>
-         
-          <div class="central-topic-each-list">
-            <div class="list-heading">
-              <h4 class="text-style-heading-s2-cm pa-cc-heading">Practice A</h4>
-            </div>
-            <div class="list-detail">
-              <h5>Investigation: Rain & Shine</h5>
-              <p class="text-style-prep-cm">
-                Students collect and analyze data in a simulated comparative
-                investigation to answer the research question, “How does
-                sunlight and water affect plant growth?” An optional STEAM
-                extension on creating non-linguistic visualizations of data.
-              </p>
-            </div>
-          </div>
-         
-          <div class="central-topic-each-list">
-            <div class="list-heading">
-              <h4 class="text-style-heading-s2-cm pb-cc-heading">Practice B</h4>
-            </div>
-            <div class="list-detail">
-              <h5>In the Field: Billie the Birdwatcher</h5>
-              <p class="text-style-prep-cm">
-                Students actively read and reflect as field scientists, support
-                a second hand field investigation with Billie the Birdwatcher,
-                and identify appropriate habitats for three North American bird
-                species.
-              </p>
-            </div>
-          </div>
-          
-          <div class="central-topic-each-list">
-            <div class="list-heading">
-              <h4 class="text-style-heading-s2-cm apply-cc-heading">Apply</h4>
-            </div>
-            <div class="list-detail">
-              <h5>Mission: The Great Turtle Rescue</h5>
-              <p class="text-style-prep-cm">
-                Students embark on a task-based problem-solving real-world
-                scenario with a mission for a wildlife release in a nearby
-                wildlife refuge using habitat maps adapted from Brazoria
-                National Wildlife Refuge of coastal eastern Texas.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
- -->
-      <!--Integrated Standards Alignment  -->
-      <!-- <section class="intg-stand-section">
-        <div class="intg-stand-section-div">
-          
-          <div class="intg-stand-heading">
-            <h3 class="text-style-heading-s2-cm">
-              Integrated Standards Alignment
-            </h3>
-          </div>
-
-          
-          <div class="intg-stand-detail-list">
-            <div class="intg-stand-list">
-              <h4>Looking Behind:</h4>
-              <p class="text-style-prep-cm">Grades 3 and 4</p>
-            </div>
-            
-            <div class="intg-stand-detail">
-              <ul class="main-detail">
-                <li class="text-style-prep-cm">Science</li>
-              </ul>
-              <ul class="sub-detal">
-                <li class="text-style-prep-cm">
-                  3.9A Investigate that most producers need sunlight, water, and
-                  carbon dioxide to make their own food, while consumers are
-                  dependent on other organisms for food.
-                </li>
-                <li class="text-style-prep-cm">
-                  3.9A Investigate that most producers need sunlight, water, and
-                  carbon dioxide to make their own food, while consumers are
-                  dependent on other organisms for food.
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div class="intg-stand-detail-list">
-            <div class="intg-stand-list">
-              <h4>Looking Ahead::</h4>
-              <p class="text-style-prep-cm">Grades 3 and 4</p>
-            </div>
-           
-            <div class="intg-stand-detail">
-              <ul class="main-detail">
-                <li class="text-style-prep-cm">Science</li>
-              </ul>
-              <ul class="sub-detal">
-                <li class="text-style-prep-cm">
-                  6.12E Describe biotic and abiotic parts of an ecosystem in
-                  which organisms interact.
-                </li>
-                <li class="text-style-prep-cm">
-                  7.10A Observe and describe how different environments,
-                  including microhabitats in schoolyards and biomes, support
-                  different varieties of organisms.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section> -->
+      
     </section>
 
     <script
