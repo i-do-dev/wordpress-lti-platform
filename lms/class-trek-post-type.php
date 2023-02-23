@@ -45,15 +45,15 @@ class TL_TREK_Post_Type extends TL_Post_Type
    public function args_register_post_type(): array
    {
 
-      $located = locate_template( 'single-tl_trek.php' );
-      if(empty($located)){
-         add_filter( 'single_template', function ( $page_template, $type ) {
+      $located = locate_template('single-tl_trek.php');
+      if (empty($located)) {
+         add_filter('single_template', function ($page_template, $type) {
             global $post;
-            if ( $post->post_type == TL_TREK_CPT ) {
-                  $page_template = dirname( __FILE__ ) . '/templates/trek/single-tl_trek.php';
+            if ($post->post_type == TL_TREK_CPT) {
+               $page_template = dirname(__FILE__) . '/templates/trek/single-tl_trek.php';
             }
             return $page_template;
-         },20, 2);
+         }, 20, 2);
       }
 
       global $wpdb;
@@ -64,6 +64,14 @@ class TL_TREK_Post_Type extends TL_Post_Type
             type varchar(255) default NULL,
             content longtext default NULL,
             link varchar(255) default NULL,
+			PRIMARY KEY (id)
+		)");
+
+      $wpdb->query("CREATE TABLE IF NOT EXISTS " . $wpdb->prefix . "trek_events(
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+         trek_section_id bigint(20) default NULL,
+            start  bigint(20) default NULL,
+            end  bigint(20) default NULL,
 			PRIMARY KEY (id)
 		)");
 
@@ -99,8 +107,9 @@ class TL_TREK_Post_Type extends TL_Post_Type
          ),
          'show_in_rest'       => false,
          'rest_base'          => 'tl_trek',
-         'supports' => array('title', 'editor', 'author', 'thumbnail')
+         'supports' => array('title', 'editor', 'author', 'thumbnail'),
       );
+      add_theme_support('post-thumbnails');
       return $args;
    }
 
@@ -108,32 +117,32 @@ class TL_TREK_Post_Type extends TL_Post_Type
    public function add_meta_boxes()
    {
       $this->add_meta_box([
-         'trek-course-options-class',      // Unique ID
+         'trek-course-options-id',      // Unique ID
          esc_html__('Course ', 'course'),    // Title
-         array(self::instance(), 'options_metabox_html'),   // Callback function
+         array(self::instance(), 'course_metabox_html'),   // Callback function
          $this->_post_type,         // Admin page (or post type)
-         'side',         // Context
+         'advanced',         // Context
+         'default',         // Priority
+         'show_in_rest' => true,
+      ]);
+
+
+      $this->add_meta_box([
+         'trek-sections-chips-id',      // Unique ID
+         esc_html__('TREK Sections', 'trek-Sections'),    // Title
+         array(self::instance(), 'trek_section_chips_metabox_html'),   // Callback function
+         $this->_post_type,         // Admin page (or post type)
+         'advanced',         // Context
          'default',         // Priority
          'show_in_rest' => true,
       ]);
 
       $this->add_meta_box([
-         'trek-sections-class',      // Unique ID
+         'trek-sections-input-id',      // Unique ID
          esc_html__('Manage Teacher Instruction section', ',manage_teacher_instruction_section'),    // Title
          array(self::instance(), 'trek_sections_metabox_html'),   // Callback function
          $this->_post_type,         // Admin page (or post type)
-         'side',         // Context
-         'default',         // Priority
-         'show_in_rest' => true,
-      ]);
-
-
-      $this->add_meta_box([
-         'trek-options-class',      // Unique ID
-         esc_html__('TREK Sections', 'trek-Sections'),    // Title
-         array(self::instance(), 'trek_options_metabox_html'),   // Callback function
-         $this->_post_type,         // Admin page (or post type)
-         'side',         // Context
+         'advanced',         // Context
          'default',         // Priority
          'show_in_rest' => true,
       ]);
@@ -149,7 +158,7 @@ class TL_TREK_Post_Type extends TL_Post_Type
       return $args;
    }
 
-   public function options_metabox_html($post = null)
+   public function course_metabox_html($post = null)
    {
       $args = array(
          'post_type' => 'tl_course',
@@ -161,8 +170,8 @@ class TL_TREK_Post_Type extends TL_Post_Type
       $courses = get_posts($args);
       $selectedCourse =  isset($_GET['courseid']) ? $_GET['courseid'] : get_post_meta($post->ID, 'tl_course_id', true);
       $output = '  <h4>Select Course</h4>';
-     
-     $output .= '<select name="tl_course_id" id="course_select_options" style="margin-top:-10px"> ';
+
+      $output .= '<select name="tl_course_id" id="course_select_options" style="margin-top:-10px"> ';
       foreach ($courses as $course) {
          if ($selectedCourse == $course->ID) {
             $selected = "selected";
@@ -173,132 +182,71 @@ class TL_TREK_Post_Type extends TL_Post_Type
       }
       $output .= '</select>';
       echo $output;
-      ?>
-  
-       <?php
-      }
-
-      public function trek_sections_metabox_html($post = null)
-      {
-
-         global $wpdb;
-
-         $output = '  <h3 id="section-title"> Add new Teacher Instruction section </h3>';
-
-         $query = "SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id=" . $post->ID;
-
-         $output .= '<div id="appendme" class="container" >';
-
-         $playlists =  json_decode(get_post_meta(get_post_meta($post->ID, 'tl_course_id', true), "lxp_sections", true));
-
-         $options =  $wpdb->get_results($query);
-
-         foreach ($options as $key => $value) {
-            $selectOption = '';
-            $selectOption .= "<select name='title[]' class='option-title-input' > ";
-       
-             foreach ($playlists as $playlist) {
-                if ($playlist == $value->title) {
-                   $selected = "selected";
-                } else {
-                   $selected = "";
-                }
-                $selectOption .= '<option value="' . $playlist . '" ' . $selected . ' >' .  $playlist. ' </option>';
-             }
-             $selectOption .= '</select>';
-            if ($value->type == "content") {
-               $append =   "<b>Content</b> <textarea  class='ckeditor'  rows='12' cols='50' name='option_content[]' /> " . stripslashes($value->content) . "  </textarea> ";
-            } else {
-               $append = "<b>Link</b> </br><input type='text'  value='" . $value->link . "'  name='option_content[]' style='width:50%'/> ";
-            }
-            $output .=  "<div class='row option-body' style='display:none' id='option-body-" . $key . "'> <b>Section</b> <br>". $selectOption."<button type='button' class='button button-primary btnSave'>Save</button>  <button type='button' class='button button-danger btnRemove'>Remove</button> <br>" . $append . "  <input type='hidden' name='option-type[]' value='" . $value->type . "'><br><hr> </div>";
-         }
-
-         $output .=  '</div>';
-
-         echo $output;
-         ?>
-  
-       <?php
-      }
-
-      public function trek_options_metabox_html($post = null)
-      {
-         $screen = isset($_GET['action']) && $_GET['action'] === "edit" ? "edit" : "add";
-         $removeBtn = $screen === "add" ? '<span class="chip-close">&times;</span>' : '';
-         
-         global $wpdb;
-         $query = "SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id=" . $post->ID;
-         $options =  $wpdb->get_results($query);
-         $output = "<div id='option-chips' tota-chips=" . count($options) . ">";
-         if (count($options) == 0) {
-            $output .= "<div id='chips-alternate'>No section avialable. Create one using form given below.</div>";
-         }
-         foreach ($options as $key => $value) {
-            $output .=   '<div class="chip" identifier="' . $key . '" option-body-id="option-body-' . $key . '" > <span id="chip-title-' . $key . '"> ' . $value->title . ' </span> <span class="dashicons dashicons-edit edit-trek-options"></span> ' . $removeBtn . ' </div>';
-         }
-         
-         echo $output;
-         ?>
-  
-       <?php
-      }
-
-      public function save_tl_post($post_id = null)
-      {
-         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_trek' == $_POST['post_type']) {
-            global $wpdb;
-            if ($_POST['tl_course_id'] != get_post_meta($post_id, 'tl_course_id', true)) {
-               update_post_meta($post_id, 'lti_course_id', "");
-            }
-            update_post_meta($post_id, 'tl_course_id', $_POST['tl_course_id']);
-            $wpdb->query("DELETE FROM " . $wpdb->prefix . "trek_sections WHERE trek_id =" . $post_id);
-            foreach ($_POST["title"] as $key => $value) {
-               if ($_POST["option-type"][$key] == "content") {
-                  if(!empty($_POST["option_content"][$key])){
-                     $wpdb->insert($wpdb->prefix . 'trek_sections', array(
-                        'trek_id' => $post_id,
-                        'title' => $value,
-                        'type' => $_POST["option-type"][$key],
-                        'content' => $_POST["option_content"][$key],
-                     ));
-                  }
-               } else {
-                  $wpdb->insert($wpdb->prefix . 'trek_sections', array(
-                     'trek_id' => $post_id,
-                     'title' => $value,
-                     'type' => $_POST["option-type"][$key],
-                     'link' => $_POST["option_content"][$key],
-                  ));
-               }
-            }
-         }
-      }
-
-
-      public function insert_post_api($post, $request)
-      {
-
-      }
-
-      function modify_list_row_actions($actions, $post)
-      {
-         return $actions;
-      }
-
-      public  function grade_view()
-      {
-
-      }
-
-      public  function grade_book_view()
-      {
- 
-      }
-
-      public function register_views()
-      {
-
-      }
-
    }
+
+   public function trek_sections_metabox_html($post = null)
+   {
+      global $wpdb;
+      $output = '  <h3 id="section-title">Add New Section</h3>';
+      $output .= '<div id="appendme" class="container" >';
+      $selectOption = '';
+      $selectOption .= "<select name='title' class='option-title-input' id='option-title-select-box'> ";
+      $append =   "<br><b>Content</b> <textarea  class='ckeditor'  id='ck-editor-id' rows='12' cols='50' name='option_content' />  </textarea> ";
+      $selectOption .= '</select>';
+      $output .=  "<div class='row option-body'  id='option-body'> <span id='playlist-select-area'> <b>Select Section</b> <br>" . $selectOption . " </span><button type='button' id='btnSaveSection' class='button button-primary'>Create</button>  <button style='display:none' type='button' id='btnCancelUpdate' class='button button-secondary'>Cancel</button>   <br>" . $append . "  <input type='hidden' name='option-type[]' value=''><br><hr> </div>";
+      $output .=  '</div>';
+      echo $output;
+   }
+
+   public function trek_section_chips_metabox_html($post = null)
+   {
+      $removeBtn = '<span type="button" class="chip-close"><span style="margin-top:5px" class="dashicons dashicons-no"></span> </span> ';
+      global $wpdb;
+      $query = "SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id=" . $post->ID;
+      $options =  $wpdb->get_results($query);
+      $output = "<div id='option-chips' tota-chips=" . count($options) . ">";
+      if (count($options) == 0) {
+         $output .= "<div id='chips-alternate'>No section avialable. Create one using form given below.</div>";
+      }
+      foreach ($options as $key => $value) {
+         $output .=     '<div class="playlist-chip " identifier="' . $value->id . '" > 
+                           <span id="chip-title-' . $value->id . '"> ' . $value->title . ' </span>
+                           <span class="edit-trek-options">
+                              <span style="margin-top:5px" class="dashicons dashicons-edit"></span> 
+                           </span> '
+            . $removeBtn .
+            '</div>';
+      }
+      $output .= "</div>";
+      echo $output;
+   }
+
+   public function save_tl_post($post_id = null)
+   {
+      if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_trek' == $_POST['post_type']) {
+         update_post_meta($post_id, 'tl_course_id', $_POST['tl_course_id']);
+      }
+   }
+
+
+   public function insert_post_api($post, $request)
+   {
+   }
+
+   function modify_list_row_actions($actions, $post)
+   {
+      return $actions;
+   }
+
+   public  function grade_view()
+   {
+   }
+
+   public  function grade_book_view()
+   {
+   }
+
+   public function register_views()
+   {
+   }
+}

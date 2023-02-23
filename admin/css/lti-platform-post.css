@@ -25,26 +25,102 @@
 }
 
 .chip-close {
+  background-color: #bbb; 
+  border: none;
+  color: black;
+  padding: 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 25px;
+  margin-top : 10px;
+  border-radius: 50%;
   cursor: pointer;
-  top: 50%;
-  right: 0%;
-  padding: 1px 4px;
-  transform: translate(0%, -50%);
+  width : 30px;
+  height: 30px;
 }
 
-.chip-close:hover {background: #bbb;}
+.chip-close:hover {background: #d6d6cd;}
 
-.chip {
+.active-chip-close {
+  background-color: #045aaa; 
+  border: none;
+  color: white;
+  padding: 2px;
+  text-align: center;
+  text-decoration: none;
   display: inline-block;
-  padding: 0 25px;
-  height: 50px;
+  font-size: 25px;
+  margin-top : 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  width : 30px;
+  height: 30px;
+}
+
+.active-chip-close:hover {background: #041aaa;}
+
+.playlist-chip {
+  display: inline-block;
+  padding: 0 15px 0 25px;
   font-size: 16px;
-  line-height: 50px;
   border-radius: 25px;
   background-color: #f1f1f1;
+  margin-right:5px;
+  line-height: 1.1;
+  margin-bottom:5px;
 }
 
 .edit-trek-options {
   cursor: pointer;
-  margin-top: 13%;
+  background-color: #bbb; 
+  border: none;
+  color: black;
+  padding: 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  vertical-align: top !important;
+  font-size: 20px;
+  margin: 10px 2px;
+  border-radius: 50%;
+  cursor: pointer;
+  width : 30px;
+  height: 30px;
 }
+
+.edit-trek-options:hover {background: #d6d6cd;}
+
+.active-edit-trek-option {
+  cursor: pointer;
+  background-color: #045aaa; 
+  border: none;
+  color: white;
+  padding: 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  vertical-align: top !important;
+  font-size: 20px;
+  margin: 10px 2px;
+  border-radius: 50%;
+  cursor: pointer;
+  width : 30px;
+  height: 30px;
+}
+.active-edit-trek-option:hover {background: #041aaa;}
+
+
+
+.edit-playlist-chip {
+  display: inline-block;
+  padding: 0 15px 0 25px;
+  font-size: 16px;
+  line-height: 1.1;
+  border-radius: 25px;
+  margin-right:5px;
+  color:white;
+  background-color: #2271b1;
+} 
+
+

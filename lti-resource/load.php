@@ -6,6 +6,8 @@ require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-course-post-type.ph
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-lesson-post-type.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-trek-post-type.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-tl-admin-menu.php';
+require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-district-post-type.php';
+require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-school-post-type.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -14,4 +16,6 @@ error_reporting(E_ALL);
 TL_Course_Post_Type::instance();
 TL_Lesson_Post_Type::instance();
 TL_TREK_Post_Type::instance();
+TL_District_Post_Type::instance();
+TL_School_Post_Type::instance();
 TL_Admin_Menu::instance();
