@@ -1,5 +1,7 @@
 var LtiPlatformText = '';
 var LtiPlatformProps = null;
+var currentSectionState = "create";
+var currentsectionId = 0;
 
 (function (wp) {
   var LtiPlatformIcon = wp.element.createElement(wp.primitives.SVG, {
@@ -42,16 +44,19 @@ var LtiPlatformProps = null;
 (function ($) {
   $(document).ready(function () {
     var totalChips = $("#option-chips").attr('tota-chips');
+
     function deeplink() {
       var urlParams = new URLSearchParams(window.location.search);
       window.open('../?lti-platform&deeplink&post=' + encodeURIComponent(urlParams.get('post')) + '&tool=' + encodeURIComponent($("input[name='tool']:checked").val()), '_blank', 'width=1000,height=800');
       $('.lti-platform-modal').removeClass('active');
     }
+
     $.get('../?lti-platform&tools', function (response) {
       $('#wpwrap').append(response);
       $('.lti-platform-tool').on('change', function () {
         $('#lti-platform-select').prop('disabled', false);
       });
+
       $('#lti-platform-select').on('click', function () {
         $.get('../?lti-platform&usecontentitem&tool=' + encodeURIComponent($("input[name='tool']:checked").val()), function (response) {
           if (response.useContentItem) {
@@ -70,6 +75,7 @@ var LtiPlatformProps = null;
           }
         });
       });
+
       $('#lti-platform-cancel').on('click', function () {
         $('.lti-platform-modal').removeClass('active');
         $('#postdivrich').addClass('wp-editor-expand');
@@ -80,73 +86,9 @@ var LtiPlatformProps = null;
         $('#postdivrich').removeClass('wp-editor-expand');
       });
 
-    $(".tool-input-tr").on('click', function () {
+      $(".tool-input-tr").on('click', function () {
         $(this).find('td input[type=radio]').prop('checked', true);
         $('#lti-platform-select').prop("disabled", false);
-      });
-      var i = 1;
-
-      $(".add-trax-options").on('click', function () {
-        i++;
-        $('#section-title').text("Add Option");
-     
-        var optionType = $('#trek-option-type').find(":selected").val();
-        if (optionType == "content") {
-
-          $("#appendme").append($("<div class='row  option-body'  id='option-body-" + totalChips + "'>  <b>Section</b> <br> <select name='title[]' class='option-title-input' >  </select> <button type='button' class='button button-primary btnSave'>Save</button>  <button type='button' class='button button-danger btnRemove'>Remove</button> <br>  <b>Content</b> <textarea id='ckeditor-id-" + i + "'   name='option_content[]'  class='ckeditor'   rows='12' cols='50' >  </textarea><input type='hidden' name='option-type[]' value='content'></br><hr> </div> "));
-          
-          CKEDITOR.replace('ckeditor-id-' + i);
-          
-        } else {
-   
-          $("#appendme").append($("<div class='row option-body' id='option-body-" + totalChips + "'>  <b> Section </b> <br> <select name='title[]' class='option-title-input' >  </select>   <button type='button' class='button button-primary btnSave'>Save</button>  <button type='button' class='button button-danger btnRemove'>Remove</button> <br><b>Link</b><br> <input type='text'   name='option_content[]'  style='width:50%'  />   <input type='hidden' name='option-type[]' value='action'></br><hr> </div>"));
-        }
-      });
-      function addContentForm() {
-        i++;
-        $('#section-title').text("Add new Teacher Instruction section");
-        var options = '';
-        var courseId = $('#course_select_options').find(":selected").val();
-        var host = window.location.origin + '/wp-json/lms/v1/get/playlists';
-        jQuery.ajax({
-          type: "get",
-          dataType: "json",
-          url: host,
-          data: { course_id: courseId },
-          success: function (response) {
-            for (var j = 0, len = response.length; j < len; ++j) {
-              options += '<option value="' + response[j] + '">' + response[j] + '</option>';
-            }
-            $("#appendme").append($("<div class='row  option-body'  id='option-body-" + totalChips + "'>  <b>Section</b> <br> <select name='title[]' class='option-title-input' > " + options + "  </select> <button type='button' class='button button-primary btnSave'>Save</button>  <button type='button' class='button button-danger btnRemove'>Remove</button> <br>  <b>Content</b> <textarea id='ckeditor-id-" + i + "'   name='option_content[]'  class='ckeditor'   rows='12' cols='50' >  </textarea><input type='hidden' name='option-type[]' value='content'></br><hr> </div> "));
-            CKEDITOR.replace('ckeditor-id-' + i);
-          }
-         
-        });
-      }
-
-      $('body').on('click', '.btnRemove', function () {
-        $('#section-title').text("");
-        var option_body_id = $(this).parent('div.row').attr('id');
-        $("[option-body-id=" + option_body_id + "]").remove();
-        $(this).parent('div.row').remove();
-        addContentForm();
-      });
-
-      $('body').on('click', '.btnSave', function () {
-        $('#section-title').text("");
-        $(this).parent('div.row').hide();
-        var title = $(this).siblings('.option-title-input').val();
-        var edit = $(this).parent('div').attr('option-edit');
-        var option_body_id = $(this).parent('div.row').attr('id');
-        var chip_titile_id = $("[option-body-id=" + option_body_id + "]").attr('identifier');
-        $('#chips-alternate').text("");
-        if (edit == "true") {
-          $('#chip-title-' + chip_titile_id).text(title);
-        } else {
-          $("#option-chips").append('<div class="chip" identifier="' + totalChips + '" option-body-id="option-body-' + totalChips + '">  <span id="chip-title-' + totalChips + '"> ' + title + ' </span>  <span class="dashicons dashicons-edit edit-trek-options"></span> <span class="chip-close">&times;</span> </div>');
-        }
-        totalChips++;
-        addContentForm();
       });
 
       $(".course_remove_lesson").on('click', function () {
@@ -158,41 +100,166 @@ var LtiPlatformProps = null;
           $("#course_removed_lessons").val($(this).attr('lesson_id'));
         }
       });
-      var selectedCourse=$('#course_select_options').val();
-      $("#course_select_options").on('change', function () {
-        if ($('.option-body').length != 0) {
-          if (confirm("All exisitng options will be removed. Are you sure you want to continue?") == true) {
-            $('.chip').remove(); 
-            $('.option-body').remove(); 
-            selectedCourse=$(this).val(); 
-            addContentForm();
-         }else{
-          $(this).val(selectedCourse); 
-          
-         }
-        } 
-      });
-
-      $('body').on('click', '.edit-trek-options', function () {
-        $('#section-title').text("Edit Teacher Instruction section");
-        $(".option-body").each(function (i, obj) {
-          obj.style.display = "none";
-        });
-        var option_body_id = $(this).parent('div').attr('option-body-id');
-        console.log('#' + option_body_id);
-        $('#' + option_body_id).attr("option-edit", "true");
-        $('#' + option_body_id).show();
-      });
 
       $('body').on('click', '.chip-close', function () {
         if (confirm("Are you sure you want to remove?") == true) {
-          var option_body_id = $(this).parent('div').attr('option-body-id');
-          $('#' + option_body_id).remove();
-          $(this).parent('div').remove();
-          addContentForm();
+          var sectionId = $(this).parent('div').attr('identifier');
+          var host = window.location.origin + '/wordpress/wp-json/lms/v1/delete/trek/section';
+          jQuery.ajax({
+            type: "post",
+            dataType: "json",
+            url: host,
+            data: { section_id: sectionId },
+            success: function (response) {
+              if (window.currentSectionState == "edit" && window.currentsectionId == sectionId) {
+                var url = window.location.href;
+                if (url.indexOf("&action=edit") >= 0) {
+                  $('#playlist-select-area').css("display","inline");
+                }
+                $('#section-title').text("Add New Section");
+                $('#btnSaveSection').text("Create");
+                CKEDITOR.instances['ck-editor-id'].setData('');
+                $('#option-title-select-box').val('');
+                window.currentSectionState = "create";
+                window.currentsectionId = 0;
+              }
+              $("[identifier=" + sectionId + "]").remove();
+              appendCoursePlaylistSelectOptions();
+            }
+          });
         }
       });
-      addContentForm();
+
+      appendCoursePlaylistSelectOptions();
+      function appendCoursePlaylistSelectOptions(selctedOption = null) {
+        var options = '';
+        var courseId = $('#course_select_options').find(":selected").val();
+        var postID = $('#post_ID').val();
+        var host = window.location.origin + '/wordpress/wp-json/lms/v1/get/playlists';
+        jQuery.ajax({
+          type: "get",
+          dataType: "json",
+          url: host,
+          data: { course_id: courseId, post_id: postID },
+          success: function (response) {
+            if (response.length == 0 && selctedOption == null) {
+              options += '<option> No Section Available </option>';
+            }else{
+              options += '<option>---Select Section---</option>';
+            }
+            for (var j = 0, len = response.length; j < len; ++j) {
+              options += '<option value="' + response[j] + '">' + response[j] + '</option>';
+            }
+            if (selctedOption != null) {
+              options += selctedOption;
+            }
+
+            $("#option-title-select-box").html(options);
+          }
+        });
+      }
+
+      $('body').on('click', '#btnSaveSection', function () {
+
+        var title = $('#option-title-select-box').val();
+
+        if (title.indexOf("No Section Available") >= 0 || title.indexOf("---Select Section---") >= 0) {
+          alert("No section selected");
+          return;
+        }
+        var content = CKEDITOR.instances['ck-editor-id'].getData();
+        var postID = $('#post_ID').val();
+        var host = window.location.origin + '/wordpress/wp-json/lms/v1/store/trek/section';
+        $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').removeClass("active-edit-trek-option");
+        $("[identifier=" + window.currentsectionId + "]").find('.chip-close').removeClass("active-chip-close");
+        $("[identifier=" + window.currentsectionId + "]").removeClass("edit-playlist-chip");
+        $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').css("visibility","visible");
+        $("[identifier=" + window.currentsectionId + "]").find('.chip-close').css("visibility","visible");
+        jQuery.ajax({
+          type: "post",
+          dataType: "json",
+          url: host,
+          data: { title: title, content: content, post_id: postID, section_id: window.currentsectionId },
+          success: function (recordId) {
+            if(recordId == 0){
+              alert('Please enter post "Title" and "Description" first.');
+            }else{
+              appendCoursePlaylistSelectOptions();
+              if (window.currentSectionState == "edit") {
+                $('#chip-title-' + window.currentsectionId).text();
+              } else {
+                $("#option-chips").append('<div class="playlist-chip" identifier="' + recordId + '">  <span id="chip-title-' + recordId + '"> ' + title + ' </span>  <span class="edit-trek-options"><span style="margin-top:5px" class="dashicons dashicons-edit"></span> </span> <span type="button" class="chip-close"><span style="margin-top:5px" class="dashicons dashicons-no"></span> </span> </div>');
+              }
+              $('#playlist-select-area').css("display","inline");
+              window.currentsectionId = 0;
+              window.currentSectionState = "create";
+              CKEDITOR.instances['ck-editor-id'].setData('');
+              $('#option-title-select-box').val('');
+              $('#section-title').text("Add New Section");
+              $('#btnSaveSection').text("Create");
+              $('#chips-alternate').text("");
+              $('#btnCancelUpdate').css("display","none");
+            }
+          }
+        });
+      });
+      $('body').on('click', '#btnCancelUpdate', function () {
+        appendCoursePlaylistSelectOptions();
+        $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').removeClass("active-edit-trek-option");
+        $("[identifier=" + window.currentsectionId + "]").find('.chip-close').removeClass("active-chip-close");
+        $("[identifier=" + window.currentsectionId + "]").removeClass("edit-playlist-chip");
+        $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').css("visibility","visible");
+        $("[identifier=" + window.currentsectionId + "]").find('.chip-close').css("visibility","visible");
+        window.currentsectionId = 0;
+        window.currentSectionState = "create";
+        CKEDITOR.instances['ck-editor-id'].setData('');
+        $('#option-title-select-box').val('');
+        $('#section-title').text("Add New Section");
+        $('#btnSaveSection').text("Create");
+        $('#chips-alternate').text("");
+        $('#btnCancelUpdate').css("display","none");
+        $('#playlist-select-area').css("display","inline");
+
+      });
+      $('body').on('click', '.edit-trek-options', function () {
+        var url = window.location.href;
+        $('#playlist-select-area').css("display","none");
+        window.currentSectionState = "edit";
+        $('#btnSaveSection').text("Update");
+        $('#btnCancelUpdate').css("display","inline-block");
+        $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').removeClass("active-edit-trek-option");
+        $("[identifier=" + window.currentsectionId + "]").find('.chip-close').removeClass("active-chip-close");
+        $("[identifier=" + window.currentsectionId + "]").removeClass("edit-playlist-chip");
+        $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').css("visibility","visible");
+        $("[identifier=" + window.currentsectionId + "]").find('.chip-close').css("visibility","visible");
+        var sectionId = $(this).parent('div').attr('identifier');
+        // $("[identifier=" + sectionId + "]").find('.edit-trek-options').addClass("active-edit-trek-option");
+        // $("[identifier=" + sectionId + "]").find('.chip-close').addClass("active-chip-close");
+        $("[identifier=" + sectionId + "]").find('.edit-trek-options').css("visibility","hidden");
+        $("[identifier=" + sectionId + "]").find('.chip-close').css("visibility","hidden");
+        $("[identifier=" + sectionId + "]").addClass("edit-playlist-chip");
+        window.currentsectionId = sectionId;
+        var host = window.location.origin + '/wordpress/wp-json/lms/v1/get/trek/section';
+        jQuery.ajax({
+          type: "get",
+          dataType: "json",
+          url: host,
+          data: { section_id: sectionId },
+          success: function (response) {
+            $('#section-title').text("Edit \"" + response[0].title + "\" Section");
+            CKEDITOR.instances['ck-editor-id'].setData(response[0].content);
+            if ($("#option-title-select-box option[value='" + response[0].title + "']").length == 0) {
+              option = '<option selected value="' + response[0].title + '">' + response[0].title + '</option>';
+              appendCoursePlaylistSelectOptions(option);
+            }
+          }
+        });
+      });
+
+      $("#course_select_options").on('change', function () {
+        appendCoursePlaylistSelectOptions();
+      });
+
     });
   });
 })(jQuery);

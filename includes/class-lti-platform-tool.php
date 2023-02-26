@@ -31,6 +31,7 @@
  * @subpackage LTI_Platform/includes
  * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
  */
+
 use ceLTIc\LTI\Tool;
 
 class LTI_Platform_Tool extends Tool
@@ -102,15 +103,23 @@ class LTI_Platform_Tool extends Tool
     {
         parent::__construct($dataConnector);
         $options = self::getOptions();
-        $this->setSetting('sendUserName',
-            (isset($options['sendusername']) && ($options['sendusername'] === 'true')) ? 'true' : 'false');
+        $this->setSetting(
+            'sendUserName',
+            (isset($options['sendusername']) && ($options['sendusername'] === 'true')) ? 'true' : 'false'
+        );
         $this->setSetting('sendUserId', (isset($options['senduserid']) && ($options['senduserid'] === 'true')) ? 'true' : 'false');
-        $this->setSetting('sendUserEmail',
-            (isset($options['senduseremail']) && ($options['senduseremail'] === 'true')) ? 'true' : 'false');
-        $this->setSetting('sendUserRole',
-            (isset($options['senduserrole']) && ($options['senduserrole'] === 'true')) ? 'true' : 'false');
-        $this->setSetting('sendUserUsername',
-            (isset($options['senduserusername']) && ($options['senduserusername'] === 'true')) ? 'true' : 'false');
+        $this->setSetting(
+            'sendUserEmail',
+            (isset($options['senduseremail']) && ($options['senduseremail'] === 'true')) ? 'true' : 'false'
+        );
+        $this->setSetting(
+            'sendUserRole',
+            (isset($options['senduserrole']) && ($options['senduserrole'] === 'true')) ? 'true' : 'false'
+        );
+        $this->setSetting(
+            'sendUserUsername',
+            (isset($options['senduserusername']) && ($options['senduserusername'] === 'true')) ? 'true' : 'false'
+        );
         $this->setSetting('presentationTarget', (!empty($options['presentationtarget'])) ? $options['presentationtarget'] : '');
         $this->setSetting('presentationWidth', (!empty($options['presentationwidth'])) ? $options['presentationwidth'] : '');
         $this->setSetting('presentationHeight', (!empty($options['presentationheight'])) ? $options['presentationheight'] : '');
@@ -155,9 +164,9 @@ class LTI_Platform_Tool extends Tool
 
     public function save_notice($message, $type = 'success')
     {
-        echo('    <div class="notice notice-' . esc_html($type) . ' is-dismissible">' . "\n");
-        echo('        <p>' . esc_html($message) . '</p>' . "\n");
-        echo('    </div>' . "\n");
+        echo ('    <div class="notice notice-' . esc_html($type) . ' is-dismissible">' . "\n");
+        echo ('        <p>' . esc_html($message) . '</p>' . "\n");
+        echo ('    </div>' . "\n");
     }
 
     public function save_notice_success()
@@ -177,8 +186,10 @@ class LTI_Platform_Tool extends Tool
 
     public function save_notice_disabled()
     {
-        $this->save_notice('This tool cannot be enabled because it is not fully configured for either LTI 1.0 or LTI 1.3, or no private key has been defined.',
-            'warning');
+        $this->save_notice(
+            'This tool cannot be enabled because it is not fully configured for either LTI 1.0 or LTI 1.3, or no private key has been defined.',
+            'warning'
+        );
     }
 
     public function trash()
@@ -205,7 +216,8 @@ class LTI_Platform_Tool extends Tool
 
     public static function register()
     {
-        register_post_type(self::POST_TYPE,
+        register_post_type(
+            self::POST_TYPE,
             array(
                 'labels' => array(
                     'name' => __('LTI Tools', LTI_Platform::get_plugin_name()),
@@ -215,8 +227,10 @@ class LTI_Platform_Tool extends Tool
                 'query_var' => false,
                 'public' => false,
                 'capability_type' => 'page',
-        ));
-        register_post_type(self::POST_TYPE_NETWORK,
+            )
+        );
+        register_post_type(
+            self::POST_TYPE_NETWORK,
             array(
                 'labels' => array(
                     'name' => __('Network LTI Tools', LTI_Platform::get_plugin_name()),
@@ -226,12 +240,14 @@ class LTI_Platform_Tool extends Tool
                 'query_var' => false,
                 'public' => false,
                 'capability_type' => 'page',
-        ));
-       self::lxp_add_user_roles();
+            )
+        );
+        self::lxp_add_user_roles();
         add_shortcode(LTI_Platform::get_plugin_name(), array('LTI_Platform_Tool', 'shortcode'));
     }
 
-    public static function lxp_add_user_roles() {
+    public static function lxp_add_user_roles()
+    {
 
         add_role(
             'lxp_teacher',
@@ -244,76 +260,121 @@ class LTI_Platform_Tool extends Tool
             'Lxp Student ',
             array()
         );
-        
-        $course_cap = "lxp_course";
-	    $lesson_cap = "lxp_lesson";
-    
-        $teacher = get_role( "lxp_teacher" );
-        if ( $teacher ) {
-            $teacher->add_cap( 'read_' . $course_cap );
-            $teacher->add_cap( 'read_private_' . $course_cap . "s"  );
-            
-            $teacher->add_cap( 'create_' . $course_cap );
-            $teacher->add_cap( 'create_' . $course_cap . "s" );
-            $teacher->add_cap( 'delete_' . $course_cap );  
-            $teacher->add_cap( 'lxp_teacher' . $course_cap."s");
-            $teacher->add_cap( 'edit_' . $course_cap );
-            $teacher->add_cap( 'edit_' . $course_cap."s");
-            $teacher->add_cap( 'publish_' . $course_cap . "s" );
 
-            $teacher->add_cap( 'read_' . $lesson_cap );
-            $teacher->add_cap( 'create_' . $lesson_cap );
-            $teacher->add_cap( 'create_' . $lesson_cap . "s" );
-            $teacher->add_cap( 'delete_' . $lesson_cap );
-            $teacher->add_cap( 'edit_' . $lesson_cap );
-            $teacher->add_cap( 'edit_' . $lesson_cap . "s" );
-            $teacher->add_cap( 'publish_' . $lesson_cap . "s" );
+        add_role(
+            'lxp_client_admin',
+            'Lxp Client Admin ',
+            array()
+        );
 
-            $teacher->add_cap( 'grades_' . $course_cap );
+
+        add_role(
+            'lxp_school_admin',
+            'Lxp School Admin ',
+            array()
+        );
+
+
+        $course_cap = "_lxp_course";
+        $lesson_cap = "_lxp_lesson";
+        $school_cap = "_lxp_school";
+        $district_cap = "_lxp_district";
+
+        $teacher = get_role("lxp_teacher");
+        if ($teacher) {
+            $teacher->add_cap('read' . $course_cap);
+            $teacher->add_cap('read_private' . $course_cap . "s");
+            $teacher->add_cap('create' . $course_cap);
+            $teacher->add_cap('create' . $course_cap . "s");
+            $teacher->add_cap('delete' . $course_cap);
+            $teacher->add_cap('lxp_teacher' . $course_cap . "s");
+            $teacher->add_cap('edit' . $course_cap);
+            $teacher->add_cap('edit' . $course_cap . "s");
+            $teacher->add_cap('publish' . $course_cap . "s");
+            $teacher->add_cap('grades' . $course_cap);
+            $teacher->add_cap('read' . $lesson_cap);
+            $teacher->add_cap('create' . $lesson_cap);
+            $teacher->add_cap('create' . $lesson_cap . "s");
+            $teacher->add_cap('delete' . $lesson_cap);
+            $teacher->add_cap('edit' . $lesson_cap);
+            $teacher->add_cap('edit' . $lesson_cap . "s");
+            $teacher->add_cap('publish' . $lesson_cap . "s");
+           
         }
-    
-        $student = get_role( 'lxp_student' );
-        if ( $student ) {
-            $student->add_cap( 'read_' . $course_cap );
-            $student->add_cap( 'read_' . $lesson_cap );
+
+        $student = get_role('lxp_student');
+        if ($student) {
+            $student->add_cap('read' . $course_cap);
+            $student->add_cap('read' . $lesson_cap);
         }
 
-        $admin = get_role( 'administrator' );
-        if ( $admin ) {
-            $admin->add_cap( 'read_' . $course_cap );
-            $admin->add_cap( 'read_private_' . $course_cap . "s" );
-            $admin->add_cap( 'create_' . $course_cap );
-            $admin->add_cap( 'create_' . $course_cap."s" );
-            $admin->add_cap( 'delete_' . $course_cap );
-            $admin->add_cap( 'delete_' . $course_cap."s");
-            $admin->add_cap( 'edit_' . $course_cap );
-            $admin->add_cap( 'edit_' . $course_cap."s");
-            $admin->add_cap( 'publish_' . $course_cap . "s" );
+        $admin = get_role('administrator');
+        if ($admin) {
+            $admin->add_cap('read' . $course_cap);
+            $admin->add_cap('read_private' . $course_cap . "s");
+            $admin->add_cap('create' . $course_cap);
+            $admin->add_cap('create' . $course_cap . "s");
+            $admin->add_cap('delete' . $course_cap);
+            $admin->add_cap('delete' . $course_cap . "s");
+            $admin->add_cap('edit' . $course_cap);
+            $admin->add_cap('edit' . $course_cap . "s");
+            $admin->add_cap('publish' . $course_cap . "s");
 
-            $admin->add_cap( 'read_' . $lesson_cap );
-            $admin->add_cap( 'read_private_' . $course_cap );
-            $admin->add_cap( 'create_' . $lesson_cap );
-            $admin->add_cap( 'create_' . $lesson_cap."s" );
-            $admin->add_cap( 'delete_' . $lesson_cap );
-            $admin->add_cap( 'delete_' . $lesson_cap."s" );
-            $admin->add_cap( 'edit_' . $lesson_cap . "s" );
-            $admin->add_cap( 'edit_' . $lesson_cap );
-            $admin->add_cap( 'publish_' . $lesson_cap . "s" );
+            $admin->add_cap('manage_category' . $course_cap);
+            $admin->add_cap('edit_category' . $course_cap);
+            $admin->add_cap('delete_category' . $course_cap);
+            $admin->add_cap('assign_category' . $course_cap);
+            $admin->add_cap('manage_tag' . $course_cap);
+            $admin->add_cap('edit_tag' . $course_cap);
+            $admin->add_cap('delete_tag' . $course_cap);
+            $admin->add_cap('assign_tag' . $course_cap);
 
-            $admin->add_cap( 'manage_category_' . $course_cap );
-            $admin->add_cap( 'edit_category_' . $course_cap );
-            $admin->add_cap( 'delete_category_' . $course_cap );
-            $admin->add_cap( 'assign_category_' . $course_cap );
+            $admin->add_cap('read' . $lesson_cap);
+            $admin->add_cap('read_private' . $course_cap);
+            $admin->add_cap('create' . $lesson_cap);
+            $admin->add_cap('create' . $lesson_cap . "s");
+            $admin->add_cap('delete' . $lesson_cap);
+            $admin->add_cap('delete' . $lesson_cap . "s");
+            $admin->add_cap('edit' . $lesson_cap . "s");
+            $admin->add_cap('edit' . $lesson_cap);
+            $admin->add_cap('publish' . $lesson_cap . "s");
+            $admin->add_cap('manage_tag' . $lesson_cap);
+            $admin->add_cap('edit_tag' . $lesson_cap);
+            $admin->add_cap('delete_tag' . $lesson_cap);
+            $admin->add_cap('assign_tag' . $lesson_cap);
+        }
 
-            $admin->add_cap( 'manage_tag_' . $lesson_cap );
-            $admin->add_cap( 'edit_tag_' . $lesson_cap );
-            $admin->add_cap( 'delete_tag_' . $lesson_cap );
-            $admin->add_cap( 'assign_tag_' . $lesson_cap );
+        $school_admin = get_role('lxp_school_admin');                    //Trek school admin
+        if ($school_admin) {
+            $school_admin->add_cap('read' . $school_cap);
+        }
 
-            $admin->add_cap( 'manage_tag_' . $course_cap );
-            $admin->add_cap( 'edit_tag_' . $course_cap );
-            $admin->add_cap( 'delete_tag_' . $course_cap );
-            $admin->add_cap( 'assign_tag_' . $course_cap );
+
+
+        $client_admin = get_role('lxp_client_admin');                    //Trek district admin
+        if ($client_admin) {
+            $client_admin->add_cap('read' . $school_cap);
+            $client_admin->add_cap('read_private' . $school_cap . "s");
+            $client_admin->add_cap('read_private' . $school_cap);
+            $client_admin->add_cap('create' . $school_cap);
+            $client_admin->add_cap('create' . $school_cap . "s");
+            $client_admin->add_cap('delete' . $school_cap);
+            $client_admin->add_cap('delete' . $school_cap . "s");
+            $client_admin->add_cap('edit' . $school_cap);
+            $client_admin->add_cap('edit' . $school_cap . "s");
+            $client_admin->add_cap('publish' . $school_cap . "s");
+
+
+            $client_admin->add_cap('read' . $district_cap);
+            // $client_admin->add_cap('read_private' . $district_cap . "s");
+            // $client_admin->add_cap('read_private' . $district_cap);
+            // $client_admin->add_cap('create' . $district_cap);
+            // $client_admin->add_cap('create' . $district_cap . "s");
+            // $client_admin->add_cap('delete' . $district_cap);
+            // $client_admin->add_cap('delete' . $district_cap . "s");
+            // $client_admin->add_cap('edit' . $district_cap);
+            // $client_admin->add_cap('edit' . $district_cap . "s");
+            // $client_admin->add_cap('publish' . $district_cap . "s");
         }
     }
 
@@ -330,7 +391,8 @@ class LTI_Platform_Tool extends Tool
             'custom' => '',
             'target' => '',
             'width' => '',
-            'height' => ''), $atts);
+            'height' => ''
+        ), $atts);
 
         $error = '';
         $missing = array();
@@ -403,8 +465,10 @@ class LTI_Platform_Tool extends Tool
                     $size = substr($size, 0, -1);
                 }
             }
-            $url = add_query_arg(array(LTI_Platform::get_plugin_name() => '', 'post' => $post->ID, 'id' => $atts['id']),
-                get_site_url());
+            $url = add_query_arg(
+                array(LTI_Platform::get_plugin_name() => '', 'post' => $post->ID, 'id' => $atts['id']),
+                get_site_url()
+            );
             switch ($target) {
                 case 'window':
                     $html = "<a href=\"{$url}\" title=\"Launch {$atts['tool']} tool\" target=\"_blank\">{$link_text}</a>";
@@ -432,5 +496,4 @@ class LTI_Platform_Tool extends Tool
         return !empty($this->messageUrl) &&
             ((!empty($this->getKey()) && !empty($this->secret)) || $this->canUseLTI13());
     }
-
 }
