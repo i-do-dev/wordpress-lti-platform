@@ -72,6 +72,7 @@ class TL_TREK_Post_Type extends TL_Post_Type
          trek_section_id bigint(20) default NULL,
             start  bigint(20) default NULL,
             end  bigint(20) default NULL,
+            user_id  bigint(20) default NULL,
 			PRIMARY KEY (id)
 		)");
 

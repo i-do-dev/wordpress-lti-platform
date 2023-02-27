@@ -141,6 +141,7 @@ class TL_District_Post_Type extends TL_Post_Type
       $output = '<h4>Select District Admin</h4>';
 
       $output .= '<select name="lxp_client_admin_id"  style="margin-top:-10px"> ';
+      $output .= '<option value="0">Select An Admin</option>';
       foreach ($clientAdmins as $admin) {
          if ($selectedAdmin == $admin->ID) {
             $selected = "selected";
@@ -156,7 +157,12 @@ class TL_District_Post_Type extends TL_Post_Type
    public function save_tl_post($post_id = null)
    {
       if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_district' == $_POST['post_type']) {
-         update_post_meta($post_id, 'lxp_client_admin_id', $_POST['lxp_client_admin_id']);
+         if($_POST['lxp_client_admin_id'] != 0){
+            update_post_meta($post_id, 'lxp_client_admin_id', $_POST['lxp_client_admin_id']);
+         }else{
+            update_post_meta($post_id, 'lxp_client_admin_id', '');
+         }
+        
       }
    }
 

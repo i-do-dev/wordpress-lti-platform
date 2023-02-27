@@ -118,6 +118,16 @@ class TL_School_Post_Type extends TL_Post_Type
          'default',         // Priority
          'show_in_rest' => true,
       ]);
+
+      $this->add_meta_box([
+         'School-admin-id',      // Unique ID
+         esc_html__('School Admin ', 'school'),    // Title
+         array(self::instance(), 'lxp_school_admin_metabox_html'),   // Callback function
+         $this->_post_type,         // Admin page (or post type)
+         'advanced',         // Context
+         'default',         // Priority
+         'show_in_rest' => true,
+      ]);
    }
 
    function post_meta_request_params($args, $request)
@@ -144,6 +154,7 @@ class TL_School_Post_Type extends TL_Post_Type
       $output = '  <h4>Select District</h4>';
 
       $output .= '<select name="lxp_school_district_id" id="course_select_options" style="margin-top:-10px"> ';
+      $output .= '<option value="0">Select District</option>';
       foreach ($districts as $district) {
          if ($selectedDistrict == $district->ID) {
             $selected = "selected";
@@ -156,10 +167,44 @@ class TL_School_Post_Type extends TL_Post_Type
       echo $output;
    }
 
+   public function lxp_school_admin_metabox_html($post = null)
+   {
+      $args = array(
+         'role' => 'lxp_school_admin',
+         'order' => 'ASC'
+        );
+         $clientAdmins = get_users($args);
+      $selectedAdmin =   get_post_meta($post->ID, 'lxp_school_admin_id', true);
+      $output = '<h4>Select District Admin</h4>';
+
+      $output .= '<select name="lxp_school_admin_id"  style="margin-top:-10px"> ';
+      $output .= '<option value="0">Select An Admin</option>';
+      foreach ($clientAdmins as $admin) {
+         if ($selectedAdmin == $admin->ID) {
+            $selected = "selected";
+         } else {
+            $selected = "";
+         }
+         $output .= '<option value="' . $admin->ID . '" ' . $selected . ' >' . $admin->display_name . ' </option>';
+      }
+      $output .= '</select>';
+      echo $output;
+   }
+
    public function save_tl_post($post_id = null)
    {
       if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_school' == $_POST['post_type']) {
-         update_post_meta($post_id, 'lxp_school_district_id', $_POST['lxp_school_district_id']);
+         if($_POST['lxp_school_district_id'] != 0){
+            update_post_meta($post_id, 'lxp_school_district_id', $_POST['lxp_school_district_id']);
+         }else{
+            update_post_meta($post_id, 'lxp_school_district_id', '');
+         }
+
+         if($_POST['lxp_school_admin_id'] != 0){
+            update_post_meta($post_id, 'lxp_school_admin_id', $_POST['lxp_school_admin_id']);
+         }else{
+            update_post_meta($post_id, 'lxp_school_admin_id', '');
+         }
       }
    }
 

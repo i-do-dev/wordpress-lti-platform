@@ -228,25 +228,26 @@ class LMS_REST_API
 		$wpdb->insert($wpdb->prefix . 'trek_events', array(
 			'trek_section_id' => $_POST['trek_section_id'],
 			'start' =>  $_POST['start'],
-			'end' =>  $_POST['end']
+			'end' =>  $_POST['end'],
+			'user_id' => $_POST['user_id']
 		));
 		$data = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE id = " . $_POST['trek_section_id']);
 		$data[0]->title;
 		$data[0]->trek_id;
 		$trekPost = get_post($data[0]->trek_id);
 		$response['title'] = $data[0]->title . " - " .  $trekPost->post_title;
-		$response ['start'] = (int) $_POST['start'];
-		$response ['end'] = (int)  $_POST['end'];
-		$response ['id'] = $wpdb->insert_id;;
-		$response ['textColor'] = 'white';
+		$response['start'] = (int) $_POST['start'];
+		$response['end'] = (int)  $_POST['end'];
+		$response['id'] = $wpdb->insert_id;;
+		$response['textColor'] = 'white';
 		if (strtolower(trim($data[0]->title)) == 'recall') {
-			$response ['color'] = '#ca2738';
+			$response['color'] = '#ca2738';
 		} elseif (strtolower(trim($data[0]->title)) == 'apply') {
-			$response ['color'] = '#9fc33b;';
+			$response['color'] = '#9fc33b;';
 		} elseif (strtolower(trim($data[0]->title)) == 'overview') {
-			$response ['color'] = '#979797;';
+			$response['color'] = '#979797;';
 		} else {
-			$response ['color'] = '#1fa5d4;';
+			$response['color'] = '#1fa5d4;';
 		}
 		return $response;
 	}
@@ -254,23 +255,25 @@ class LMS_REST_API
 	public static function get_all_trek_events($request = null)
 	{
 		global $wpdb;
-		$response = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_events");
+		$response = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_events where user_id=" . $_GET['user_id']);
 		foreach ($response as $key => $row) {
 			$data = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE id = " . $row->trek_section_id);
-			$trekPost = get_post($data[0]->trek_id);
-			$response[$key]->title =  $data[0]->title . " - " . $trekPost->post_title;
-			$response[$key]->start = (int) $row->start;
-			$response[$key]->end = (int) $row->end;
-			$response[$key]->id = $row->id;
-			$response[$key]->textColor = 'white';
-			if (strtolower(trim($data[0]->title)) == 'recall') {
-				$response[$key]->color = '#ca2738';
-			} elseif (strtolower(trim($data[0]->title)) == 'apply') {
-				$response[$key]->color = '#9fc33b;';
-			} elseif (strtolower(trim($data[0]->title)) == 'overview') {
-				$response[$key]->color = '#979797;';
-			} else {
-				$response[$key]->color = '#1fa5d4;';
+			if (isset($data[0])) {
+				$trekPost = get_post($data[0]->trek_id);
+				$response[$key]->title =  $data[0]->title . " - " . $trekPost->post_title;
+				$response[$key]->start = (int) $row->start;
+				$response[$key]->end = (int) $row->end;
+				$response[$key]->id = $row->id;
+				$response[$key]->textColor = 'white';
+				if (strtolower(trim($data[0]->title)) == 'recall') {
+					$response[$key]->color = '#ca2738';
+				} elseif (strtolower(trim($data[0]->title)) == 'apply') {
+					$response[$key]->color = '#9fc33b;';
+				} elseif (strtolower(trim($data[0]->title)) == 'overview') {
+					$response[$key]->color = '#979797;';
+				} else {
+					$response[$key]->color = '#1fa5d4;';
+				}
 			}
 		}
 		return $response;
