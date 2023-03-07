@@ -113,6 +113,107 @@ class LMS_REST_API
 				'permission_callback' => '__return_true',
 			),
 		));
+
+		register_rest_route('lms/v1', '/trek/assigned/students', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('LMS_REST_API', 'trek_assigned_students'),
+				'permission_callback' => '__return_true',
+			),
+		));
+		register_rest_route('lms/v1', '/trek/section/assigned/students', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('LMS_REST_API', 'trek_section_assigned_students'),
+				'permission_callback' => '__return_true',
+			),
+		));
+		register_rest_route('lms/v1', '/trek/section/unassign/student', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('LMS_REST_API', 'trek_unassign_student'),
+				'permission_callback' => '__return_true',
+			),
+		));
+		register_rest_route('lms/v1', '/trek/section/unassigned/students', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('LMS_REST_API', 'trek_get_unassigned_students'),
+				'permission_callback' => '__return_true',
+			),
+		));
+		register_rest_route('lms/v1', '/trek/section/assigned/students/store', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('LMS_REST_API', 'trek_section_assigned_students_store'),
+				'permission_callback' => '__return_true',
+			),
+		));
+	}
+
+	public static function trek_section_assigned_students_store($request = null) {
+		$event_store_response = self::store_trek_event($request);
+		$event_store_response['id'];
+		
+		$student_ids = $request->get_param('student_ids');
+		foreach ($student_ids as  $student_id) {
+			global $wpdb;
+			$table = $wpdb->prefix.'student_assignments';
+			$data = array('student_id' => $student_id, 'assignment_id' => $event_store_response['id']);
+			$format = array('%d','%d');
+			$wpdb->insert($table,$data,$format);
+		}
+
+		return self::trek_section_assigned_students($request);
+	}
+
+	public static function trek_get_unassigned_students($request = null) {
+		$assigned_users = self::trek_section_assigned_students($request);
+		global $wpdb;
+		$user_ids = array();
+		foreach ($assigned_users as $user) {
+			array_push($user_ids, $user->id);
+		}
+		$sql = 'SELECT * FROM ' . $wpdb->prefix . 'students';
+		if (count($user_ids) > 0) {
+			$sql .= ' WHERE id NOT IN (' . implode(', ', $user_ids) . ')';
+		}
+		return $wpdb->get_results($sql);
+	}
+
+	public static function trek_unassign_student($request = null) {
+		$student_assignment_id = $request->get_param('student_assignment_id');
+		
+		global $wpdb;
+		$wpdb->delete(
+			$wpdb->prefix . 'student_assignments', 		// table name with dynamic prefix
+			['id' => $student_assignment_id], 						// which id need to delete
+			['%d'], 							// make sure the id format
+		);
+		return self::trek_section_assigned_students($request);
+	}
+
+	public static function trek_section_assigned_students($request = null) {
+		$trek_section_id = $request->get_param('trek_section_id');
+		$teacher_id = $request->get_param('teacher_id');
+		global $wpdb;
+		$query = "SELECT {$wpdb->prefix}students.*, {$wpdb->prefix}student_assignments.id as student_assignment_id FROM {$wpdb->prefix}students
+			  JOIN {$wpdb->prefix}student_assignments ON {$wpdb->prefix}student_assignments.student_id = {$wpdb->prefix}students.id
+			  JOIN {$wpdb->prefix}trek_events ON {$wpdb->prefix}trek_events.id = {$wpdb->prefix}student_assignments.assignment_id
+			  WHERE {$wpdb->prefix}trek_events.trek_section_id = \"{$trek_section_id}\" AND {$wpdb->prefix}trek_events.user_id = \"{$teacher_id}\"
+			";
+		return $wpdb->get_results($query);
+	}
+
+	public static function trek_assigned_students($request = null) {
+		$event_id = $request->get_param('event_id');
+		global $wpdb;
+		$query = "SELECT {$wpdb->prefix}students.* FROM {$wpdb->prefix}students
+					JOIN {$wpdb->prefix}student_assignments ON {$wpdb->prefix}student_assignments.student_id = {$wpdb->prefix}students.id
+					JOIN {$wpdb->prefix}trek_events ON {$wpdb->prefix}trek_events.id = {$wpdb->prefix}student_assignments.assignment_id
+					WHERE {$wpdb->prefix}trek_events.id = {$event_id}
+				";
+		return $wpdb->get_results($query);
 	}
 
 	public static function return_token($request = null)
@@ -221,59 +322,106 @@ class LMS_REST_API
 		return $respones;
 	}
 
-
 	public static function store_trek_event($request = null)
 	{
+		$start = $request->get_param('start');
+		$end = $request->get_param('end');
+		$trek_section_id = $request->get_param('trek_section_id');
+		$user_id = $request->get_param('user_id');
+		if (intval($user_id) == 0) {
+			$user_id = 1;
+		}
+
 		global $wpdb;
 		$wpdb->insert($wpdb->prefix . 'trek_events', array(
-			'trek_section_id' => $_POST['trek_section_id'],
-			'start' =>  $_POST['start'],
-			'end' =>  $_POST['end']
+			'trek_section_id' => $trek_section_id,
+			'start' =>  $start,
+			'end' =>  $end,
+			'user_id' => $user_id
 		));
-		$data = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE id = " . $_POST['trek_section_id']);
+
+		$data = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE id = " . $trek_section_id);
 		$data[0]->title;
 		$data[0]->trek_id;
 		$trekPost = get_post($data[0]->trek_id);
 		$response['title'] = $data[0]->title . " - " .  $trekPost->post_title;
-		$response ['start'] = (int) $_POST['start'];
-		$response ['end'] = (int)  $_POST['end'];
-		$response ['id'] = $wpdb->insert_id;;
-		$response ['textColor'] = 'white';
+		$response['start'] = explode(' ', $start)[0];
+		$response['end'] = explode(' ', $end)[0];
+		$response['id'] = $wpdb->insert_id;;
+		$response['textColor'] = 'white';
 		if (strtolower(trim($data[0]->title)) == 'recall') {
-			$response ['color'] = '#ca2738';
+			$response['color'] = '#ca2738';
 		} elseif (strtolower(trim($data[0]->title)) == 'apply') {
-			$response ['color'] = '#9fc33b;';
+			$response['color'] = '#9fc33b;';
 		} elseif (strtolower(trim($data[0]->title)) == 'overview') {
-			$response ['color'] = '#979797;';
+			$response['color'] = '#979797;';
 		} else {
-			$response ['color'] = '#1fa5d4;';
+			$response['color'] = '#1fa5d4;';
 		}
 		return $response;
 	}
 
 	public static function get_all_trek_events($request = null)
 	{
+		
 		global $wpdb;
-		$response = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_events");
+		$result = array();
+		$response = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_events where user_id=" . $_GET['user_id']);
 		foreach ($response as $key => $row) {
 			$data = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE id = " . $row->trek_section_id);
-			$trekPost = get_post($data[0]->trek_id);
-			$response[$key]->title =  $data[0]->title . " - " . $trekPost->post_title;
-			$response[$key]->start = (int) $row->start;
-			$response[$key]->end = (int) $row->end;
-			$response[$key]->id = $row->id;
-			$response[$key]->textColor = 'white';
-			if (strtolower(trim($data[0]->title)) == 'recall') {
-				$response[$key]->color = '#ca2738';
-			} elseif (strtolower(trim($data[0]->title)) == 'apply') {
-				$response[$key]->color = '#9fc33b;';
-			} elseif (strtolower(trim($data[0]->title)) == 'overview') {
-				$response[$key]->color = '#979797;';
-			} else {
-				$response[$key]->color = '#1fa5d4;';
+			if (isset($data[0])) {
+				$trekPost = get_post($data[0]->trek_id);
+				// $response[$key]->title =  $data[0]->title . " - " . $trekPost->post_title;
+				// $response[$key]->start = explode(' ', $row->start)[0];
+				// $response[$key]->end = explode(' ', $row->end)[0];
+				//$response[$key]->id = $row->id;
+				//$response[$key]->textColor = 'white';
+				//$response[$key]->allDay = false;
+				/*
+				if (strtolower(trim($data[0]->title)) == 'recall') {
+					$response[$key]->color = '#ca2738';
+				} elseif (strtolower(trim($data[0]->title)) == 'apply') {
+					$response[$key]->color = '#9fc33b;';
+				} elseif (strtolower(trim($data[0]->title)) == 'overview') {
+					$response[$key]->color = '#979797;';
+				} else {
+					$response[$key]->color = '#1fa5d4;';
+				}
+				*/
+
+				$obj = new \stdClass();
+				$obj->id = $row->id;
+				$obj->textColor = 'white';
+				$obj->title = $data[0]->title . " - " . $trekPost->post_title;
+				$obj->start = explode(' ', $row->start)[0];
+				$obj->end = explode(' ', $row->end)[0]; //2023-02-28T01:30:00
+				$obj->allDay=false;	
+				if (strtolower(trim($data[0]->title)) == 'recall') {
+					$obj->color = '#ca2738';
+				} elseif (strtolower(trim($data[0]->title)) == 'apply') {
+					$obj->color = '#9fc33b';
+				} elseif (strtolower(trim($data[0]->title)) == 'overview') {
+					$obj->color = '#979797';
+				} else {
+					$obj->color = '#1fa5d4';
+				}	
+				
+				$obj->trekTitle = $trekPost->post_title;
+				$obj->trekSectionId = $row->trek_section_id;
+				$obj->trekSectionTitle = $data[0]->title;
+				array_push($result, $obj);
 			}
 		}
-		return $response;
+
+		/* 
+		$obj = new \stdClass();
+		$obj->title ='event3';
+		$obj->start ='2023-02-27T15:30:00';
+		$obj->end ='2023-02-27T16:45:00'; //2023-02-28T01:30:00
+		$obj->allDay=false;
+		array_push($result, $obj);
+		 */
+		return $result;
 	}
 
 
@@ -322,3 +470,4 @@ class LMS_REST_API
 		return [];
 	}
 }
+

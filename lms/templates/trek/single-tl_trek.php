@@ -27,6 +27,7 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
     <title><?php the_title(); ?></title>
     <link href="<?php echo $treks_src; ?>/style/common.css" rel="stylesheet" />
     <link href="<?php echo $treks_src; ?>/style/treksstyle.css" rel="stylesheet" />
+    <link href="<?php echo $treks_src; ?>/style/style-trek-section.css" rel="stylesheet" />
 
     <link
       rel="stylesheet"
@@ -36,6 +37,9 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
     />
 
     <style type="text/css">
+      .trek-section-hide {
+        display: none;
+      }
       .trek-section-nav-anchor {
         text-decoration: none;
       }
@@ -67,9 +71,9 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
       .central-cncpt-section h1 {
         font-size: 1.6rem;
       }
-      .central-cncpt-section h2 {
+      /* .central-cncpt-section h2 {
         font-size: 1.4rem;
-      }
+      } */
       .central-cncpt-section h3 {
         font-size: 1.3rem;
       }
@@ -251,12 +255,12 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
       <?php 
         if ( $trek_sections ) {
           foreach ( $trek_sections as $trek_section ) {
+            $trek_section_hide = strtolower(trim($trek_section->title)) !== 'overview' ? 'trek-section-hide' : ''; 
       ?>
-            <section class="central-cncpt-section">
+            <section class="central-cncpt-section <?php echo $trek_section_hide; ?> <?php echo 'trek-section-'.implode('_', explode(' ', $trek_section->title));?>">
               <!-- section heading -->
               <div class="trek-main-heading-wrapper">
-                <h1 class="trek-main-heading" id="<?php echo implode('_', explode(' ', $trek_section->title));?>"><?php echo $trek_section->title;?></h1>
-                <a href="#" class="trek-main-heading-top-link">&uarr;Top</a>
+                <h1 class="trek-main-heading" id="<?php echo implode('_', explode(' ', $trek_section->title));?>"><?php echo $trek_section->title;?></h1>                
               </div>
               
               <!-- digital journal link -->
@@ -277,8 +281,9 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
                 </div>
               </div>
 
-              <?php echo stripslashes($trek_section->content);?>
-
+              <div class="trek-main-body-wrapper">
+                <?php echo stripslashes($trek_section->content);?>
+              </div>
             </section>    
       <?php
           }
@@ -337,6 +342,29 @@ $trek_sections = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}trek_sections 
           }
         });
 
+        // ************ Navigation Tabs ****************
+        jQuery('a.trek-section-nav-anchor').on('click', function(e) {
+          e.preventDefault();
+          const navHref = jQuery(this).attr('href').split('#');
+          if (navHref.length > 1) {
+            jQuery('.central-cncpt-section').addClass('trek-section-hide');
+            jQuery('.trek-section-' + navHref[1]).removeClass('trek-section-hide');
+          }
+        });
+
+        // ********* Execute the bookmark link ****************
+        if (location.hash && jQuery('a' + location.hash).length > 0) {
+          jQuery('section.central-cncpt-section').get().forEach(function(section) {            
+            if (!jQuery(section).hasClass('trek-section-hide')) {
+              jQuery(section).addClass('trek-section-hide');
+            }
+          });
+          jQuery('a' + location.hash).parents('section.central-cncpt-section').removeClass('trek-section-hide');
+          const bookmarkPosition = jQuery('a' + location.hash).position();
+          if (bookmarkPosition) {
+            window.scrollTo(bookmarkPosition.left, bookmarkPosition.top);
+          }
+        }
       });
 
 
