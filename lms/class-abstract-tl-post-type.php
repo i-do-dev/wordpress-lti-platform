@@ -8,7 +8,7 @@
  */
 define( 'LMS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
-require_once( LMS__PLUGIN_DIR . 'lms-rest-api.php' );
+require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/lms-rest-api.php' );
  abstract class TL_Post_Type {
     /**
 	 * Type of post
@@ -58,6 +58,7 @@ require_once( LMS__PLUGIN_DIR . 'lms-rest-api.php' );
 		add_action( 'rest_api_init', array( 'LMS_REST_API', 'init' ) );
 		add_filter( 'post_row_actions', array( $this, 'modify_list_row_actions' ), 10, 2 );
 		add_action( 'admin_menu', array($this, 'register_views' ));	
+		add_action( 'post_edit_form_tag', array($this, 'update_edit_form' ));	
     }
 
     /**
@@ -104,5 +105,8 @@ require_once( LMS__PLUGIN_DIR . 'lms-rest-api.php' );
 	public function save_tl_post () {}
 	
 	public function tl_post_content () {}
+
+	public function update_edit_form () {}
+	
 
 }

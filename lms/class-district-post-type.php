@@ -136,8 +136,20 @@ class TL_District_Post_Type extends TL_Post_Type
          'role' => 'lxp_client_admin',
          'order' => 'ASC'
         );
-         $clientAdmins = get_users($args);
-      $selectedAdmin =   get_post_meta($post->ID, 'lxp_client_admin_id', true);
+      $clientAdmins = get_users($args);
+
+
+      $users = get_users(
+         array(
+            'role' => 'lxp_client_admin',
+            'meta_key' => 'lxp_client_admin_id',
+            'meta_value' => $post->ID,
+            'number' => -1
+         )
+      );
+
+      // $selectedAdmin = get_post_meta($post->ID, 'lxp_client_admin_id', true);
+      $selectedAdmin = isset($users[0]) ? $users[0]->ID : "";
       $output = '<h4>Select District Admin</h4>';
 
       $output .= '<select name="lxp_client_admin_id"  style="margin-top:-10px"> ';
@@ -157,12 +169,20 @@ class TL_District_Post_Type extends TL_Post_Type
    public function save_tl_post($post_id = null)
    {
       if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_district' == $_POST['post_type']) {
-         if($_POST['lxp_client_admin_id'] != 0){
-            update_post_meta($post_id, 'lxp_client_admin_id', $_POST['lxp_client_admin_id']);
-         }else{
-            update_post_meta($post_id, 'lxp_client_admin_id', '');
+         $users = get_users(
+            array(
+               'role' => 'lxp_client_admin',
+               'meta_key' => 'lxp_client_admin_id',
+               'meta_value' => $post_id,
+               'number' => -1
+            )
+         );
+         if(isset($users[0]->ID)){
+            delete_user_meta($users[0]->ID, 'lxp_client_admin_id');
          }
-        
+         if($_POST['lxp_client_admin_id'] != 0){
+            update_user_meta($_POST['lxp_client_admin_id'], 'lxp_client_admin_id', $post_id);
+         }
       }
    }
 
