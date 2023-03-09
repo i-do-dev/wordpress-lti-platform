@@ -1,7 +1,11 @@
 <?php
 
+require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/teachers.php' );
+require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/students.php' );
+
 class LMS_REST_API
 {
+
 	/**
 	 * Register the REST API routes.
 	 */
@@ -11,6 +15,9 @@ class LMS_REST_API
 			// The REST API wasn't integrated into core until 4.4, and we support 4.0+ (for now).
 			return false;
 		}
+		
+		Rest_Lxp_Teacher::init();
+		Rest_Lxp_Student::init();
 
 		register_rest_route('lms/v1', '/scores', array(
 			array(
@@ -114,6 +121,13 @@ class LMS_REST_API
 			),
 		));
 
+		register_rest_route('lms/v1', '/delete/school/lxp/user', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('LMS_REST_API', 'delete_school_lxp_user'),
+				'permission_callback' => '__return_true',
+			),
+		));
 		register_rest_route('lms/v1', '/trek/assigned/students', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -469,5 +483,13 @@ class LMS_REST_API
 		$wpdb->query("DELETE FROM " . $wpdb->prefix . "trek_events WHERE id =" . $_POST['id']);
 		return [];
 	}
+
+	public static function delete_school_lxp_user($request = null)
+	{
+		delete_user_meta($_POST['user_id'], 'lxp_school_id');
+		return [];
+	}
 }
 
+
+?>

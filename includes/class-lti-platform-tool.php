@@ -244,6 +244,259 @@ class LTI_Platform_Tool extends Tool
         );
         self::lxp_add_user_roles();
         add_shortcode(LTI_Platform::get_plugin_name(), array('LTI_Platform_Tool', 'shortcode'));
+        add_shortcode('Schools-Short-Code', array('LTI_Platform_Tool', 'schools_short_code'));
+        add_shortcode('Teachers-Short-Code', array('LTI_Platform_Tool', 'teachers_short_code'));
+        add_shortcode('Students-Short-Code', array('LTI_Platform_Tool', 'students_short_code'));
+        add_shortcode('Dashboard-Short-Code', array('LTI_Platform_Tool', 'dashboard_counts'));
+    }
+
+
+    public static function dashboard_counts()
+    {
+        $user = wp_get_current_user();
+        $userDistrict = get_user_meta($user->ID, 'lxp_client_admin_id');
+        $totalSchools = 0;
+        $totalStudents = 0;
+        $totalTeachers = 0;
+
+        $args = array(
+            'posts_per_page'   => -1,
+            'post_type'        => 'tl_school',
+            'meta_query' => array(
+                array(
+                    'key'   => 'lxp_school_district_id',
+                    'value' =>  $userDistrict[0]
+                )
+            )
+        );
+        $schools = get_posts($args);
+        foreach ($schools as  $key => $school) {
+            $totalSchools++;
+            $students = get_users(
+                array(
+                    'role' => 'lxp_student',
+                    'meta_key' => 'lxp_school_id',
+                    'meta_value' => $school->ID,
+                    'number' => -1
+                )
+            );
+            $totalStudents +=  count($students);
+            $teachers = get_users(
+                array(
+                    'role' => 'lxp_teacher',
+                    'meta_key' => 'lxp_school_id',
+                    'meta_value' => $school->ID,
+                    'number' => -1
+                )
+            );
+            $totalTeachers +=  count($teachers);
+        }
+        echo   'Schools ' . $totalSchools . '<br> Teachers ' . $totalTeachers . '<br>' . 'Students' . $totalStudents;
+    }
+
+
+    public static function schools_short_code()
+    {
+        $user = wp_get_current_user();
+        $userDistrict = get_user_meta($user->ID, 'lxp_client_admin_id');
+        $districtPost = get_post($userDistrict[0]);
+        $table = "<table class='table' >";
+        $table .= "<tr><th>School</th><th>Added On</th><th>ID</th><th>Administrator</th><th>District</th><tr>";
+
+
+
+
+
+
+
+        global $wpdb;
+
+        $posts_per_page = 1;
+        $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+        $offset = ($paged - 1) * $posts_per_page;
+
+        $query = "
+            SELECT wp_posts.*
+            FROM wp_posts
+            INNER JOIN wp_postmeta ON (wp_posts.ID = wp_postmeta.post_id)
+            WHERE wp_postmeta.meta_key = 'lxp_school_district_id' AND wp_postmeta.meta_value = '" . $userDistrict[0] . "'
+            AND wp_posts.post_type = 'tl_school' 
+            ORDER BY wp_posts.post_date DESC
+            LIMIT $offset, $posts_per_page
+        ";
+
+        $posts = $wpdb->get_results($query);
+        $total_posts = $wpdb->get_var("SELECT COUNT(*) FROM wp_posts INNER JOIN wp_postmeta ON (wp_posts.ID = wp_postmeta.post_id) WHERE wp_postmeta.meta_key = 'lxp_school_district_id' AND wp_postmeta.meta_value = '" . $userDistrict[0] . "' AND wp_posts.post_type = 'tl_school'");
+
+        if ($posts) {
+            foreach ($posts as $school) {
+                $users = get_users(
+                    array(
+                        'role' => 'lxp_school_admin',
+                        'meta_key' => 'lxp_school_admin_id',
+                        'meta_value' => $school->ID,
+                        'number' => -1
+                    )
+                );
+                $adminName = isset($users[0]) ? $users[0]->display_name : '';
+                $table .= "<tr>
+                <td>" . $school->post_title . "</td>
+                <td>" . $school->post_date . "</td>
+                <td>" . $school->ID . "</td>
+                <td>" . $adminName   . "</td>
+                <td>" . $districtPost->post_title . "</td>
+                <tr>";
+            }
+            echo  $table .= "</table>";
+            wp_reset_postdata();
+
+            $total_pages = ceil($total_posts / $posts_per_page);
+            if ($total_pages > 1) {
+                $current_page = max(1, get_query_var('paged'));
+                echo '<div class="pagination">';
+                echo paginate_links(array(
+                    'base' => get_pagenum_link(1) . '%_%',
+                    'format' => 'page/%#%',
+                    'current' => $current_page,
+                    'total' => $total_pages,
+                    'prev_text' => __('&laquo; Previous'),
+                    'next_text' => __('Next &raquo;')
+                ));
+                echo '</div>';
+            }
+        } else {
+            echo 'No posts found';
+        }
+    }
+
+    public static function teachers_short_code()
+    {
+
+        $user = wp_get_current_user();
+        $userDistrict = get_user_meta($user->ID, 'lxp_client_admin_id');
+        $districtPost = get_post($userDistrict[0]);
+        $table = "<table class='table' >";
+        $table .= "<tr><th>Teacher</th><th>Grade</th><th>ID</th><th>School</th><th>Region/District</th><tr>";
+        global $wpdb;
+        $posts_per_page = 1;
+        $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+        $offset = ($paged - 1) * $posts_per_page;
+        $query = "SELECT p.ID AS post_id,p.post_title AS post_title, u.ID AS user_id, u.display_name, u.user_email
+       FROM wp_posts p
+       JOIN wp_postmeta pm ON p.ID = pm.post_id AND pm.meta_key = 'lxp_school_district_id' AND pm.meta_value = 2125
+       JOIN wp_users u ON u.ID IN (
+           SELECT user_id FROM wp_usermeta WHERE meta_key = 'wp_capabilities' AND meta_value LIKE '%lxp_teacher%'
+       ) 
+       JOIN wp_usermeta um ON u.ID = um.user_id AND um.meta_key = 'lxp_school_id' AND um.meta_value = p.ID
+       WHERE p.post_type = 'tl_school'
+       ORDER BY p.post_date DESC
+       LIMIT $offset, $posts_per_page ";
+        $posts = $wpdb->get_results($query);
+        $total_posts = $wpdb->get_var(" SELECT COUNT(*) 
+       FROM wp_posts p
+       JOIN wp_postmeta pm ON p.ID = pm.post_id AND pm.meta_key = 'lxp_school_district_id' AND pm.meta_value = 2125
+       JOIN wp_users u ON u.ID IN (
+           SELECT user_id FROM wp_usermeta WHERE meta_key = 'wp_capabilities' AND meta_value LIKE '%lxp_teacher%'
+       ) 
+       JOIN wp_usermeta um ON u.ID = um.user_id AND um.meta_key = 'lxp_school_id' AND um.meta_value = p.ID
+       WHERE p.post_type = 'tl_school'");
+        if ($posts) {
+            foreach ($posts as $post) {
+                $table .= "<tr>
+               <td>" . $post->display_name . "</td>
+               <td>" . '' . "</td>
+               <td>" . $post->user_id . "</td>
+               <td>" . $post->post_title . "</td>
+               <td>" . $districtPost->post_title . "</td>
+               <tr>";
+            }
+            echo  $table .= "</table>";
+            wp_reset_postdata();
+            $total_pages = ceil($total_posts / $posts_per_page);
+            if ($total_pages > 1) {
+                $current_page = max(1, get_query_var('paged'));
+                echo '<div class="pagination">';
+                echo paginate_links(array(
+                    'base' => get_pagenum_link(1) . '%_%',
+                    'format' => 'page/%#%',
+                    'current' => $current_page,
+                    'total' => $total_pages,
+                    'prev_text' => __('&laquo; Previous'),
+                    'next_text' => __('Next &raquo;')
+                ));
+                echo '</div>';
+            }
+        } else {
+            echo 'No posts found';
+        }
+    }
+
+    public static function students_short_code()
+    {
+        $user = wp_get_current_user();
+        $userDistrict = get_user_meta($user->ID, 'lxp_client_admin_id');
+        $districtPost = get_post($userDistrict[0]);
+        $table = "<table class='table' >";
+        $table .= "<tr><th>First Name</th><th>Last Name</th><th>Email</th><th>School</th><th>Grade</th><th>Level</th><tr>";
+
+        global $wpdb;
+        $posts_per_page = 1;
+        $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+        $offset = ($paged - 1) * $posts_per_page;
+        $query = "SELECT p.ID AS post_id,p.post_title AS post_title, u.ID AS user_id, u.display_name, u.user_email
+       FROM wp_posts p
+       JOIN wp_postmeta pm ON p.ID = pm.post_id AND pm.meta_key = 'lxp_school_district_id' AND pm.meta_value = 2125
+       JOIN wp_users u ON u.ID IN (
+           SELECT user_id FROM wp_usermeta WHERE meta_key = 'wp_capabilities' AND meta_value LIKE '%lxp_student%'
+       ) 
+       JOIN wp_usermeta um ON u.ID = um.user_id AND um.meta_key = 'lxp_school_id' AND um.meta_value = p.ID
+       WHERE p.post_type = 'tl_school'
+       ORDER BY p.post_date DESC
+       LIMIT $offset, $posts_per_page ";
+        $posts = $wpdb->get_results($query);
+
+
+
+        $total_posts = $wpdb->get_var(" SELECT COUNT(*) 
+       FROM wp_posts p
+       JOIN wp_postmeta pm ON p.ID = pm.post_id AND pm.meta_key = 'lxp_school_district_id' AND pm.meta_value = 2125
+       JOIN wp_users u ON u.ID IN (
+           SELECT user_id FROM wp_usermeta WHERE meta_key = 'wp_capabilities' AND meta_value LIKE '%lxp_student%'
+       ) 
+       JOIN wp_usermeta um ON u.ID = um.user_id AND um.meta_key = 'lxp_school_id' AND um.meta_value = p.ID
+       WHERE p.post_type = 'tl_school'");
+
+
+        if ($posts) {
+            foreach ($posts as $post) {
+                $user = get_user_meta($post->user_id);
+                $table .= "<tr>
+               <td>" . $user['first_name'][0] . "</td>
+               <td>" . $user['last_name'][0] . "</td>
+               <td>" . $post->user_email . "</td>
+               <td>" . $post->post_title . "</td>
+               <td>" . $districtPost->post_title . "</td>
+               <tr>";
+            }
+            echo  $table .= "</table>";
+            wp_reset_postdata();
+            $total_pages = ceil($total_posts / $posts_per_page);
+            if ($total_pages > 1) {
+                $current_page = max(1, get_query_var('paged'));
+                echo '<div class="pagination">';
+                echo paginate_links(array(
+                    'base' => get_pagenum_link(1) . '%_%',
+                    'format' => 'page/%#%',
+                    'current' => $current_page,
+                    'total' => $total_pages,
+                    'prev_text' => __('&laquo; Previous'),
+                    'next_text' => __('Next &raquo;')
+                ));
+                echo '</div>';
+            }
+        } else {
+            echo 'No posts found';
+        }
     }
 
     public static function lxp_add_user_roles()
@@ -299,7 +552,6 @@ class LTI_Platform_Tool extends Tool
             $teacher->add_cap('edit' . $lesson_cap);
             $teacher->add_cap('edit' . $lesson_cap . "s");
             $teacher->add_cap('publish' . $lesson_cap . "s");
-           
         }
 
         $student = get_role('lxp_student');
