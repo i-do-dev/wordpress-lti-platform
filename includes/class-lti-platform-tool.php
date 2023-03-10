@@ -358,7 +358,9 @@ class LTI_Platform_Tool extends Tool
                 <td>" . $school->ID . "</td>
                 <td>" . $adminName   . "</td>
                 <td>" . $districtPost->post_title . "</td>
-                 <td><a href='". home_url('/teachers/?school=') . $school->ID ."' class='btn btn-primary'>View School Teacher</a></td>
+                 <td><a href='". home_url('/teachers/?school_id=') . $school->ID ."' class='btn btn-primary'>View Teachers</a>
+                 <a href='". home_url('/students/?school_id=') . $school->ID ."' class='btn btn-primary'>View Students</a>
+                 </td>
                 <tr>";
             }
             echo  $table .= "</table>";
@@ -401,11 +403,17 @@ class LTI_Platform_Tool extends Tool
 
         $queryParam = "";
         $searchParam = "";
+        $base_url = get_permalink();
         if(isset($_GET['search_param']) && $_GET['search_param'] != ""){
             $searchParam = $_GET['search_param'];
            $queryParam = " (u.display_name LIKE '%".$_GET['search_param']. "%' OR u.ID LIKE '%" . $_GET['search_param'] . "%') and";
         }
-
+        $schoolID = "";
+        if(isset($_GET['school_id']) && $_GET['school_id'] != ""){
+            $schoolID = $_GET['school_id'];
+            $queryParam .= " p.ID = " . $schoolID . " AND ";
+            $base_url = add_query_arg(array( 'school_id' => $_GET['school_id']), $base_url);
+        }
         $total_posts = $wpdb->get_var(" SELECT COUNT(*) 
         FROM wp_posts p
         JOIN wp_postmeta pm ON p.ID = pm.post_id AND pm.meta_key = 'lxp_school_district_id' AND pm.meta_value = '" . $userDistrict[0] . "'
@@ -416,7 +424,6 @@ class LTI_Platform_Tool extends Tool
         WHERE ".$queryParam." p.post_type = 'tl_school'");
 
         $offset = ($paged - 1) * $posts_per_page;
-        $base_url = get_pagenum_link(1);
         if(isset($_GET['search_param']) && $_GET['search_param'] != ""){
             $total_pages = ceil($total_posts / $posts_per_page);
             $max_offset = ($total_pages - 1) * $posts_per_page;
@@ -488,14 +495,19 @@ class LTI_Platform_Tool extends Tool
         $posts_per_page = 1;
         $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
         $offset = ($paged - 1) * $posts_per_page;
-
+        $base_url = get_permalink();
         $queryParam = "";
         $searchParam = "";
         if(isset($_GET['search_param']) && $_GET['search_param'] != ""){
             $searchParam = $_GET['search_param'];
            $queryParam = " (um2.meta_value LIKE '%".$_GET['search_param']. "%' OR um3.meta_value LIKE '%" . $_GET['search_param'] . "%' OR u.ID LIKE '%" . $_GET['search_param'] . "%') and";
         }
-
+        $schoolID = "";
+        if(isset($_GET['school_id']) && $_GET['school_id'] != ""){
+            $schoolID = $_GET['school_id'];
+            $queryParam .= " p.ID = " . $schoolID . " AND ";
+            $base_url = add_query_arg(array( 'school_id' => $_GET['school_id']), $base_url);
+        }
         $total_posts = $wpdb->get_var(" SELECT COUNT(*) 
         FROM wp_posts p
          JOIN wp_postmeta pm ON p.ID = pm.post_id AND pm.meta_key = 'lxp_school_district_id' AND pm.meta_value = '" . $userDistrict[0] . "'
@@ -506,8 +518,6 @@ class LTI_Platform_Tool extends Tool
          JOIN wp_usermeta um2 ON u.ID = um2.user_id AND um2.meta_key = 'first_name'
          JOIN wp_usermeta um3 ON u.ID = um3.user_id AND um3.meta_key = 'last_name'
          WHERE ". $queryParam ." p.post_type = 'tl_school'");
- 
-        $base_url = get_pagenum_link(1);
         if(isset($_GET['search_param']) && $_GET['search_param'] != ""){
             $total_pages = ceil($total_posts / $posts_per_page);
             $max_offset = ($total_pages - 1) * $posts_per_page;
