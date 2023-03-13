@@ -195,6 +195,10 @@ class TL_TREK_Post_Type extends TL_Post_Type
       $append =   "<br><b>Content</b> <textarea  class='ckeditor'  id='ck-editor-id' rows='12' cols='50' name='option_content' />  </textarea> ";
       $selectOption .= '</select>';
       $output .=  "<div class='row option-body'  id='option-body'> <span id='playlist-select-area'> <b>Select Section</b> <br>" . $selectOption . " </span><button type='button' id='btnSaveSection' class='button button-primary'>Create</button>  <button style='display:none' type='button' id='btnCancelUpdate' class='button button-secondary'>Cancel</button>   <br>" . $append . "  <input type='hidden' name='option-type[]' value=''><br><hr> </div>";
+      $output .=  '<div>
+                     <b>Sort Order Number</b> <br>
+                     <input type="number" id="trek_sort" name="trek_sort" min="0" max="10000" value="0">
+                  </div>';
       $output .=  '</div>';
       echo $output;
    }
@@ -203,7 +207,7 @@ class TL_TREK_Post_Type extends TL_Post_Type
    {
       $removeBtn = '<span type="button" class="chip-close"><span style="margin-top:5px" class="dashicons dashicons-no"></span> </span> ';
       global $wpdb;
-      $query = "SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id=" . $post->ID;
+      $query = "SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id={$post->ID} ORDER BY sort";
       $options =  $wpdb->get_results($query);
       $output = "<div id='option-chips' tota-chips=" . count($options) . ">";
       if (count($options) == 0) {

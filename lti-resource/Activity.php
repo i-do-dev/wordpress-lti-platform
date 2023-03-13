@@ -46,6 +46,9 @@ class Activity
 
     public static function is_public()
     {
+        if ( !isset($_GET['post'])) {
+            die("Unable to access resource. Please check your browser configuration to allow Cross Site Request, or contact site administrator.");
+        }
         $post = get_post(intval(sanitize_text_field($_GET['post'])));
         $post_lti_tool = get_post_meta($post->ID, 'lti_tool_code')[0];
         $tool = LTI_Platform_Tool::fromCode($post_lti_tool, LTI_Platform::$ltiPlatformDataConnector);

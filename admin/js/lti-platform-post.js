@@ -160,7 +160,7 @@ var currentsectionId = 0;
       }
 
       $('body').on('click', '#btnSaveSection', function () {
-
+        
         var title = $('#option-title-select-box').val();
 
         if (title.indexOf("No Section Available") >= 0 || title.indexOf("---Select Section---") >= 0) {
@@ -168,6 +168,7 @@ var currentsectionId = 0;
           return;
         }
         var content = CKEDITOR.instances['ck-editor-id'].getData();
+        var sort = $('#trek_sort').val();
         var postID = $('#post_ID').val();
         var host = window.location.origin + '/wordpress/wp-json/lms/v1/store/trek/section';
         $("[identifier=" + window.currentsectionId + "]").find('.edit-trek-options').removeClass("active-edit-trek-option");
@@ -179,7 +180,7 @@ var currentsectionId = 0;
           type: "post",
           dataType: "json",
           url: host,
-          data: { title: title, content: content, post_id: postID, section_id: window.currentsectionId },
+          data: { title: title, content: content, post_id: postID, section_id: window.currentsectionId, sort },
           success: function (recordId) {
             if (recordId == 0) {
               alert('Please enter post "Title" and "Description" first.');
@@ -199,6 +200,8 @@ var currentsectionId = 0;
               $('#btnSaveSection').text("Create");
               $('#chips-alternate').text("");
               $('#btnCancelUpdate').css("display", "none");
+              $('#trek_sort').val(0);
+              location.reload();
             }
           }
         });
@@ -219,6 +222,7 @@ var currentsectionId = 0;
         $('#chips-alternate').text("");
         $('#btnCancelUpdate').css("display", "none");
         $('#playlist-select-area').css("display", "inline");
+        $('#trek_sort').val(0);
 
       });
       $('body').on('click', '.edit-trek-options', function () {
@@ -247,10 +251,14 @@ var currentsectionId = 0;
           data: { section_id: sectionId },
           success: function (response) {
             $('#section-title').text("Edit \"" + response[0].title + "\" Section");
+            $('#trek_sort').val(parseInt(response[0].sort));
             CKEDITOR.instances['ck-editor-id'].setData(response[0].content);
             if ($("#option-title-select-box option[value='" + response[0].title + "']").length == 0) {
               option = '<option selected value="' + response[0].title + '">' + response[0].title + '</option>';
               appendCoursePlaylistSelectOptions(option);
+            }
+            if (response.length > 0) {
+              $("#option-title-select-box").val(response[0].title.trim());
             }
           }
         });

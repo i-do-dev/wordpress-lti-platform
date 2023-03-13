@@ -2,6 +2,7 @@
 
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/teachers.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/students.php' );
+require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/schools.php' );
 
 class LMS_REST_API
 {
@@ -18,6 +19,7 @@ class LMS_REST_API
 		
 		Rest_Lxp_Teacher::init();
 		Rest_Lxp_Student::init();
+		Rest_Lxp_School::init();
 
 		register_rest_route('lms/v1', '/scores', array(
 			array(
@@ -268,6 +270,11 @@ class LMS_REST_API
 		if (!is_array($playlists)) {
 			$playlists = array();
 		}
+
+		if (!boolval(count($playlists))) {
+			$playlists = ["Overview", "Recall", "Practice A", "Practice B", "Apply"];
+		}
+
 		$records = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_sections WHERE trek_id = " .  $_GET['post_id']);
 		foreach ($records as $record) {
 			foreach ($playlists as $key => $playlist) {
@@ -276,6 +283,7 @@ class LMS_REST_API
 				}
 			}
 		}
+		
 		return array_values($playlists);
 	}
 
@@ -287,7 +295,7 @@ class LMS_REST_API
 		}
 		global $wpdb;
 		if ($_POST['section_id'] != 0) {
-			$wpdb->query("UPDATE " . $wpdb->prefix . "trek_sections SET content = '" . $_POST['content'] . "', title='" . $_POST['title'] . "' where id=" . $_POST['section_id']);
+			$wpdb->query("UPDATE " . $wpdb->prefix . "trek_sections SET content = '" . $_POST['content'] . "', title='" . $_POST['title'] . "', sort=". intval($_POST['sort']) ." where id=" . $_POST['section_id']);
 			$recordId = $_POST['section_id'];   //update using wpdb->update
 		} else {
 			$wpdb->insert($wpdb->prefix . 'trek_sections', array(
@@ -295,6 +303,7 @@ class LMS_REST_API
 				'title' => $_POST['title'],
 				'type' => 'content',
 				'content' => $_POST['content'],
+				'sort' => intval($_POST['sort'])
 			));
 			$recordId = $wpdb->insert_id;
 		}
