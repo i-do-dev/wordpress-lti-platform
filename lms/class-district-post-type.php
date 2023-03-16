@@ -182,6 +182,11 @@ class TL_District_Post_Type extends TL_Post_Type
          }
          if($_POST['lxp_client_admin_id'] != 0){
             update_user_meta($_POST['lxp_client_admin_id'], 'lxp_client_admin_id', $post_id);
+            if (get_post_meta( $post_id, 'lxp_district_admin', true )) {
+               update_post_meta( $post_id, 'lxp_district_admin',  $_POST['lxp_client_admin_id']);
+            } else {
+               add_post_meta( $post_id, 'lxp_district_admin',  $_POST['lxp_client_admin_id'], true);
+            }
          }
       }
    }

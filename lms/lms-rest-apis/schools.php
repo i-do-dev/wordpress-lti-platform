@@ -12,6 +12,14 @@ class Rest_Lxp_School
 			return false;
         }
 
+        register_rest_route('lms/v1', '/schools', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_School', 'getOne'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
         register_rest_route('lms/v1', '/shools/save', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -31,6 +39,19 @@ class Rest_Lxp_School
 						'type' => 'string',
 						'description' => 'user login name',  
 						'format' => 'email',
+						'validate_callback' => function($param, $request, $key) {
+							$user_by_email = get_user_by("email", trim($request->get_param('user_email')));
+							$user_by_login = get_user_by("login", trim($request->get_param('user_email')));
+							if ( $user_by_email && intval($request->get_param('school_post_id')) > 0 && $user_by_email->data->user_email !== trim($request->get_param('user_email_default')) ) {
+								return false;
+							} else if ($request->get_param('school_post_id') == 0) {
+								return ( !($user_by_email || $user_by_login) ? true : false );
+							} if ( trim($request->get_param('user_email')) == '' ) {
+								return false;
+							} else {
+								return true;
+							}
+						}
 					),
 					'school_about' => array(
 						'required' => false,
@@ -64,7 +85,7 @@ class Rest_Lxp_School
 							return strlen( $param ) > 1;
 						}
 					),
-					'user_id' => array(
+					'district_admin_id' => array(
 						'required' => true,
 						'type' => 'string',
 						'description' => 'user id',
@@ -72,7 +93,7 @@ class Rest_Lxp_School
 							return strlen( $param ) > 0;
 						}
 					),
-					'post_id' => array(
+					'school_post_id' => array(
 						'required' => true,
 						'type' => 'string',
 						'description' => 'post id',
@@ -85,26 +106,26 @@ class Rest_Lxp_School
         ));
     }
 
-    public static function create($request) {
+    public static function create($request) {		
 
 		// ============= School Post =================================
-		$user_id = $request->get_param('user_id');
-		$post_id = "168"; //intval($request->get_param('post_id'));
+		$district_admin_id = $request->get_param('district_admin_id');
+		$school_post_id = intval($request->get_param('school_post_id'));
 		$school_name = trim($request->get_param('school_name'));
 		$school_description = trim($request->get_param('school_about'));
 		
 		$shool_post_arg = array(
-			'post_title'    => wp_strip_all_tags($school_name) . " - WWWW 111 xx",
-			'post_content'  => $school_description . " - WWWW 222 xx",
+			'post_title'    => wp_strip_all_tags($school_name),
+			'post_content'  => $school_description,
 			'post_status'   => 'publish',
-			'post_author'   => $user_id,
+			'post_author'   => $district_admin_id,
 			'post_type'   => "tl_school"
 		);
-		if (intval($post_id) > 0) {
-			$shool_post_arg['ID'] = "$post_id";
+		if (intval($school_post_id) > 0) {
+			$shool_post_arg['ID'] = "$school_post_id";
 		}
 		// Insert / Update
-		$post_id = wp_insert_post($shool_post_arg);
+		$school_post_id = wp_insert_post($shool_post_arg);
 		
 		// ============= Profile Picture =============================
 		$file = $request->get_file_params();
@@ -128,19 +149,11 @@ class Rest_Lxp_School
 			 
 			$upload = wp_handle_upload( $file['profile_picture'], $overrides );
 
-			if ( $upload && !isset( $upload['error'] ) ){
+			if ( $upload && !isset( $upload['error'] ) ) {
 				// File uploaded successfully. 
 				$uploadedFileURL = $upload['url'];
 				$uploadedFileName = basename($upload['url']);
-				/* 
-				echo $uploadedFileURL;
-				echo $uploadedFileName;
-
-				$uploadedFileURL = "http://localhost/wordpress/wp-content/uploads/2023/03/bc-dimentions.jpg";
-				$uploadedFileName = "bc-dimentions.jpg";
-				 */
-	
-	
+				
 				// Add Featured Image to Post
 				$image_url        = $uploadedFileURL; // Define the image URL here
 				$image_name       = $uploadedFileName;
@@ -171,7 +184,7 @@ class Rest_Lxp_School
 				);
 				
 				// Create the attachment
-				$attach_id = wp_insert_attachment( $attachment, $file, $post_id );
+				$attach_id = wp_insert_attachment( $attachment, $file, $school_post_id );
 	
 				// Include image.php
 				require_once(ABSPATH . 'wp-admin/includes/image.php');
@@ -183,12 +196,51 @@ class Rest_Lxp_School
 				wp_update_attachment_metadata( $attach_id, $attach_data );
 	
 				// And finally assign featured image to post
-				set_post_thumbnail( $post_id, $attach_id );	
+				set_post_thumbnail( $school_post_id, $attach_id );	
+			}	
+		}
+		
+		// ========== School Admin ===========
+		$school_admin_data = array(
+			'user_login' => trim($request->get_param('user_email')),
+			'user_email' => trim($request->get_param('user_email')),
+			'first_name' => trim($request->get_param('first_name')),
+			'last_name' => trim($request->get_param('last_name')),
+			'display_name' => trim($request->get_param('first_name')) . ' ' . trim($request->get_param('last_name')),
+			'user_pass' => trim($request->get_param('user_password')),
+			'role' => 'lxp_school_admin'
+		);
+		$lxp_school_admin_id = get_post_meta($school_post_id, 'lxp_school_admin_id', true);
+		if ($lxp_school_admin_id) {
+			$school_admin_data["ID"] = $lxp_school_admin_id;
+		}
+		$school_admin_id  = wp_insert_user($school_admin_data);
+		wp_set_password( trim($request->get_param('user_password')), $school_admin_id );
+
+		if (!boolval($lxp_school_admin_id) && $school_admin_id) {
+			if(get_post_meta($school_post_id, 'lxp_school_admin_id', $school_admin_id)) {
+				update_post_meta($school_post_id, 'lxp_school_admin_id', $school_admin_id);
+			} else {
+				add_post_meta($school_post_id, 'lxp_school_admin_id', $school_admin_id, true);
 			}
- 			
+			
+			if(get_post_meta($school_post_id, 'lxp_school_district_id', trim($request->get_param('school_district_id')))) {
+				update_post_meta($school_post_id, 'lxp_school_district_id', trim($request->get_param('school_district_id')));
+			} else {
+				add_post_meta($school_post_id, 'lxp_school_district_id', trim($request->get_param('school_district_id')), true);
+			}
 		}
 
-        return wp_send_json_success("YEesss!!");
+        return wp_send_json_success("School Saved!");
     }
+
+	public static function getOne($request) {
+		$school_id = $request->get_param('school_id');
+		$school = get_post($school_id);
+		$admin = get_userdata(get_post_meta($school_id, 'lxp_school_admin_id', true));
+		$admin->data->first_name = get_user_meta($admin->ID, 'first_name', true);
+		$admin->data->last_name = get_user_meta($admin->ID, 'last_name', true);
+		return wp_send_json_success(array("school" => $school, "admin" => $admin));
+	}
 }
 ?>
