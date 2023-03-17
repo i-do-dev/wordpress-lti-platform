@@ -6,3 +6,4 @@ const TL_TREK_CPT   = 'tl_trek';
 const TL_DISTRICT_CPT   = 'tl_district';
 const TL_SCHOOL_CPT   = 'tl_school';
 const TL_ASSIGNMENT_CPT   = 'tl_assignment';
+const TL_TEACHER_CPT   = 'tl_teacher';

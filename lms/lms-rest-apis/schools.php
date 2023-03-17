@@ -15,7 +15,7 @@ class Rest_Lxp_School
         register_rest_route('lms/v1', '/schools', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
-				'callback' => array('Rest_Lxp_School', 'getOne'),
+				'callback' => array('Rest_Lxp_School', 'get_one'),
 				'permission_callback' => '__return_true'
 			)
 		));
@@ -82,7 +82,12 @@ class Rest_Lxp_School
 						'type' => 'string',
 						'description' => 'user login password',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							$school_post_id = intval($request->get_param('school_post_id'));
+							if ($school_post_id < 1) {
+								return strlen( $param ) > 1;
+							} else {
+								return true;
+							}
 						}
 					),
 					'district_admin_id' => array(
@@ -207,15 +212,22 @@ class Rest_Lxp_School
 			'first_name' => trim($request->get_param('first_name')),
 			'last_name' => trim($request->get_param('last_name')),
 			'display_name' => trim($request->get_param('first_name')) . ' ' . trim($request->get_param('last_name')),
-			'user_pass' => trim($request->get_param('user_password')),
 			'role' => 'lxp_school_admin'
 		);
+
+		if (trim($request->get_param('user_password'))) {
+			$school_admin_data['user_pass'] = trim($request->get_param('user_password'));
+		}
+
 		$lxp_school_admin_id = get_post_meta($school_post_id, 'lxp_school_admin_id', true);
 		if ($lxp_school_admin_id) {
 			$school_admin_data["ID"] = $lxp_school_admin_id;
 		}
 		$school_admin_id  = wp_insert_user($school_admin_data);
-		wp_set_password( trim($request->get_param('user_password')), $school_admin_id );
+
+		if (trim($request->get_param('user_password'))) {
+			wp_set_password( trim($request->get_param('user_password')), $school_admin_id );
+		}
 
 		if (!boolval($lxp_school_admin_id) && $school_admin_id) {
 			if(get_post_meta($school_post_id, 'lxp_school_admin_id', $school_admin_id)) {
@@ -234,7 +246,7 @@ class Rest_Lxp_School
         return wp_send_json_success("School Saved!");
     }
 
-	public static function getOne($request) {
+	public static function get_one($request) {
 		$school_id = $request->get_param('school_id');
 		$school = get_post($school_id);
 		$admin = get_userdata(get_post_meta($school_id, 'lxp_school_admin_id', true));
