@@ -10,6 +10,7 @@ require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-district-post-type.
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-school-post-type.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-assignment-post-type.php';
 require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-teacher-post-type.php';
+require_once plugin_dir_path(dirname(__FILE__)) . 'lms/class-student-post-type.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -23,3 +24,4 @@ TL_School_Post_Type::instance();
 TL_Assingment_Post_Type::instance();
 TL_Admin_Menu::instance();
 TL_Teacher_Post_Type::instance();
+TL_Student_Post_Type::instance();

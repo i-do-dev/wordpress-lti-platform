@@ -11,7 +11,97 @@ class Rest_Lxp_Student
 			// The REST API wasn't integrated into core until 4.4, and we support 4.0+ (for now).
 			return false;
 		}
-		
+
+		register_rest_route('lms/v1', '/students/save', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Student', 'create'),
+				'permission_callback' => '__return_true',
+				'args' => array(
+					'user_email' => array(
+						'required' => true,
+						'type' => 'string',
+						'description' => 'user email name',  
+						'format' => 'email',
+						'validate_callback' => function($param, $request, $key) {
+							$user_by_email = get_user_by("email", trim($request->get_param('user_email')));
+							$user_by_login = get_user_by("login", trim($request->get_param('user_email')));
+							if ( $user_by_email && intval($request->get_param('student_post_id')) > 0 && $user_by_email->data->user_email !== trim($request->get_param('user_email_default')) ) {
+								return false;
+							} else if ($request->get_param('student_post_id') == 0) {
+								return ( !($user_by_email || $user_by_login) ? true : false );
+							} if ( trim($request->get_param('user_email')) == '' ) {
+								return false;
+							} else {
+								return true;
+							}
+						}
+					),
+					'first_name' => array(
+						'required' => true,
+						'type' => 'string',
+						'description' => 'user first name',
+						'validate_callback' => function($param, $request, $key) {
+							return strlen( $param ) > 1;
+						}
+					),
+					'last_name' => array(
+						'required' => true,
+						'type' => 'string',
+						'description' => 'user last name',
+						'validate_callback' => function($param, $request, $key) {
+							return strlen( $param ) > 1;
+						}
+					),
+					'user_password' => array(
+						'required' => true,
+						'type' => 'string',
+						'description' => 'user login password',
+						'validate_callback' => function($param, $request, $key) {
+							$student_post_id = intval($request->get_param('student_post_id'));
+							if ($student_post_id < 1) {
+								return strlen( $param ) > 1;
+							} else {
+								return true;
+							}
+						}
+					),
+					'student_school_id' => array(
+						'required' => true,
+						'type' => 'integer',
+						'description' => 'user school id',
+						'validate_callback' => function($param, $request, $key) {
+							return strlen( $param ) > 1;
+						}
+					),
+					'about' => array(
+						'required' => false,
+						'type' => 'string',
+						'description' => 'user about description',
+						'validate_callback' => function($param, $request, $key) {
+							return strlen( $param ) > 1;
+						}
+					),
+				)
+			),
+		));
+
+		register_rest_route('lms/v1', '/students', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Student', 'get_one'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
+		register_rest_route('lms/v1', '/students/import', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Student', 'import'),
+				'permission_callback' => '__return_true'
+			),
+		));
+
 		register_rest_route('lms/v1', '/store/student', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -108,6 +198,217 @@ class Rest_Lxp_Student
 			),
 			
 		));
+	}
+
+	public static function create($request) {		
+		
+		// ============= Student Post =================================
+		$school_admin_id = $request->get_param('school_admin_id');
+		$student_post_id = intval($request->get_param('student_post_id'));
+		$student_name = trim($request->get_param('user_email'));
+		$student_description = trim($request->get_param('about'));
+		
+		$school_post_arg = array(
+			'post_title'    => wp_strip_all_tags($student_name),
+			'post_content'  => $student_description,
+			'post_status'   => 'publish',
+			'post_author'   => $school_admin_id,
+			'post_type'   => TL_STUDENT_CPT
+		);
+		if (intval($student_post_id) > 0) {
+			$school_post_arg['ID'] = "$student_post_id";
+		}
+		// Insert / Update
+		$student_post_id = wp_insert_post($school_post_arg);
+		if(get_post_meta($student_post_id, 'grades', json_encode($request->get_param('grades')))) {
+			update_post_meta($student_post_id, 'grades', json_encode($request->get_param('grades')));
+		} else {
+			add_post_meta($student_post_id, 'grades', json_encode($request->get_param('grades')), true);
+		}
+		// ============= Profile Picture =============================
+		/* $file = $request->get_file_params();
+		$profilePicture = isset($file['profile_picture']) ? $file['profile_picture'] : null;
+		if ($profilePicture['size'] > 0) {
+			$mimes = array(
+				'bmp'  => 'image/bmp',
+				'gif'  => 'image/gif',
+				'jpe'  => 'image/jpeg',
+				'jpeg' => 'image/jpeg',
+				'jpg'  => 'image/jpeg',
+				'png'  => 'image/png',
+				'tif'  => 'image/tiff',
+				'tiff' => 'image/tiff'
+			);
+			
+			$overrides = array(
+				'mimes'     => $mimes,
+				'test_form' => false
+			);
+			 
+			$upload = wp_handle_upload( $file['profile_picture'], $overrides );
+	
+			if ( $upload && !isset( $upload['error'] ) ) {
+				// File uploaded successfully. 
+				$uploadedFileURL = $upload['url'];
+				$uploadedFileName = basename($upload['url']);
+				
+				// Add Featured Image to Post
+				$image_url        = $uploadedFileURL; // Define the image URL here
+				$image_name       = $uploadedFileName;
+				$upload_dir       = wp_upload_dir(); // Set upload folder
+				$image_data       = file_get_contents($image_url); // Get image data
+				$unique_file_name = wp_unique_filename( $upload_dir['path'], $image_name ); // Generate unique name
+				$filename         = basename( $unique_file_name ); // Create image file name
+	
+				// Check folder permission and define file location
+				if( wp_mkdir_p( $upload_dir['path'] ) ) {
+					$file = $upload_dir['path'] . '/' . $filename;
+				} else {
+					$file = $upload_dir['basedir'] . '/' . $filename;
+				}
+				
+				// Create the image  file on the server
+				file_put_contents( $file, $image_data );
+	
+				// Check image file type
+				$wp_filetype = wp_check_filetype( $filename, null );
+				
+				// Set attachment data
+				$attachment = array(
+					'post_mime_type' => $wp_filetype['type'],
+					'post_title'     => sanitize_file_name( $filename ),
+					'post_content'   => '',
+					'post_status'    => 'inherit'
+				);
+				
+				// Create the attachment
+				$attach_id = wp_insert_attachment( $attachment, $file, $student_post_id );
+	
+				// Include image.php
+				require_once(ABSPATH . 'wp-admin/includes/image.php');
+	
+				// Define attachment metadata
+				$attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+	
+				// Assign metadata to attachment
+				wp_update_attachment_metadata( $attach_id, $attach_data );
+	
+				// And finally assign featured image to post
+				set_post_thumbnail( $student_post_id, $attach_id );	
+			}	
+		} */
+		
+		// ========== Student Admin ===========
+		$student_admin_data = array(
+			'user_login' => trim($request->get_param('user_email')),
+			'user_email' => trim($request->get_param('user_email')),
+			'first_name' => trim($request->get_param('first_name')),
+			'last_name' => trim($request->get_param('last_name')),
+			'display_name' => trim($request->get_param('first_name')) . ' ' . trim($request->get_param('last_name')),
+			'role' => 'lxp_student'
+		);
+		
+		if (trim($request->get_param('user_password'))) {
+			$student_admin_data['user_pass'] = trim($request->get_param('user_password'));
+		}
+	
+		$lxp_student_admin_id = get_post_meta($student_post_id, 'lxp_student_admin_id', true);
+		if ($lxp_student_admin_id) {
+			$student_admin_data["ID"] = $lxp_student_admin_id;
+		}
+		$student_admin_id  = wp_insert_user($student_admin_data);
+		if (trim($request->get_param('user_password'))) {
+			wp_set_password( trim($request->get_param('user_password')), $student_admin_id );
+		}
+	
+		if (!boolval($lxp_student_admin_id) && $student_admin_id) {
+			if(get_post_meta($student_post_id, 'lxp_student_admin_id', $student_admin_id)) {
+				update_post_meta($student_post_id, 'lxp_student_admin_id', $student_admin_id);
+			} else {
+				add_post_meta($student_post_id, 'lxp_student_admin_id', $student_admin_id, true);
+			}
+			
+			if(get_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')))) {
+				update_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')));
+			} else {
+				add_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')), true);
+			}
+		}
+	
+		return wp_send_json_success("Student Saved!");
+	}
+
+	public static function get_one($request) {
+		$student_id = $request->get_param('student_id');
+		$student = get_post($student_id);
+		$student->grades = json_decode(get_post_meta($student_id, 'grades', true));
+		$admin = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true));
+		$admin->data->first_name = get_user_meta($admin->ID, 'first_name', true);
+		$admin->data->last_name = get_user_meta($admin->ID, 'last_name', true);
+		return wp_send_json_success(array("student" => $student, "admin" => $admin));
+	}
+
+	public static function import($request)
+	{
+		$school_admin_id = $request->get_param('school_admin_id');
+		$file = $request->get_file_params();
+		$students_csv = isset($file['students']) ? $file['students'] : null;
+		if ($students_csv['size'] > 0 && $students_csv['type'] == 'text/csv') {
+			
+			$overrides = array('test_form' => false);
+			$upload = wp_handle_upload( $students_csv, $overrides );
+			if ( $upload && !isset( $upload['error'] ) ) {
+				$csv_file_url = $upload["url"];
+				
+				if (($handle = fopen($csv_file_url, "r")) !== false) {
+					while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+						if (count($row) >= 4) {
+							$first_name = trim($row[0]);
+							$last_name = trim($row[1]);
+							$email = trim($row[2]);
+							$password = trim($row[3]);
+							if (!get_user_by('email', $email)) {
+								$student_post_arg = array(
+									'post_title'    => wp_strip_all_tags($email),
+									'post_content'  => '',
+									'post_status'   => 'publish',
+									'post_author'   => $school_admin_id,
+									'post_type'   => TL_STUDENT_CPT
+								);
+								// Insert Student post
+								$student_post_id = wp_insert_post($student_post_arg);
+	
+								// ========== Student Admin ===========
+								$student_admin_data = array(
+									'user_login' => $email,
+									'user_email' => $email,
+									'first_name' => $first_name,
+									'last_name' => $last_name,
+									'display_name' => $first_name . ' ' . $last_name,
+									'user_pass' => $password,
+									'role' => 'lxp_student'
+								);
+								$student_admin_id  = wp_insert_user($student_admin_data);
+								if ($student_admin_id) {
+									wp_set_password( $password, $student_admin_id );
+									add_post_meta($student_post_id, 'lxp_student_admin_id', $student_admin_id, true);
+									add_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')), true);
+								}
+							}
+						}		
+					}
+					fclose($handle);
+				}
+				return wp_send_json_success("Students imported successfully.");
+			} else {
+				return  wp_send_json_error("File could not uploaded.", 400);
+			} 
+
+		} else {
+			return  wp_send_json_error("Invalid file . Upload valid CSV file.", 400);
+		}
+
+		return wp_send_json_success("");
 	}
 
 	public static function store_student()

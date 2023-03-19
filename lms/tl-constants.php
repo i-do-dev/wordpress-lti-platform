@@ -7,3 +7,4 @@ const TL_DISTRICT_CPT   = 'tl_district';
 const TL_SCHOOL_CPT   = 'tl_school';
 const TL_ASSIGNMENT_CPT   = 'tl_assignment';
 const TL_TEACHER_CPT   = 'tl_teacher';
+const TL_STUDENT_CPT   = 'tl_student';
