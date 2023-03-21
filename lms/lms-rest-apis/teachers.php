@@ -79,7 +79,7 @@ class Rest_Lxp_Teacher
 						'type' => 'integer',
 						'description' => 'user school id',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return strlen( $param ) > 0;
 						}
 					),
 					'about' => array(
@@ -261,7 +261,7 @@ class Rest_Lxp_Teacher
 				add_post_meta($teacher_post_id, 'lxp_teacher_admin_id', $teacher_admin_id, true);
 			}
 			
-			if(get_post_meta($teacher_post_id, 'lxp_teacher_school_id', trim($request->get_param('teacher_school_id')))) {
+			if(get_post_meta($teacher_post_id, 'lxp_teacher_school_id', true)) {
 				update_post_meta($teacher_post_id, 'lxp_teacher_school_id', trim($request->get_param('teacher_school_id')));
 			} else {
 				add_post_meta($teacher_post_id, 'lxp_teacher_school_id', trim($request->get_param('teacher_school_id')), true);

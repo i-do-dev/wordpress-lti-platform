@@ -8,3 +8,4 @@ const TL_SCHOOL_CPT   = 'tl_school';
 const TL_ASSIGNMENT_CPT   = 'tl_assignment';
 const TL_TEACHER_CPT   = 'tl_teacher';
 const TL_STUDENT_CPT   = 'tl_student';
+const TL_CLASS_CPT   = 'tl_class';

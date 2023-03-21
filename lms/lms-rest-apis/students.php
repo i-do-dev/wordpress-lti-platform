@@ -71,7 +71,7 @@ class Rest_Lxp_Student
 						'type' => 'integer',
 						'description' => 'user school id',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return strlen( $param ) > 0;
 						}
 					),
 					'about' => array(
