@@ -127,20 +127,17 @@ class Rest_Lxp_Class
 
 	public static function create($request) {		
 		
-		var_dump($request->get_params());
-		die();
-
 		// ============= Class Post =================================
-		$school_admin_id = $request->get_param('school_admin_id');
+		$class_teacher_id = $request->get_param('class_teacher_id');
 		$class_post_id = intval($request->get_param('class_post_id'));
-		$class_name = trim($request->get_param('user_email'));
-		$class_description = trim($request->get_param('about'));
+		$class_name = trim($request->get_param('class_name'));
+		$class_description = trim($request->get_param('class_description'));
 		
 		$shool_post_arg = array(
 			'post_title'    => wp_strip_all_tags($class_name),
 			'post_content'  => $class_description,
 			'post_status'   => 'publish',
-			'post_author'   => $school_admin_id,
+			'post_author'   => $class_teacher_id,
 			'post_type'   => TL_CLASS_CPT
 		);
 		if (intval($class_post_id) > 0) {
@@ -148,47 +145,30 @@ class Rest_Lxp_Class
 		}
 		// Insert / Update
 		$class_post_id = wp_insert_post($shool_post_arg);
-		if(get_post_meta($class_post_id, 'grades', json_encode($request->get_param('grades')))) {
+		if(get_post_meta($class_post_id, 'grades', true)) {
 			update_post_meta($class_post_id, 'grades', json_encode($request->get_param('grades')));
 		} else {
 			add_post_meta($class_post_id, 'grades', json_encode($request->get_param('grades')), true);
 		}
 
-		// ========== Class Admin ===========
-		$class_admin_data = array(
-			'user_login' => trim($request->get_param('user_email')),
-			'user_email' => trim($request->get_param('user_email')),
-			'first_name' => trim($request->get_param('first_name')),
-			'last_name' => trim($request->get_param('last_name')),
-			'display_name' => trim($request->get_param('first_name')) . ' ' . trim($request->get_param('last_name')),
-			'role' => 'lxp_class'
-		);
+		if(get_post_meta($class_post_id, 'lxp_class_teacher_id', true)) {
+			update_post_meta($class_post_id, 'lxp_class_teacher_id', $class_teacher_id);
+		} else {
+			add_post_meta($class_post_id, 'lxp_class_teacher_id', $class_teacher_id, true);
+		}
 		
-		if (trim($request->get_param('user_password'))) {
-			$class_admin_data['user_pass'] = trim($request->get_param('user_password'));
+		$student_ids = json_encode($request->get_param('student_ids'));
+		if(get_post_meta($class_post_id, 'lxp_student_ids', true)) {
+			update_post_meta($class_post_id, 'lxp_student_ids', json_encode($student_ids));
+		} else {
+			add_post_meta($class_post_id, 'lxp_student_ids', json_encode($student_ids), true);
 		}
 
-		$lxp_class_admin_id = get_post_meta($class_post_id, 'lxp_class_admin_id', true);
-		if ($lxp_class_admin_id) {
-			$class_admin_data["ID"] = $lxp_class_admin_id;
-		}
-		$class_admin_id  = wp_insert_user($class_admin_data);
-		if (trim($request->get_param('user_password'))) {
-			wp_set_password( trim($request->get_param('user_password')), $class_admin_id );
-		}
-
-		if (!boolval($lxp_class_admin_id) && $class_admin_id) {
-			if(get_post_meta($class_post_id, 'lxp_class_admin_id', $class_admin_id)) {
-				update_post_meta($class_post_id, 'lxp_class_admin_id', $class_admin_id);
-			} else {
-				add_post_meta($class_post_id, 'lxp_class_admin_id', $class_admin_id, true);
-			}
-			
-			if(get_post_meta($class_post_id, 'lxp_class_school_id', true)) {
-				update_post_meta($class_post_id, 'lxp_class_school_id', trim($request->get_param('class_school_id')));
-			} else {
-				add_post_meta($class_post_id, 'lxp_class_school_id', trim($request->get_param('class_school_id')), true);
-			}
+		$schedule = json_encode($request->get_param('schedule'));
+		if(get_post_meta($class_post_id, 'schedule', true)) {
+			update_post_meta($class_post_id, 'schedule', json_encode($schedule));
+		} else {
+			add_post_meta($class_post_id, 'schedule', json_encode($schedule), true);
 		}
 
         return wp_send_json_success("Class Saved!");
@@ -198,10 +178,10 @@ class Rest_Lxp_Class
 		$class_id = $request->get_param('class_id');
 		$class = get_post($class_id);
 		$class->grades = json_decode(get_post_meta($class_id, 'grades', true));
-		$admin = get_userdata(get_post_meta($class_id, 'lxp_class_admin_id', true));
-		$admin->data->first_name = get_user_meta($admin->ID, 'first_name', true);
-		$admin->data->last_name = get_user_meta($admin->ID, 'last_name', true);
-		return wp_send_json_success(array("class" => $class, "admin" => $admin));
+		$class->lxp_class_teacher_id = get_post_meta($class_id, 'lxp_class_teacher_id', true);
+		$class->lxp_student_ids = json_decode(get_post_meta($class_id, 'lxp_student_ids', true));
+		$class->schedule = json_decode(get_post_meta($class_id, 'schedule', true));
+		return wp_send_json_success(array("class" => $class));
 	}
 
     public static function update_class()
