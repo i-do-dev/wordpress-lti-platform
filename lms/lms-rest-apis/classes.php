@@ -44,26 +44,41 @@ class Rest_Lxp_Class
 					),					
 					'schedule' => array(
 						'required' => true,
-						'type' => 'string',
 						'description' => 'class schedule',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							$ok = true;
+							if (count( $param ) === 0) {
+								$ok = false;
+							}
+							foreach ($param as $day) {
+								$start = $request->get_param($day . '-sd');
+								$end = $request->get_param($day . '-ed');
+								// $ok = boolval(strlen($start)) || boolval(strlen($end)) ? true : false; 
+								if ( !(boolval(strlen($start)) || boolval(strlen($end))) )
+								{
+									$ok = false;
+								}
+							}
+							return $ok;
 						}
 					),
 					'grade' => array(
 						'required' => true,
 						'type' => 'string',
-						'description' => 'class schedule',
+						'description' => 'class grade',
 						'validate_callback' => function($param, $request, $key) {
 							return strlen( $param ) > 1;
 						}
 					),
 					'student_ids' => array(
 						'required' => true,
-						'type' => 'string',
-						'description' => 'class schedule',
+						'description' => 'class students',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							if (count( $param ) > 0) {
+								return true;
+							} else {
+								return false;
+							}
 						}
 					),
 					'class_teacher_id' => array(
@@ -71,7 +86,7 @@ class Rest_Lxp_Class
 						'type' => 'integer',
 						'description' => 'class teacher id',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return intval( $param ) > 0;
 						}
 					),
 					'class_post_id' => array(
@@ -157,14 +172,19 @@ class Rest_Lxp_Class
 			add_post_meta($class_post_id, 'lxp_class_teacher_id', $class_teacher_id, true);
 		}
 		
-		$student_ids = json_encode($request->get_param('student_ids'));
+		$student_ids = $request->get_param('student_ids');
 		if(get_post_meta($class_post_id, 'lxp_student_ids', true)) {
 			update_post_meta($class_post_id, 'lxp_student_ids', json_encode($student_ids));
 		} else {
 			add_post_meta($class_post_id, 'lxp_student_ids', json_encode($student_ids), true);
 		}
 
-		$schedule = json_encode($request->get_param('schedule'));
+		$schedule = array();
+		foreach ($request->get_param('schedule') as $day) {
+			$start = $request->get_param($day . '-sd');
+			$end = $request->get_param($day . '-ed');
+			$schedule[$day] = array("start" => $start, "end" => $end);
+		}
 		if(get_post_meta($class_post_id, 'schedule', true)) {
 			update_post_meta($class_post_id, 'schedule', json_encode($schedule));
 		} else {
