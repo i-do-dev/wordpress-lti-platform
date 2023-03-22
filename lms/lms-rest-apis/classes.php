@@ -53,7 +53,6 @@ class Rest_Lxp_Class
 							foreach ($param as $day) {
 								$start = $request->get_param($day . '-sd');
 								$end = $request->get_param($day . '-ed');
-								// $ok = boolval(strlen($start)) || boolval(strlen($end)) ? true : false; 
 								if ( !(boolval(strlen($start)) || boolval(strlen($end))) )
 								{
 									$ok = false;
@@ -148,7 +147,7 @@ class Rest_Lxp_Class
 		$class_name = trim($request->get_param('class_name'));
 		$class_description = trim($request->get_param('class_description'));
 		
-		$shool_post_arg = array(
+		$class_post_arg = array(
 			'post_title'    => wp_strip_all_tags($class_name),
 			'post_content'  => $class_description,
 			'post_status'   => 'publish',
@@ -156,14 +155,15 @@ class Rest_Lxp_Class
 			'post_type'   => TL_CLASS_CPT
 		);
 		if (intval($class_post_id) > 0) {
-			$shool_post_arg['ID'] = "$class_post_id";
+			$class_post_arg['ID'] = "$class_post_id";
 		}
+		
 		// Insert / Update
-		$class_post_id = wp_insert_post($shool_post_arg);
-		if(get_post_meta($class_post_id, 'grades', true)) {
-			update_post_meta($class_post_id, 'grades', json_encode($request->get_param('grades')));
+		$class_post_id = wp_insert_post($class_post_arg);
+		if(get_post_meta($class_post_id, 'grade', true)) {
+			update_post_meta($class_post_id, 'grade', $request->get_param('grade'));
 		} else {
-			add_post_meta($class_post_id, 'grades', json_encode($request->get_param('grades')), true);
+			add_post_meta($class_post_id, 'grade', $request->get_param('grade'), true);
 		}
 
 		if(get_post_meta($class_post_id, 'lxp_class_teacher_id', true)) {
@@ -172,11 +172,10 @@ class Rest_Lxp_Class
 			add_post_meta($class_post_id, 'lxp_class_teacher_id', $class_teacher_id, true);
 		}
 		
+		delete_post_meta($class_post_id, 'lxp_student_ids');
 		$student_ids = $request->get_param('student_ids');
-		if(get_post_meta($class_post_id, 'lxp_student_ids', true)) {
-			update_post_meta($class_post_id, 'lxp_student_ids', json_encode($student_ids));
-		} else {
-			add_post_meta($class_post_id, 'lxp_student_ids', json_encode($student_ids), true);
+		foreach ($student_ids as $student_id) {
+			add_post_meta($class_post_id, 'lxp_student_ids', $student_id);
 		}
 
 		$schedule = array();
@@ -197,9 +196,9 @@ class Rest_Lxp_Class
     public static function get_one($request) {
 		$class_id = $request->get_param('class_id');
 		$class = get_post($class_id);
-		$class->grades = json_decode(get_post_meta($class_id, 'grades', true));
+		$class->grade = get_post_meta($class_id, 'grade', true);
 		$class->lxp_class_teacher_id = get_post_meta($class_id, 'lxp_class_teacher_id', true);
-		$class->lxp_student_ids = json_decode(get_post_meta($class_id, 'lxp_student_ids', true));
+		$class->lxp_student_ids = get_post_meta($class_id, 'lxp_student_ids');
 		$class->schedule = json_decode(get_post_meta($class_id, 'schedule', true));
 		return wp_send_json_success(array("class" => $class));
 	}
