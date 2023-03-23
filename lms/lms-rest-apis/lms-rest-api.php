@@ -389,6 +389,34 @@ class LMS_REST_API
 	public static function get_all_trek_events($request = null)
 	{
 		
+		return [
+			array(
+				"start" => "2023-03-19T03:00:00+05:00",
+				"end" => "2023-03-19T04:00:00+05:00",
+				"title"	=> "Trek",
+				"segment" => "recall"
+			),
+			/* array(
+				"start" => "2023-03-19T03:00:00+05:00",
+				"end" => "2023-03-19T04:00:00+05:00",
+				"title"	=> "Trek Test",
+				"segment" => "overview",
+			),
+			array(
+				"start" => "2023-03-19T03:00:00+05:00",
+				"end" => "2023-03-19T04:00:00+05:00",
+				"title"	=> "Trek Test 1",
+				"segment" => "apply",
+			),
+			
+			array(
+				"start" => "2023-03-19T03:00:00+05:00",
+				"end" => "2023-03-19T04:00:00+05:00",
+				"title"	=> "Trek Test 1",
+				"segment" => "practice-b",
+			) */
+		];
+		
 		global $wpdb;
 		$result = array();
 		$response = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "trek_events where user_id=" . $_GET['user_id']);
