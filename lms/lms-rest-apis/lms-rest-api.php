@@ -393,28 +393,39 @@ class LMS_REST_API
 			array(
 				"start" => "2023-03-19T03:00:00+05:00",
 				"end" => "2023-03-19T04:00:00+05:00",
-				"title"	=> "Trek",
-				"segment" => "recall"
-			),
-			/* array(
+				"title"	=> "Recall",
+				"segment" => "recall",
+				"trek" => "5.6A Physical Properties of Matter"
+			)/* ,
+			array(
 				"start" => "2023-03-19T03:00:00+05:00",
 				"end" => "2023-03-19T04:00:00+05:00",
-				"title"	=> "Trek Test",
+				"title"	=> "Overview",
 				"segment" => "overview",
+				"trek" => "5.6A Physical Properties of Matter"
 			),
 			array(
 				"start" => "2023-03-19T03:00:00+05:00",
 				"end" => "2023-03-19T04:00:00+05:00",
-				"title"	=> "Trek Test 1",
-				"segment" => "apply",
+				"title"	=> "Practice A",
+				"segment" => "practice-a",
+				"trek" => "5.6A Physical Properties of Matter"
 			),
-			
 			array(
 				"start" => "2023-03-19T03:00:00+05:00",
 				"end" => "2023-03-19T04:00:00+05:00",
-				"title"	=> "Trek Test 1",
+				"title"	=> "Practice B",
 				"segment" => "practice-b",
-			) */
+				"trek" => "5.6A Physical Properties of Matter"
+			),
+			array(
+				"start" => "2023-03-19T03:00:00+05:00",
+				"end" => "2023-03-19T04:00:00+05:00",
+				"title"	=> "Apply",
+				"segment" => "apply",
+				"trek" => "5.6A Physical Properties of Matter"
+			), */
+			
 		];
 		
 		global $wpdb;
