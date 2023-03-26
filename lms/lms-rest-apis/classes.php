@@ -12,6 +12,14 @@ class Rest_Lxp_Class
 			return false;
 		}
 
+		register_rest_route('lms/v1', '/class/students', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Class', 'get_students'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
 		register_rest_route('lms/v1', '/classes', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -192,6 +200,18 @@ class Rest_Lxp_Class
 
         return wp_send_json_success("Class Saved!");
     }
+
+    public static function get_students($request) {
+		$class_id = $request->get_param('class_id');
+		$lxp_student_ids = get_post_meta($class_id, 'lxp_student_ids');
+		$students = array_map(function($student_id) { 
+			$post = get_post($student_id); 
+			$user = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
+			return array('post' => $post, 'user' => $user);
+		} , $lxp_student_ids);
+
+		return wp_send_json_success(array("students" => $students));
+	}
 
     public static function get_one($request) {
 		$class_id = $request->get_param('class_id');
