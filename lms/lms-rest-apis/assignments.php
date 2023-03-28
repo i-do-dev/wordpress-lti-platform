@@ -257,7 +257,7 @@ class Rest_Lxp_Assignment
         return wp_send_json_success("Assignments Created!");
     }
 
-    public static function get_teacher_assignments($teacher_id) {
+    public static function get_teacher_assignments_calendar_events($teacher_id) {
 		$assignment_query = new WP_Query( array( 
 			'post_type' => TL_ASSIGNMENT_CPT, 
 			'post_status' => array( 'publish' ),
@@ -268,29 +268,38 @@ class Rest_Lxp_Assignment
 		) );
 		
 		return array_map(function($assignment) {
-			var_dump($assignment);
-			die();
-		}, 
-		$assignment_query->get_posts());
-		
+			$calendar_selection_info = json_decode(get_post_meta($assignment->ID, 'calendar_selection_info', true));
+			$trek_section_id = get_post_meta($assignment->ID, 'trek_section_id', true);
+			global $wpdb;
+    		$trek_section = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE id={$trek_section_id}");
+			$trek = get_post(get_post_meta($assignment->ID, 'trek_id', true));
+			
+			$event = array();
+			$event["id"] = $assignment->ID;
+			$event["start"] = $calendar_selection_info->start;
+			$event["end"] = $calendar_selection_info->end;
+			$event["allDay"] = $calendar_selection_info->allDay;
+			$event["title"] = $trek_section->title;
+			$event["segment"] = implode("-", explode(" ", strtolower($trek_section->title))) ;
+			$event['trek'] = $trek ? $trek->post_title : '';
+			$event["lxp_assignment_teacher_id"] = get_post_meta($assignment->ID, 'lxp_assignment_teacher_id', true);
+			$event["lxp_student_ids"] = get_post_meta($assignment->ID, 'lxp_student_ids');
+			$event["trek_section_id"] = get_post_meta($assignment->ID, 'trek_section_id', true);
+			$event["trek_id"] = get_post_meta($assignment->ID, 'trek_id', true);
+			$event["class_id"] = get_post_meta($assignment->ID, 'class_id', true);
+			$event["calendar_selection_info"] = get_post_meta($assignment->ID, 'calendar_selection_info', true);
+			$event["start_date"] = get_post_meta($assignment->ID, 'start_date', true);
+			$event["start_time"] = get_post_meta($assignment->ID, 'start_time', true);
+			$event["end_date"] = get_post_meta($assignment->ID, 'end_date', true);
+			$event["end_time"] = get_post_meta($assignment->ID, 'end_time', true);
+			return $event;
+		}, $assignment_query->get_posts());
 	}
 
     public static function calendar_events($request) {
-
 		$userdata = get_userdata($request->get_param('user_id'));
 		$teacher_post = self::lxp_get_teacher_post($userdata->data->ID);
-		var_dump(self::get_teacher_assignments($teacher_post->ID));
-		die();
-
-		$assignment_id = $request->get_param('assignment_id');
-		$lxp_student_ids = get_post_meta($assignment_id, 'lxp_student_ids');
-		$students = array_map(function($student_id) { 
-			$post = get_post($student_id); 
-			$user = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
-			return array('post' => $post, 'user' => $user);
-		} , $lxp_student_ids);
-
-		return wp_send_json_success(array("students" => $students));
+		return self::get_teacher_assignments_calendar_events($teacher_post->ID);
 	}
 
 	
