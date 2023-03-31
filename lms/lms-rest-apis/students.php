@@ -94,6 +94,14 @@ class Rest_Lxp_Student
 			)
 		));
 
+		register_rest_route('lms/v1', '/students/list', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Student', 'get_list'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
 		register_rest_route('lms/v1', '/students/import', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -336,6 +344,24 @@ class Rest_Lxp_Student
 		}
 	
 		return wp_send_json_success("Student Saved!");
+	}
+
+	public static function get_list($request) {
+		$students_ids = $request->get_param("students_ids");
+		$students = array_map(function ($student_id)
+		{
+			$student = get_post($student_id);
+			$student->grades = get_post_meta($student_id, 'grades', true);
+			$admin = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true));
+			$student->admin_first_name = get_user_meta($admin->ID, 'first_name', true);
+			$student->admin_last_name = get_user_meta($admin->ID, 'last_name', true);
+			$student->name = $admin->data->display_name;
+			$student->status = "In progress";
+			$student->score = "0%";
+			$student->progress = "0/0";
+			return $student;
+		}, $students_ids);
+		return wp_send_json_success($students);
 	}
 
 	public static function get_one($request) {
