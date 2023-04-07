@@ -93,6 +93,14 @@ class Rest_Lxp_Student
 				'permission_callback' => '__return_true'
 			)
 		));
+		
+		register_rest_route('lms/v1', '/student/assign_grade', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Student', 'assign_grade'),
+				'permission_callback' => '__return_true'
+			)
+		));
 
 		register_rest_route('lms/v1', '/students/list', array(
 			array(
@@ -207,6 +215,37 @@ class Rest_Lxp_Student
 			
 		));
 	}
+
+	// function to set grade add_post_meta for student with slide number
+	public static function assign_grade($request) {
+		$student_post_id = $request->get_param('student');
+		$slide = $request->get_param('slide');
+		$slide = intval($slide);
+		$grade = $request->get_param('grade');
+		$grade = intval($grade);
+		$student_post_id = intval($student_post_id);
+		$assignment = $request->get_param('assignment');
+		$assignment_grade_key = "assignment_" . $assignment . "_slide_" . $slide . "_grade";
+		
+		if(get_post_meta($student_post_id, $assignment_grade_key, $grade, true)) {
+			update_post_meta($student_post_id, $assignment_grade_key, $grade);
+		} else {
+			add_post_meta($student_post_id, $assignment_grade_key, $grade, true);
+		}
+		return wp_send_json_success(array('message' => 'Grade assigned successfully'));
+	}
+
+	// function to get grade for student with slid number
+	public static function get_grade($request) {
+		$student_post_id = $request->get_param('student');
+		$assignment = $request->get_param('assignment');
+		$assignment_grade_key = "assignment_" . $assignment . "_grade";
+		$assignment_slide_key = "assignment_" . $assignment . "_slide";
+		$grade = get_post_meta($student_post_id, $assignment_grade_key, true);
+		$slid = get_post_meta($student_post_id, $assignment_slide_key, true);
+		return wp_send_json_success(array('grade' => $grade, 'slid' => $slid));
+	}
+
 
 	public static function create($request) {		
 		
