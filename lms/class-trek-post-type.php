@@ -37,6 +37,17 @@ class TL_TREK_Post_Type extends TL_Post_Type
    public function __construct()
    {
       parent::__construct();
+
+      add_action("wp_ajax_trek_settings", array($this, "trek_settings"));
+   }
+
+   function trek_settings()
+   {
+      $post_id = $_POST['post_id'];
+      $sort = $_POST['sort'];
+      update_post_meta($post_id, 'sort', $sort);
+      echo json_encode(array('success' => true));
+      wp_die();
    }
 
    /**
@@ -118,6 +129,16 @@ class TL_TREK_Post_Type extends TL_Post_Type
    public function add_meta_boxes()
    {
       $this->add_meta_box([
+         'trek-settings-options-id',      // Unique ID
+         esc_html__('TREK Settings ', 'settings'),    // Title
+         array(self::instance(), 'trek_settings_metabox_html'),   // Callback function
+         $this->_post_type,         // Admin page (or post type)
+         'advanced',         // Context
+         'default',         // Priority
+         'show_in_rest' => true,
+      ]);
+
+      $this->add_meta_box([
          'trek-course-options-id',      // Unique ID
          esc_html__('Course ', 'course'),    // Title
          array(self::instance(), 'course_metabox_html'),   // Callback function
@@ -158,6 +179,13 @@ class TL_TREK_Post_Type extends TL_Post_Type
       );
       return $args;
    }
+
+   public function trek_settings_metabox_html($post)
+   {
+      include(__DIR__ . '/templates/parts/trek-settings.php');
+   }
+
+
 
    public function course_metabox_html($post = null)
    {
