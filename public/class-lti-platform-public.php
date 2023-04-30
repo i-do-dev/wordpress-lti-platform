@@ -263,7 +263,8 @@ class LTI_Platform_Public
             $link_atts['custom'] = get_post_meta($post->ID, 'lti_custom_attr', true);
             $target = "embed";
             $link_atts['id'] = get_post_meta($post->ID, 'lti_post_attr_id', true);
-            $url = $link_atts['url'];
+            $toolObj = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+            $url = strpos($link_atts['url'], $toolObj->messageUrl) === false ? $toolObj->messageUrl.$link_atts['url'] : $link_atts['url'];
             $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
             $ok = true;
         }
@@ -362,10 +363,14 @@ class LTI_Platform_Public
             if(isset($_GET['slideNumber'])){
                 $params["custom_slideNumber"] = $_GET['slideNumber'];
             }
+            $params["custom_platform"] = 'wordpress';
+
             if (!empty($tool->getSetting('custom'))) {
-                parse_str(str_replace('&#13;&#10;', '&', $tool->getSetting('custom')), $custom);
+                // parse_str(str_replace('&#13;&#10;', '&', $tool->getSetting('custom')), $custom);
+                parse_str($tool->getSetting('custom'), $custom);
                 foreach ($custom as $name => $value) {
-                    $name = preg_replace('/[^a-z0-9]/', '_', strtolower(trim($name)));
+                    //$name = preg_replace('/[^a-z0-9]/', '', strtolower(trim($name)));
+                    $name = preg_replace('/[^a-z0-9]\d+\x3B/', '', strtolower(trim($name)));
                     $course = get_post(get_post_meta($post->ID, 'tl_course_id', true));
                     if (!empty($name)) {
                         if ($course) {
@@ -393,6 +398,10 @@ class LTI_Platform_Public
                         }
                         $params["custom_{$name}"] = $value;
                     }
+                }
+
+                if (isset($_GET["assignment_id"])) {
+                    $params["custom_assignment_id"] = $_GET["assignment_id"];
                 }
             }
             LTI\Tool::$defaultTool = $tool;

@@ -12,6 +12,14 @@ class Rest_Lxp_Teacher
 			return false;
 		}
 
+		register_rest_route('lms/v1', '/teacher/treks/saved', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Teacher', 'treks_saved'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
 		register_rest_route('lms/v1', '/teachers', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -131,6 +139,20 @@ class Rest_Lxp_Teacher
 			),
 		));
 		
+	}
+
+	public static function treks_saved($request) {
+		$teacher_post_id = intval($request->get_param('teacher_post_id'));
+		$is_saved = boolval($request->get_param('is_saved'));
+		$trek_id = intval($request->get_param('trek_id'));
+		// add/delete treacher 'treks_saved' post metadata
+		if ($is_saved) {
+			add_post_meta($teacher_post_id, 'treks_saved', $trek_id, true);
+			return wp_send_json_success("Teacher TREK Saved!");
+		} else {
+			delete_post_meta($teacher_post_id, 'treks_saved', $trek_id);
+			return wp_send_json_success("Teacher TREK Removed!");
+		}
 	}
 
 	public static function create($request) {		

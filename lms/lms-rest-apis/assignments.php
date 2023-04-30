@@ -12,6 +12,14 @@ class Rest_Lxp_Assignment
 			return false;
 		}
 
+		register_rest_route('lms/v1', '/assignment/attempted', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Assignment', 'assignment_attempted'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
 		register_rest_route('lms/v1', '/assignment/stats', array(
 			array(
 				'methods' => WP_REST_Server::ALLMETHODS,
@@ -264,6 +272,30 @@ class Rest_Lxp_Assignment
 		
         return wp_send_json_success("Assignments Created!");
     }
+
+	public static function assignment_attempted($request) {
+		$assignment_id = $request->get_param('assignmentId');
+		$student_user_id = $request->get_param('userId');
+		$student_posts = get_posts(array(
+			'post_type' => TL_STUDENT_CPT,
+			'meta_query' => array(
+				array(
+					'key' => 'lxp_student_admin_id',
+					'value' => $student_user_id,
+					'compare' => '='
+				)
+			)
+		));
+		$student_post = $student_posts[0];
+		if ($student_post) {
+			$student_id = $student_post->ID;
+			// add student_id as a 'attempted' metadata to assignment post
+			add_post_meta($assignment_id, 'attempted_students', $student_id, true);
+			return wp_send_json_success("Assignment Attempted!");
+		} else {
+			return wp_send_json_error("Assignment Attempt Failed!");
+		}
+	}
 
 	public static function assignment_stats($request) {
 		$assignment_id = $request->get_param('assignment_id');
