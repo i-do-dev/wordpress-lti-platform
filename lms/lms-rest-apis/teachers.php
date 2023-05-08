@@ -147,12 +147,12 @@ class Rest_Lxp_Teacher
 		$trek_id = intval($request->get_param('trek_id'));
 		// add/delete treacher 'treks_saved' post metadata
 		if ($is_saved) {
-			add_post_meta($teacher_post_id, 'treks_saved', $trek_id, true);
-			return wp_send_json_success("Teacher TREK Saved!");
+			add_post_meta($teacher_post_id, 'treks_saved', $trek_id);
 		} else {
 			delete_post_meta($teacher_post_id, 'treks_saved', $trek_id);
-			return wp_send_json_success("Teacher TREK Removed!");
 		}
+
+		return wp_send_json_success(get_post_meta($teacher_post_id, 'treks_saved'));
 	}
 
 	public static function create($request) {		
