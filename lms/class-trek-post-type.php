@@ -46,6 +46,11 @@ class TL_TREK_Post_Type extends TL_Post_Type
       $post_id = $_POST['post_id'];
       $sort = $_POST['sort'];
       update_post_meta($post_id, 'sort', $sort);
+      $strands = $_POST['strands'];
+      delete_post_meta($post_id, 'strands');
+      foreach ($strands as $strand) {
+         update_post_meta($post_id, 'strands', $strand);
+      }
       echo json_encode(array('success' => true));
       wp_die();
    }

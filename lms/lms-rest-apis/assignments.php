@@ -287,11 +287,16 @@ class Rest_Lxp_Assignment
 			)
 		));
 		$student_post = $student_posts[0];
+		
 		if ($student_post) {
+			$ok = false;
 			$student_id = $student_post->ID;
 			// add student_id as a 'attempted' metadata to assignment post
-			add_post_meta($assignment_id, 'attempted_students', $student_id, true);
-			return wp_send_json_success("Assignment Attempted!");
+			if ( !in_array($student_id, get_post_meta($assignment_id, 'attempted_students')) ) {
+				$ok = add_post_meta($assignment_id, 'attempted_students', $student_id);
+			}
+			$message = $ok ? "Assignment Attempted!" : "Attemp record not created!";
+			return wp_send_json_success($message);
 		} else {
 			return wp_send_json_error("Assignment Attempt Failed!");
 		}
@@ -302,14 +307,67 @@ class Rest_Lxp_Assignment
 		$students_ids = get_post_meta($assignment_id, 'lxp_student_ids');
 		$q = new WP_Query( array( "post_type" => TL_STUDENT_CPT, 'posts_per_page'   => -1, "post__in" => $students_ids ) );
 		$students_posts = $q->get_posts();
-		$students = array_map(function ($student) { 
+		$students = array_map(function ($student) use ($assignment_id) {
+			$attempted = self::lxp_user_assignment_attempted($assignment_id, $student->ID);
+			$submission = self::lxp_get_assignment_submissions($assignment_id, $student->ID);
+			if ($attempted && is_null($submission)) {
+				$status = 'In Progress';
+			}else if ($attempted && !is_null($submission)) {
+				$status = 'Completed';
+			} else {
+				$status = 'To Do';
+			}
 			$lxp_student_admin_id = get_post_meta($student->ID, 'lxp_student_admin_id', true);
 			$userdata = get_userdata($lxp_student_admin_id);
-			$grades = get_post_meta($student->ID, 'grades', true);
-			$data = array("ID" => $student->ID, "name" => $userdata->data->display_name, "status" => "In progress", "progress" => "0/10", "score" => "0", "grades" => $grades);
+			$progress = $submission ? $submission['score_raw'] .'/'. $submission['score_max'] : '---';
+			$score = $submission ? round(($submission['score_scaled'] * 100), 2) . '%' : '---';
+			$data = array("ID" => $student->ID, "name" => $userdata->data->display_name, "status" => $status, "progress" => $progress, "score" => $score);
 			return $data;
 		} , $students_posts);
 		return wp_send_json_success($students);
+	}
+
+	public static function lxp_get_assignment_submissions($assignment_id, $student_post_id)
+	{
+		$query = new WP_Query( array( 'post_type' => TL_ASSIGNMENT_SUBMISSION_CPT , 'posts_per_page'   => -1, 'post_status' => array( 'publish' ), 
+									'meta_query' => array(
+										array('key' => 'lxp_assignment_id', 'value' => $assignment_id, 'compare' => '='),
+										array('key' => 'lxp_student_id', 'value' => $student_post_id, 'compare' => '=')
+									)
+								)
+							);
+		$assignment_submission_posts = $query->get_posts();
+	
+		if ($assignment_submission_posts) {
+			$assignment_submission_post = $assignment_submission_posts[0];
+			$assignment_submission_post_data = array(
+				'ID' => $assignment_submission_post->ID,
+				'lxp_assignment_id' => get_post_meta($assignment_submission_post->ID, 'lxp_assignment_id', true),
+				'lxp_student_id' => get_post_meta($assignment_submission_post->ID, 'lxp_student_id', true),
+				'lti_user_id' => get_post_meta($assignment_submission_post->ID, 'lti_user_id', true),
+				'submission_id' => get_post_meta($assignment_submission_post->ID, 'submission_id', true),
+				'score_min' => get_post_meta($assignment_submission_post->ID, 'score_min', true),
+				'score_max' => get_post_meta($assignment_submission_post->ID, 'score_max', true),
+				'score_raw' => get_post_meta($assignment_submission_post->ID, 'score_raw', true),
+				'score_scaled' => get_post_meta($assignment_submission_post->ID, 'score_scaled', true),
+				'completion' => boolval(get_post_meta($assignment_submission_post->ID, 'completion', true)),
+				'duration' => get_post_meta($assignment_submission_post->ID, 'duration', true)
+			);
+			return $assignment_submission_post_data;
+		} else {
+			return null;
+		}
+	}
+
+	public static function lxp_user_assignment_attempted($assignment_id, $user_id) {
+		$query = new WP_Query( array( 'post_type' => TL_ASSIGNMENT_CPT , 'posts_per_page'   => -1, 'post_status' => array( 'publish' ), 'p' => $assignment_id,
+									'meta_query' => array(
+										array('key' => 'attempted_students', 'value' => $user_id, 'compare' => 'IN')
+									)
+								)
+							);
+		$assignment_posts = $query->get_posts();
+		return count($assignment_posts) > 0 ? true : false;
 	}
 
     public static function get_teacher_assignments_calendar_events($teacher_id) {
