@@ -270,7 +270,7 @@ class LTI_Platform_Public
         }
         if ($ok) {
             $options = LTI_Platform_Tool::getOptions();
-            $user = wp_get_current_user();
+            $user = isset($_GET['student']) && intval($_GET['student']) > 0 ? get_user_by('ID', $_GET['student']) : wp_get_current_user();
             if (!empty($link_atts['title'])) {
                 $title = $link_atts['title'];
             } else {
