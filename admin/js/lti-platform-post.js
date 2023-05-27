@@ -159,6 +159,24 @@ var currentsectionId = 0;
         });
       }
 
+      $('body').on('click', '#btnSaveStudentSection', function () {
+        var content = CKEDITOR.instances['student-section-editor'].getData();
+        var postID = $('#post_ID').val();
+        // post content to server
+        jQuery.ajax({
+          type: "post",
+          dataType: "json",
+          url: window.location.origin + ajaxurl,
+          data: { action: 'trek_student_section', content: content, post_id: postID },
+          success: function (response) {
+            console.log('response >>>>>>>>>> ', response);
+            if (response.status == 200) {
+              alert("Section saved successfully");
+            }
+          }
+        });
+      });
+
       $('body').on('click', '#btnSaveSection', function () {
         
         var title = $('#option-title-select-box').val();

@@ -39,6 +39,16 @@ class TL_TREK_Post_Type extends TL_Post_Type
       parent::__construct();
 
       add_action("wp_ajax_trek_settings", array($this, "trek_settings"));
+      add_action("wp_ajax_trek_student_section", array($this, "trek_student_section"));
+   }
+
+   function trek_student_section()
+   {
+      $post_id = $_POST['post_id'];
+      // update post meta 'student_section_overview' section using 'content' posted data
+      update_post_meta($post_id, 'student_section_overview', $_POST['content']);
+      echo json_encode(array('success' => true));
+      wp_die();
    }
 
    function trek_settings()
@@ -173,6 +183,16 @@ class TL_TREK_Post_Type extends TL_Post_Type
          'default',         // Priority
          'show_in_rest' => true,
       ]);
+
+      $this->add_meta_box([
+         'trek-student-section-input-id',      // Unique ID
+         esc_html__('Manage Student Section', 'manage_student_section'),    // Title
+         array(self::instance(), 'trek_student_section_metabox_html'),   // Callback function
+         $this->_post_type,         // Admin page (or post type)
+         'advanced',         // Context
+         'default',         // Priority
+         'show_in_rest' => true,
+      ]);
    }
 
    function post_meta_request_params($args, $request)
@@ -232,6 +252,21 @@ class TL_TREK_Post_Type extends TL_Post_Type
                      <b>Sort Order Number</b> <br>
                      <input type="number" id="trek_sort" name="trek_sort" min="0" max="10000" value="0">
                   </div>';
+      $output .=  '</div>';
+      echo $output;
+   }
+
+   public function trek_student_section_metabox_html($post = null)
+   {
+      global $wpdb;
+      $content = get_post_meta($post->ID, 'student_section_overview', true);
+      $output = '';
+      $output .= '<div id="appendme" class="container" >';
+      $append =   "<br><h3><b>Overview</b></h3> <textarea  class='ckeditor'  id='student-section-editor' rows='12' cols='50' name='student_section_content'>" . $content . "</textarea> ";
+      $output .=  "<div class='row option-body'  id='option-body'>" . $append . "</div>";
+      $output .=  '<div>
+                  </div>';
+      $output .=  "<br /><button type='button' id='btnSaveStudentSection' class='button button-primary'>Save</button>";
       $output .=  '</div>';
       echo $output;
    }
