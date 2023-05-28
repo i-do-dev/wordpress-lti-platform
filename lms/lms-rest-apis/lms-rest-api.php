@@ -184,6 +184,9 @@ class LMS_REST_API
 	public static function trek_search($request) {
 		$curriki_studio_host = 'https://studio.edtechmasters.us';
 		$keyword = $request->get_param('search');
+		$user_post_id = $request->get_param('user_post_id');
+		$user_role = $request->get_param('user_role');
+		
 		$args = array('headers' => array(
 			'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzNDMiLCJqdGkiOiI5MDcwOTk0YmIxMDA3NGJiMjAyNjJiYjFkMzZlZmIzMjk4MGZmNTBlZjg2MjQyYWVjMGU1MmU5OTYzYTM5ZDgwODU4MDlhNTEyNTcyZDZkNyIsImlhdCI6MTY4NDA3MzQ3Ny4xNzAyODUsIm5iZiI6MTY4NDA3MzQ3Ny4xNzAyOSwiZXhwIjoxNzE1Njk1ODc3LjE2MDYxNiwic3ViIjoiMiIsInNjb3BlcyI6W119.Lvu-Ar22TFuDbCg0X1yg2dXtdUBo-3F4gXvZx_U2I4z1yEYyIbi81BVMV_KhMJhlZ77_W7oSJYFfTP6LXpMUdESoNL8rqb0POqSv4mOh2whAARfOvev34KGHijbpxXP2qgup8BIoh5yZWwKhYEP1yqrk1MdGdYlo6jEwXXn0PnpeXLdC5f-OCqCFfwJGMjhoTQENrvW50-WoQEpA5ziSAw98D1Jy6Q-KqN-PqIcTZYZ6QGOIfxyoJrSDhky8TbF_aT_QA124Q8b382VvcltOTX0m9TYBge-vQdHn3anE-J0czLTa7is6EHHOmX6DM2eobj96FtffiIsRi_DZ11EIMzbXMA1t2PgUMjybqWSPh441CSwiawSe321r4vB8bVbJXYjiBHEgHquYCmREeMpId5sgGn4ddKC8LinqVazmsIPgE6_ifW09Udp_XEPdB4bevUXtCI1KZV349a7DeI6UPj1IDA0rkxtMPzRvT-G9bghDsWjoTZU0SNDIsIdJGRvCn6KjIKu3PgA_s8T5s5tsU0VWDUO1UrKFl0_A9EsW8z2icC39qobFp-J_kFagJKihefmsMZQd3adVNjukG5XjJjL8qnGg6uYzAV7_RBdDjLjXe2Z30O1Ly576T-WqIWoof5cFAkLcRF96l7Wywg46fwkDWksw8jgiE6_-JF3uRkI'
 		));
@@ -217,6 +220,36 @@ class LMS_REST_API
 					));
 				}
 			}
+			
+			if ($user_post_id && $user_role && $user_role === 'student') {
+				$assignment_query = new WP_Query( array( 'post_type' => TL_ASSIGNMENT_CPT, 'post_status' => array( 'publish' ), 'posts_per_page'   => -1, 'meta_query' => array( array('key' => 'lxp_student_ids', 'value' => $user_post_id, 'compare' => 'IN') ) ) );
+				$assignments = $assignment_query->get_posts();
+				$assignments_data = array_map(function($assignment) { 
+					global $wpdb;
+					$trek_id = get_post_meta($assignment->ID, 'trek_id', true);
+					$trek_section_id = get_post_meta($assignment->ID, 'trek_section_id', true);
+					$trek_section = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE id={$trek_section_id}");
+					return array('trek_id' => $trek_id, 'trek_section_id' => $trek_section_id, 'section_title' => $trek_section->title, 'assignment_id' => $assignment->ID ); 
+				}, $assignments);
+
+				$results = array_filter($results, function($result) use ($assignments_data) {
+					$val = array_filter($assignments_data, function($assignment_data) use ($result) {
+						return ($assignment_data['trek_id'] == $result['trek_id']) && ($assignment_data['section_title'] == $result['lesson_title']);
+					});
+					return count($val) > 0;
+				});
+
+				$results = array_map(function($result) use ($assignments_data) {
+					$asg = array_filter($assignments_data, function($assignment_data) use ($result) {
+						return ($assignment_data['trek_id'] == $result['trek_id']) && ($assignment_data['section_title'] == $result['lesson_title']);
+					});
+					if (count($asg) > 0) {
+						$result['assignment_id'] = $asg[array_keys($asg)[0]]['assignment_id'];
+					}
+					return $result;
+				}, $results);
+			}
+
 			return wp_send_json_success($results);
 		} else {
 			return wp_send_json_error("error on search request.");
