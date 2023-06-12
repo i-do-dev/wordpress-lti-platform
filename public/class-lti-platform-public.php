@@ -363,6 +363,9 @@ class LTI_Platform_Public
             if(isset($_GET['slideNumber'])){
                 $params["custom_slideNumber"] = $_GET['slideNumber'];
             }
+            if(isset($_GET['skipSave'])){
+                $params["custom_skipSave"] = $_GET['skipSave'];
+            }
             $params["custom_platform"] = 'wordpress';
 
             if (!empty($tool->getSetting('custom'))) {

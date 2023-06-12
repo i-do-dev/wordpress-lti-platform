@@ -19,6 +19,22 @@ class Rest_Lxp_Assignment_Submission
 				'permission_callback' => '__return_true'
 			)
 		));
+
+        register_rest_route('lms/v1', '/assignment/submission/grade', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Assignment_Submission', 'assignment_submission_grade'),
+				'permission_callback' => '__return_true'
+			)
+		));
+    }
+
+    public static function assignment_submission_grade($request) {
+        $assignment_submission_id = $request->get_param('assignment_submission_id');
+        $slide = $request->get_param('slide');
+        $grade = $request->get_param('grade');
+        update_post_meta($assignment_submission_id, "slide_{$slide}_grade", $grade);
+        return wp_send_json_success("Assignment Submission Graded for Slide {$slide}!");
     }
 
     public static function assignment_submission($request) {
@@ -48,30 +64,42 @@ class Rest_Lxp_Assignment_Submission
 				'post_type'   => TL_ASSIGNMENT_SUBMISSION_CPT
 			);
             
+            $assignment_submission_get_query = new WP_Query( array( 'post_type' => TL_ASSIGNMENT_SUBMISSION_CPT , 'posts_per_page'   => -1, 'post_status' => array( 'publish' ), 
+                        'meta_query' => array(
+                            array('key' => 'lxp_assignment_id', 'value' => $assignment_post->ID, 'compare' => '='),
+                            array('key' => 'lxp_student_id', 'value' => $user_post->ID, 'compare' => '=')
+                        )
+                    )
+                );
+            $assignment_submission_posts = $assignment_submission_get_query->get_posts();
+            if (count($assignment_submission_posts) > 0) {
+                $assignment_submission_post_arg['ID'] = $assignment_submission_posts[0]->ID;
+            }
+
             $assignment_submission_post_id = wp_insert_post($assignment_submission_post_arg);
             if ($assignment_submission_post_id) {
                 // add assignment submission post meta data for $assignmentId and $user_post
-                add_post_meta($assignment_submission_post_id, 'lxp_assignment_id', $assignmentId);
-                add_post_meta($assignment_submission_post_id, 'lxp_student_id', $user_post->ID);
+                update_post_meta($assignment_submission_post_id, 'lxp_assignment_id', $assignmentId);
+                update_post_meta($assignment_submission_post_id, 'lxp_student_id', $user_post->ID);
 
                 // get 'ltiUserId', 'submissionId from $request and add as post meta data
                 $ltiUserId = $request->get_param('ltiUserId');
                 $submissionId = $request->get_param('submissionId');
-                add_post_meta($assignment_submission_post_id, 'lti_user_id', $ltiUserId);
-                add_post_meta($assignment_submission_post_id, 'submission_id', $submissionId);
+                update_post_meta($assignment_submission_post_id, 'lti_user_id', $ltiUserId);
+                update_post_meta($assignment_submission_post_id, 'submission_id', $submissionId);
 
                 // get array values for 'min', 'max', 'raw' and 'scaled' from 'score' array key of $request paramter 'result' and add as assignment submission post meta data
                 $score = $request->get_param('result')['score'];
-                add_post_meta($assignment_submission_post_id, 'score_min', $score['min']);
-                add_post_meta($assignment_submission_post_id, 'score_max', $score['max']);
-                add_post_meta($assignment_submission_post_id, 'score_raw', $score['raw']);
-                add_post_meta($assignment_submission_post_id, 'score_scaled', $score['scaled']);
+                update_post_meta($assignment_submission_post_id, 'score_min', $score['min']);
+                update_post_meta($assignment_submission_post_id, 'score_max', $score['max']);
+                update_post_meta($assignment_submission_post_id, 'score_raw', $score['raw']);
+                update_post_meta($assignment_submission_post_id, 'score_scaled', $score['scaled']);
 
                 // get 'completion' and 'duration' key values from 'result' $request parameter and add as assignment submission post meta data
                 $completion = $request->get_param('result')['completion'];
                 $duration = $request->get_param('result')['duration'];
-                add_post_meta($assignment_submission_post_id, 'completion', intval($completion));
-                add_post_meta($assignment_submission_post_id, 'duration', $duration);
+                update_post_meta($assignment_submission_post_id, 'completion', intval($completion));
+                update_post_meta($assignment_submission_post_id, 'duration', $duration);
                 return wp_send_json_success("Assignment Submission Created!");
             } else {
                 return wp_send_json_error("Assignment Submission Creation Failed!");
