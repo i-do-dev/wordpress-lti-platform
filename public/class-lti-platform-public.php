@@ -405,6 +405,7 @@ class LTI_Platform_Public
 
                 if (isset($_GET["assignment_id"])) {
                     $params["custom_assignment_id"] = $_GET["assignment_id"];
+                    $params["custom_grade_endpoint"] = urlencode(site_url("/wp-json/lms/v1/assignment/submission/gradeByStudent"));
                 }
             }
             LTI\Tool::$defaultTool = $tool;

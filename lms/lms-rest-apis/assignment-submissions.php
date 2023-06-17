@@ -27,6 +27,57 @@ class Rest_Lxp_Assignment_Submission
 				'permission_callback' => '__return_true'
 			)
 		));
+
+        register_rest_route('lms/v1', '/assignment/submission/gradeByStudent', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Assignment_Submission', 'assignment_submission_grade_by_student'),
+				'permission_callback' => '__return_true'
+			)
+		));
+    }
+
+    public static function assignment_submission_grade_by_student($request) {
+        $student_user_id = $request->get_param('student_user_id');
+        $assignment_id = $request->get_param('assignment_id');
+
+        $student_post_query = new WP_Query( array( 
+            'post_type' => TL_STUDENT_CPT, 
+            'post_status' => array( 'publish' ),
+            'posts_per_page'   => -1,        
+            'meta_query' => array(
+                array('key' => 'lxp_student_admin_id', 'value' => $student_user_id, 'compare' => '=')
+            )
+        ) );
+        $student_posts = $student_post_query->get_posts();
+        if (count($student_posts) > 0) {
+            $student_post = $student_posts[0];
+            $assignment_submission_get_query = new WP_Query( array( 'post_type' => TL_ASSIGNMENT_SUBMISSION_CPT , 'posts_per_page'   => -1, 'post_status' => array( 'publish' ), 
+                        'meta_query' => array(
+                            array('key' => 'lxp_assignment_id', 'value' => $assignment_id, 'compare' => '='),
+                            array('key' => 'lxp_student_id', 'value' => $student_post->ID, 'compare' => '=')
+                        )
+                    )
+                );
+            $assignment_submission_posts = $assignment_submission_get_query->get_posts();
+            if (count($assignment_submission_posts) > 0) {
+                $assignment_submission_id = $assignment_submission_posts[0]->ID;
+                $result = $request->get_param('result');
+                if (is_array($result) && array_key_exists('score', $result)) {
+                    $grade = $result['score']['raw'];
+                    $slide = $request->get_param('slide');
+                    update_post_meta($assignment_submission_id, "slide_{$slide}_grade", $grade);
+                    update_post_meta($assignment_submission_id, "slide_{$slide}_result", json_encode($result));
+                    return wp_send_json_success("Assignment Submission Graded for Slide {$slide}!");
+                } else {
+                    return wp_send_json_success("No Assignment Submission saved!");
+                }
+            } else {
+                return wp_send_json_success("No Assignment Submission saved!");
+            }
+        } else {
+            return wp_send_json_success("Student not found!");
+        }
     }
 
     public static function assignment_submission_grade($request) {
