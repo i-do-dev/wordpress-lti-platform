@@ -274,10 +274,10 @@
             $title_found = array_search($playlist_title, $course_post_sections, true);
             if (gettype($title_found) === "boolean" && !$title_found) {
                $course_post_sections[] = $playlist_title;
-               update_post_meta($course_id,'lxp_sections', json_encode($course_post_sections));
+               update_post_meta($course_id,'lxp_sections', addslashes(json_encode($course_post_sections)));
             }
          } else {
-            add_post_meta($course_id, "lxp_sections", json_encode([$playlist_title]), true);
+            add_post_meta($course_id, "lxp_sections", addslashes(json_encode([$playlist_title])), true);
          }      
 
          if(isset($request['meta']['lti_content_id'])){
