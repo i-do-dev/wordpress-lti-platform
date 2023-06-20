@@ -90,6 +90,7 @@ class TL_TREK_Post_Type extends TL_Post_Type
             type varchar(255) default NULL,
             content longtext default NULL,
             link varchar(255) default NULL,
+            sort int default 0,
 			PRIMARY KEY (id)
 		)");
 
