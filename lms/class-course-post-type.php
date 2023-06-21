@@ -92,6 +92,7 @@
          ),
          'show_in_rest'       => true,
          'rest_base'          => 'tl_courses',
+         'supports' => array('title', 'editor', 'author', 'thumbnail'),
          'capability_type' => 'post',
          'capabilities' => array(
              'edit_post' => 'edit_lxp_course',
@@ -106,6 +107,7 @@
       );
 
       $this->register_texonomy();
+      add_theme_support('post-thumbnails');
       return $args;
    }
    
