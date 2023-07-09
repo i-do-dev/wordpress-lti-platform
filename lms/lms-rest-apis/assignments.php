@@ -310,6 +310,7 @@ class Rest_Lxp_Assignment
 		$students = array_map(function ($student) use ($assignment_id) {
 			$attempted = self::lxp_user_assignment_attempted($assignment_id, $student->ID);
 			$submission = self::lxp_get_assignment_submissions($assignment_id, $student->ID);
+			/* 
 			if ($attempted && is_null($submission)) {
 				$status = 'In Progress';
 			}else if ($attempted && !is_null($submission)) {
@@ -317,10 +318,17 @@ class Rest_Lxp_Assignment
 			} else {
 				$status = 'To Do';
 			}
+ 			*/
+			 $status = 'To Do';
+			 if ($attempted && !is_null($submission) && !$submission['lti_user_id'] && !$submission['submission_id']) {
+				 $status = 'In Progress';
+			 } else if ($attempted && !is_null($submission) && $submission['lti_user_id'] && $submission['submission_id']) {
+				 $status = 'Completed';
+			 }
 			$lxp_student_admin_id = get_post_meta($student->ID, 'lxp_student_admin_id', true);
 			$userdata = get_userdata($lxp_student_admin_id);
-			$progress = $submission ? $submission['score_raw'] .'/'. $submission['score_max'] : '---';
-			$score = $submission ? round(($submission['score_scaled'] * 100), 2) . '%' : '---';
+			$progress = $submission && $submission['score_raw'] && $submission['score_max'] ? $submission['score_raw'] .'/'. $submission['score_max'] : '---';
+			$score = $submission && $submission['score_scaled'] ? round(($submission['score_scaled'] * 100), 2) . '%' : '---';
 			$data = array("ID" => $student->ID, "name" => $userdata->data->display_name, "status" => $status, "progress" => $progress, "score" => $score);
 			return $data;
 		} , $students_posts);

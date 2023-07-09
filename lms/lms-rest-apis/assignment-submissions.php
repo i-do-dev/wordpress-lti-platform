@@ -38,6 +38,20 @@ class Rest_Lxp_Assignment_Submission
     }
 
     public static function assignment_submission_grade_by_student($request) {
+
+        $xapiData = $request->get_param('xapiData');
+        $h5pTypeParts = explode('/', $xapiData['context']['contextActivities']['category'][0]['id']);
+        $h5pTypeParts = $h5pTypeParts[count($h5pTypeParts) - 1];
+        $h5pType = explode('-', $h5pTypeParts)[0];
+
+        if ($h5pType == 'H5P.Essay') {
+            return wp_send_json_success("Grading Skipped for {$h5pType}!");
+        }
+
+        $xapiObjectId = null;
+        parse_str(parse_url($xapiData['object']['id'], PHP_URL_QUERY), $xapiObjectId);
+        $subContentId = $xapiObjectId['subContentId'];
+
         $student_user_id = $request->get_param('student_user_id');
         $assignment_id = $request->get_param('assignment_id');
 
@@ -66,9 +80,12 @@ class Rest_Lxp_Assignment_Submission
                 if (is_array($result) && array_key_exists('score', $result)) {
                     $grade = $result['score']['raw'];
                     $slide = $request->get_param('slide');
-                    update_post_meta($assignment_submission_id, "slide_{$slide}_grade", $grade);
-                    update_post_meta($assignment_submission_id, "slide_{$slide}_result", json_encode($result));
-                    return wp_send_json_success("Assignment Submission Graded for Slide {$slide}!");
+                    if (!in_array($subContentId, get_post_meta($assignment_submission_id, "subContentIds"))) {
+                        add_post_meta($assignment_submission_id, "subContentIds", $subContentId);
+                    }
+                    update_post_meta($assignment_submission_id, "slide_{$slide}_subContentId_{$subContentId}_grade", $grade);
+                    update_post_meta($assignment_submission_id, "slide_{$slide}_subContentId_{$subContentId}_result", json_encode($result));
+                    return wp_send_json_success("Assignment Submission Graded for Slide: {$slide} and content: {$subContentId}!");
                 } else {
                     return wp_send_json_success("No Assignment Submission saved!");
                 }
