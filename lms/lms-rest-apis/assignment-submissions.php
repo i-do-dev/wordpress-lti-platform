@@ -35,6 +35,23 @@ class Rest_Lxp_Assignment_Submission
 				'permission_callback' => '__return_true'
 			)
 		));
+
+        // register rest route for assignment/submission/mark-as-graded
+        register_rest_route('lms/v1', '/assignment/submission/mark-as-graded', array(
+            array(
+                'methods' => WP_REST_Server::ALLMETHODS,
+                'callback' => array('Rest_Lxp_Assignment_Submission', 'assignment_submission_mark_as_graded'),
+                'permission_callback' => '__return_true'
+            )
+        ));
+    }
+
+    // mark public static function 'assignment_submission_mark_as_graded' which set the assignment submission 'mark as graded' status
+    public static function assignment_submission_mark_as_graded($request) {
+        $assignment_submission_id = $request->get_param('assignment_submission_id');
+        $mark_as_graded = $request->get_param('checked');
+        update_post_meta($assignment_submission_id, "mark_as_graded", $mark_as_graded);
+        return wp_send_json_success("Assignment Submission Marked as {$mark_as_graded} Graded!");
     }
 
     public static function assignment_submission_grade_by_student($request) {
