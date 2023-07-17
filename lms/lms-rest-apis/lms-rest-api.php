@@ -6,6 +6,7 @@ require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/schools.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/classes.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/assignments.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/assignment-submissions.php' );
+require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/courses.php' );
 
 class LMS_REST_API
 {
@@ -23,9 +24,10 @@ class LMS_REST_API
 		Rest_Lxp_Teacher::init();
 		Rest_Lxp_Student::init();
 		Rest_Lxp_School::init();
-		Rest_Lxp_Class::init();
+		Rest_Lxp_Class::init();		
 		Rest_Lxp_Assignment::init();
 		Rest_Lxp_Assignment_Submission::init();
+		Rest_Lxp_Course::init();
 
 		register_rest_route('lms/v1', '/scores', array(
 			array(

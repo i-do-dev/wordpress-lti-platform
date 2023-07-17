@@ -57,7 +57,27 @@ class Rest_Lxp_Assignment
 				'methods' => WP_REST_Server::EDITABLE,
 				'callback' => array('Rest_Lxp_Assignment', 'create'),
 				'permission_callback' => '__return_true',
-				'args' => array(										
+				'args' => array(
+					'course_id' => array(
+						'required' => true,
+						'type' => 'integer',
+						'description' => 'assignment course id',
+						'validate_callback' => function($param, $request, $key) {
+							return intval( $param ) > 0;
+						}
+					),
+					'lesson_ids' => array(
+						'required' => true,
+						'description' => 'assignment course lessons',
+						'validate_callback' => function($param, $request, $key) {
+							$param = json_decode($param);
+							if (count( $param ) > 0) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+					),					
 					'student_ids' => array(
 						'required' => true,
 						'description' => 'assignment students',
@@ -69,27 +89,7 @@ class Rest_Lxp_Assignment
 								return false;
 							}
 						}
-					),
-					'segments_ids' => array(
-						'required' => true,
-						'description' => 'assignment trek segments',
-						'validate_callback' => function($param, $request, $key) {
-							$param = json_decode($param);
-							if (count( $param ) > 0) {
-								return true;
-							} else {
-								return false;
-							}
-						}
-					),
-					'trek_id' => array(
-						'required' => true,
-						'type' => 'integer',
-						'description' => 'assignment trek id',
-						'validate_callback' => function($param, $request, $key) {
-							return intval( $param ) > 0;
-						}
-					),
+					),					
 					'class_id' => array(
 						'required' => true,
 						'type' => 'integer',
@@ -166,11 +166,10 @@ class Rest_Lxp_Assignment
 	}
 
 	public static function create($request) {		
-		
-		$trek_id = $request->get_param('trek_id');
-		$trek_post = get_post($trek_id);
+		$course_id = $request->get_param('course_id');
+		$course_post = get_post($course_id);
 
-		$segments_ids = json_decode($request->get_param('segments_ids'));
+		$lesson_ids = json_decode($request->get_param('lesson_ids'));
 		
 		$class_id = $request->get_param('class_id');
 		
@@ -187,13 +186,13 @@ class Rest_Lxp_Assignment
 		$end_time = $end->format('H:i:s');
 		
 		global $wpdb;
-		foreach ($segments_ids as $segment_id) {
-			$segment = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE id={$segment_id}");	
+		foreach ($lesson_ids as $lesson_id) {
+			$lesson_post = get_post($lesson_id);
 			
 			// ============= Assignment Post =================================
 			$assignment_teacher_id = $request->get_param('teacher_id');
 			$assignment_post_id = intval($request->get_param('assignment_post_id'));
-			$assignment_name = $segment->title . ' - ' . $trek_post->post_title;
+			$assignment_name = $lesson_post->post_title . ' - ' . $course_post->post_title;
 			
 			$assignment_post_arg = array(
 				'post_title'    => wp_strip_all_tags($assignment_name),
@@ -221,16 +220,16 @@ class Rest_Lxp_Assignment
 				add_post_meta($assignment_post_id, 'lxp_student_ids', $student_id);
 			}
 
-			if(get_post_meta($assignment_post_id, 'trek_section_id', true)) {
-				update_post_meta($assignment_post_id, 'trek_section_id', $segment_id);
+			if(get_post_meta($assignment_post_id, 'lxp_lesson_id', true)) {
+				update_post_meta($assignment_post_id, 'lxp_lesson_id', $lesson_id);
 			} else {
-				add_post_meta($assignment_post_id, 'trek_section_id', $segment_id, true);
+				add_post_meta($assignment_post_id, 'lxp_lesson_id', $lesson_id, true);
 			}
 
-			if(get_post_meta($assignment_post_id, 'trek_id', true)) {
-				update_post_meta($assignment_post_id, 'trek_id', $trek_id);
+			if(get_post_meta($assignment_post_id, 'course_id', true)) {
+				update_post_meta($assignment_post_id, 'course_id', $course_id);
 			} else {
-				add_post_meta($assignment_post_id, 'trek_id', $trek_id, true);
+				add_post_meta($assignment_post_id, 'course_id', $course_id, true);
 			}
 
 			if(get_post_meta($assignment_post_id, 'class_id', true)) {
@@ -382,18 +381,16 @@ class Rest_Lxp_Assignment
 		
 		return array_map(function($assignment) {
 			$calendar_selection_info = json_decode(get_post_meta($assignment->ID, 'calendar_selection_info', true));
-			$trek_section_id = get_post_meta($assignment->ID, 'trek_section_id', true);
-			global $wpdb;
-    		$trek_section = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE id={$trek_section_id}");
-			$trek = get_post(get_post_meta($assignment->ID, 'trek_id', true));
+			$lxp_lesson_post = get_post(get_post_meta($assignment->ID, 'lxp_lesson_id', true));
+			$course = get_post(get_post_meta($assignment->ID, 'course_id', true));
 			$event = array();
 			$event["id"] = $assignment->ID;
 			$event["start"] = $calendar_selection_info->start;
 			$event["end"] = $calendar_selection_info->end;
 			$event["allDay"] = $calendar_selection_info->allDay;
-			$event["title"] = $trek_section->title;
-			$event["segment"] = implode("-", explode(" ", strtolower($trek_section->title))) ;
-			$event['trek'] = $trek ? $trek->post_title : '';
+			$event["title"] = $lxp_lesson_post->post_title;
+			$event["segment"] = implode("-", explode(" ", strtolower($lxp_lesson_post->post_title))) ;
+			$event['course'] = $course ? $course->post_title : '';
 			$event["calendar_selection_info"] = json_encode($calendar_selection_info);
 			return $event;
 		}, $assignment_query->get_posts());
