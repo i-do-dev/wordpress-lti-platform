@@ -391,6 +391,7 @@ class Rest_Lxp_Assignment
 			$event["title"] = $lxp_lesson_post->post_title;
 			$event["segment"] = implode("-", explode(" ", strtolower($lxp_lesson_post->post_title))) ;
 			$event['course'] = $course ? $course->post_title : '';
+			$event['course_post_image'] = get_the_post_thumbnail_url($course->ID); 
 			$event["calendar_selection_info"] = json_encode($calendar_selection_info);
 			return $event;
 		}, $assignment_query->get_posts());
