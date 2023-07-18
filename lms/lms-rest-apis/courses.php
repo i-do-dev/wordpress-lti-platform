@@ -27,6 +27,14 @@ class Rest_Lxp_Course
 				'permission_callback' => '__return_true'
 			)
 		));
+
+		register_rest_route('lms/v1', '/course/lxp_lessons', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Course', 'get_lxp_lessons_by_course'),
+				'permission_callback' => '__return_true'
+			)
+		));
 		
 	}
 
@@ -66,5 +74,23 @@ class Rest_Lxp_Course
 			}
 		}
 		return wp_send_json_success(array("lxp_lessons" => $lxp_lessons));
+	}
+
+	public static function get_lxp_lessons_by_course($request) {
+		$course_id = $request->get_param('course_id');
+		$lessons_query = new WP_Query( array( 
+	        'post_type' => TL_LESSON_CPT, 
+	        'post_status' => array( 'publish' ),
+	        'posts_per_page'   => -1,
+	        'order' => 'asc',
+	        'meta_query' => [
+	            [
+	              'key' => 'tl_course_id', 
+	              'value' => $course_id,
+	              'compare' => '='
+	            ]
+	        ]
+	    ));
+	    return wp_send_json_success(array("lxp_lessons" => $lessons_query->get_posts()));
 	}
 }
