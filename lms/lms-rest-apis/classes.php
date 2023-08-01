@@ -42,41 +42,41 @@ class Rest_Lxp_Class
 							return strlen( $param ) > 1;
 						}
 					),					
-					'class_description' => array(
-						'required' => true,
-						'type' => 'string',
-						'description' => 'class description',
-						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
-						}
-					),					
-					'schedule' => array(
-						'required' => true,
-						'description' => 'class schedule',
-						'validate_callback' => function($param, $request, $key) {
-							$ok = true;
-							if (count( $param ) === 0) {
-								$ok = false;
-							}
-							foreach ($param as $day) {
-								$start = $request->get_param($day . '-sd');
-								$end = $request->get_param($day . '-ed');
-								if ( !(boolval(strlen($start)) || boolval(strlen($end))) )
-								{
-									$ok = false;
-								}
-							}
-							return $ok;
-						}
-					),
-					'grade' => array(
-						'required' => true,
-						'type' => 'string',
-						'description' => 'class grade',
-						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
-						}
-					),
+					// 'class_description' => array(
+					// 	'required' => true,
+					// 	'type' => 'string',
+					// 	'description' => 'class description',
+					// 	'validate_callback' => function($param, $request, $key) {
+					// 		return strlen( $param ) > 1;
+					// 	}
+					// ),					
+					// 'schedule' => array(
+					// 	'required' => true,
+					// 	'description' => 'class schedule',
+					// 	'validate_callback' => function($param, $request, $key) {
+					// 		$ok = true;
+					// 		if (count( $param ) === 0) {
+					// 			$ok = false;
+					// 		}
+					// 		foreach ($param as $day) {
+					// 			$start = $request->get_param($day . '-sd');
+					// 			$end = $request->get_param($day . '-ed');
+					// 			if ( !(boolval(strlen($start)) || boolval(strlen($end))) )
+					// 			{
+					// 				$ok = false;
+					// 			}
+					// 		}
+					// 		return $ok;
+					// 	}
+					// ),
+					// 'grade' => array(
+					// 	'required' => true,
+					// 	'type' => 'string',
+					// 	'description' => 'class grade',
+					// 	'validate_callback' => function($param, $request, $key) {
+					// 		return strlen( $param ) > 1;
+					// 	}
+					// ),
 					'student_ids' => array(
 						'required' => true,
 						'description' => 'class students',
@@ -107,7 +107,7 @@ class Rest_Lxp_Class
 			   )
 			),
 		));
-		
+
 		register_rest_route('lms/v1', '/update/class', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -147,8 +147,8 @@ class Rest_Lxp_Class
 		
 	}
 
-	public static function create($request) {		
-		
+	public static function create($request) {
+
 		// ============= Class Post =================================
 		$class_teacher_id = $request->get_param('class_teacher_id');
 		$class_post_id = intval($request->get_param('class_post_id'));
@@ -187,15 +187,24 @@ class Rest_Lxp_Class
 		}
 
 		$schedule = array();
-		foreach ($request->get_param('schedule') as $day) {
-			$start = $request->get_param($day . '-sd');
-			$end = $request->get_param($day . '-ed');
-			$schedule[$day] = array("start" => $start, "end" => $end);
+		if (is_array($request->get_param('schedule'))) {
+			foreach ($request->get_param('schedule') as $day) {
+				$start = $request->get_param($day . '-sd');
+				$end = $request->get_param($day . '-ed');
+				$schedule[$day] = array("start" => $start, "end" => $end);
+			}
 		}
+		
 		if(get_post_meta($class_post_id, 'schedule', true)) {
 			update_post_meta($class_post_id, 'schedule', json_encode($schedule));
 		} else {
 			add_post_meta($class_post_id, 'schedule', json_encode($schedule), true);
+		}
+
+		if(get_post_meta($class_post_id, 'lxp_class_type', true)) {
+			update_post_meta($class_post_id, 'lxp_class_type', $request->get_param('type'));
+		} else {
+			add_post_meta($class_post_id, 'lxp_class_type', $request->get_param('type'), true);
 		}
 
         return wp_send_json_success("Class Saved!");
@@ -220,6 +229,7 @@ class Rest_Lxp_Class
 		$class->lxp_class_teacher_id = get_post_meta($class_id, 'lxp_class_teacher_id', true);
 		$class->lxp_student_ids = get_post_meta($class_id, 'lxp_student_ids');
 		$class->schedule = json_decode(get_post_meta($class_id, 'schedule', true));
+		$class->lxp_class_type = get_post_meta($class_id, 'lxp_class_type', true);
 		return wp_send_json_success(array("class" => $class));
 	}
 
@@ -235,6 +245,6 @@ class Rest_Lxp_Class
             'user_pass' =>$_POST['login_pass']
          );
          wp_send_json_success (wp_update_user($user_data));
-		 
 	}
+
 }
