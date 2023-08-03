@@ -64,6 +64,22 @@ class Rest_Lxp_Group
 				'permission_callback' => '__return_true'
 			)
 		));
+
+		register_rest_route('lms/v1', '/class/groups', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Group', 'get_groups'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
+		register_rest_route('lms/v1', '/group/students', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Group', 'get_students'),
+				'permission_callback' => '__return_true'
+			)
+		));
 		
 	}
 
@@ -127,5 +143,33 @@ class Rest_Lxp_Group
 		$group->lxp_group_student_ids = get_post_meta($group_id, 'lxp_group_student_ids');
 		$group->lxp_class_group_id = get_post_meta($group_id, 'lxp_class_group_id', true);
 		return wp_send_json_success(array("group" => $group));
+	}
+
+	public static function get_groups($request) {
+		$class_id = $request->get_param('class_id');
+		$query = new WP_Query( array( 
+	        'post_type' => TL_GROUP_CPT, 
+	        'post_status' => array( 'publish' ),
+	        'posts_per_page'   => -1,        
+	        'meta_query' => array(	            
+	            array(
+	                'key' => 'lxp_class_group_id', 
+	                'value' => $class_id, 'compare' => '='
+	            )
+	        )
+	    ) );
+		return wp_send_json_success(array("small_groups" => $query->get_posts()));
+	}
+
+	public static function get_students($request) {
+		$group_id = $request->get_param('group_id');
+		$lxp_group_student_ids = get_post_meta($group_id, 'lxp_group_student_ids');
+		$students = array_map(function($student_id) { 
+			$post = get_post($student_id); 
+			$user = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
+			return array('post' => $post, 'user' => $user);
+		} , $lxp_group_student_ids);
+
+		return wp_send_json_success(array("students" => $students));
 	}
 }

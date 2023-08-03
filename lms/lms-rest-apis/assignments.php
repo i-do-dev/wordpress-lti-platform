@@ -173,6 +173,7 @@ class Rest_Lxp_Assignment
 		$segments_ids = json_decode($request->get_param('segments_ids'));
 		
 		$class_id = $request->get_param('class_id');
+		$group_id = $request->get_param('group_id');
 		
 		$calendar_selection_info = json_decode($request->get_param('calendar_selection_info'));
 		
@@ -237,6 +238,12 @@ class Rest_Lxp_Assignment
 				update_post_meta($assignment_post_id, 'class_id', $class_id);
 			} else {
 				add_post_meta($assignment_post_id, 'class_id', $class_id, true);
+			}
+
+			if(get_post_meta($assignment_post_id, 'group_id', true)) {
+				update_post_meta($assignment_post_id, 'group_id', $group_id);
+			} else {
+				add_post_meta($assignment_post_id, 'group_id', $group_id, true);
 			}
 
 			if(get_post_meta($assignment_post_id, 'calendar_selection_info', true)) {
