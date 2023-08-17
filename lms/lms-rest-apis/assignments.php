@@ -171,10 +171,9 @@ class Rest_Lxp_Assignment
 		$trek_post = get_post($trek_id);
 
 		$segments_ids = json_decode($request->get_param('segments_ids'));
-		
+		$segments_title = json_decode($request->get_param('segments_title'));
 		$class_id = $request->get_param('class_id');
 		$group_id = $request->get_param('group_id');
-		
 		$calendar_selection_info = json_decode($request->get_param('calendar_selection_info'));
 		
 		$start = new DateTime($calendar_selection_info->startStr, new DateTimeZone('UTC'));
@@ -187,14 +186,17 @@ class Rest_Lxp_Assignment
 		$end_date = $end->format('Y-m-d');
 		$end_time = $end->format('H:i:s');
 		
-		global $wpdb;
-		foreach ($segments_ids as $segment_id) {
-			$segment = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE id={$segment_id}");	
-			
+		global $wpdb;		
+		//foreach ($segments_ids as $segment_id) {
+			//$segment = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE id={$segment_id}");	
+		foreach ($segments_title as $key => $title) {
+			$segment = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}trek_sections WHERE trek_id={$trek_id} AND title='".$title."'");
+			$segment_title = ( $segment ) ? $segment->title : $title;
+			$segment_id = ( $segment) ? $segment->id : $segments_ids[$key];
 			// ============= Assignment Post =================================
 			$assignment_teacher_id = $request->get_param('teacher_id');
 			$assignment_post_id = intval($request->get_param('assignment_post_id'));
-			$assignment_name = $segment->title . ' - ' . $trek_post->post_title;
+			$assignment_name = $segment_title . ' - ' . $trek_post->post_title;
 			
 			$assignment_post_arg = array(
 				'post_title'    => wp_strip_all_tags($assignment_name),
