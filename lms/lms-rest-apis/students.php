@@ -462,6 +462,9 @@ class Rest_Lxp_Student
 									add_post_meta($student_post_id, 'lxp_student_admin_id', $student_admin_id, true);
 									add_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')), true);
 								}
+
+								$lxp_teacher_id = $request->get_param('teacher_id');
+								update_post_meta($student_post_id, 'lxp_teacher_id', ($lxp_teacher_id ? $lxp_teacher_id : 0));
 							}
 						}		
 					}
