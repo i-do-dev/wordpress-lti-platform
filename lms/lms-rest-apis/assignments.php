@@ -333,6 +333,9 @@ class Rest_Lxp_Assignment
 				 $status = 'In Progress';
 			 } else if ($attempted && !is_null($submission) && $submission['lti_user_id'] && $submission['submission_id']) {
 				 $status = 'Completed';
+				 if (get_post_meta($submission['ID'], 'mark_as_graded', true) === 'true') {
+					$status = 'Graded';
+				 }
 			 }
 			$lxp_student_admin_id = get_post_meta($student->ID, 'lxp_student_admin_id', true);
 			$userdata = get_userdata($lxp_student_admin_id);
