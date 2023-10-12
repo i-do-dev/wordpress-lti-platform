@@ -12,6 +12,22 @@ class Rest_Lxp_Teacher
 			return false;
 		}
 
+		register_rest_route('lms/v1', '/teacher/treks/assigned', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Teacher', 'treks_assigned'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
+		register_rest_route('lms/v1', '/teacher/treks/assign', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Teacher', 'treks_assign'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
 		register_rest_route('lms/v1', '/teacher/treks/saved', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -139,6 +155,26 @@ class Rest_Lxp_Teacher
 			),
 		));
 		
+	}
+
+	// get assigned treks
+	public static function treks_assigned($request) {
+		$teacher_post_id = intval($request->get_param('teacher_post_id'));
+		$treks_assigned = get_post_meta($teacher_post_id, 'treks_assigned');
+		return wp_send_json_success( ($treks_assigned ? $treks_assigned : array()) );
+	}
+
+	// save assigned treks
+	public static function treks_assign($request) {
+		$teacher_post_id = intval($request->get_param('teacher_post_id'));
+		$trek_ids = $request->get_param('treks');
+		$trek_ids = $trek_ids ? $trek_ids : array();
+		// add treacher 'treks_assigned' post metadata and remove existing
+		delete_post_meta($teacher_post_id, 'treks_assigned');
+		foreach ($trek_ids as $trek_id) {
+			add_post_meta($teacher_post_id, 'treks_assigned', $trek_id);
+		}
+		return wp_send_json_success(get_post_meta($teacher_post_id, 'treks_assigned'));
 	}
 
 	public static function treks_saved($request) {
