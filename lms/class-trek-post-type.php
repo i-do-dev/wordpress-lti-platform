@@ -61,6 +61,8 @@ class TL_TREK_Post_Type extends TL_Post_Type
       foreach ($strands as $strand) {
          update_post_meta($post_id, 'strands', $strand);
       }
+      $tekversion = $_POST['tekversion'];
+      update_post_meta($post_id, 'tekversion', $tekversion);
       echo json_encode(array('success' => true));
       wp_die();
    }
@@ -90,7 +92,6 @@ class TL_TREK_Post_Type extends TL_Post_Type
             type varchar(255) default NULL,
             content longtext default NULL,
             link varchar(255) default NULL,
-            sort int default 0,
 			PRIMARY KEY (id)
 		)");
 
