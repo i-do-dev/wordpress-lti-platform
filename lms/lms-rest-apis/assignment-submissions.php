@@ -20,6 +20,14 @@ class Rest_Lxp_Assignment_Submission
 			)
 		));
 
+        register_rest_route('lms/v1', '/assignment/submission/feedback', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Assignment_Submission', 'assignment_submission_feedback'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
         register_rest_route('lms/v1', '/assignment/submission/grade', array(
 			array(
 				'methods' => WP_REST_Server::ALLMETHODS,
@@ -112,6 +120,14 @@ class Rest_Lxp_Assignment_Submission
         } else {
             return wp_send_json_success("Student not found!");
         }
+    }
+
+    public static function assignment_submission_feedback($request) {
+        $assignment_submission_id = $request->get_param('assignment_submission_id');
+        $slide = $request->get_param('slide');
+        $feedback = $request->get_param('feedback');
+        update_post_meta($assignment_submission_id, "slide_{$slide}_feedback", $feedback);
+        return wp_send_json_success("Assignment Submission Feedback Saved for Slide {$slide}!");
     }
 
     public static function assignment_submission_grade($request) {
