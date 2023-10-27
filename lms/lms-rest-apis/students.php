@@ -74,6 +74,14 @@ class Rest_Lxp_Student
 							return strlen( $param ) > 0;
 						}
 					),
+					'teacher_id' => array(
+						'required' => true,
+						'type' => 'integer',
+						'description' => 'teacher id',
+						'validate_callback' => function($param, $request, $key) {
+							return intval( $param ) > 0;
+						}
+					),
 					'about' => array(
 						'required' => false,
 						'type' => 'string',
@@ -410,6 +418,8 @@ class Rest_Lxp_Student
 		$student_id = $request->get_param('student_id');
 		$student = get_post($student_id);
 		$student->grades = json_decode(get_post_meta($student_id, 'grades', true));
+		$teacher_id = get_post_meta($student_id, 'lxp_teacher_id', true);
+		$student->teacher_id = $teacher_id ? $teacher_id : 0;
 		$admin = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true));
 		$admin->data->first_name = get_user_meta($admin->ID, 'first_name', true);
 		$admin->data->last_name = get_user_meta($admin->ID, 'last_name', true);
