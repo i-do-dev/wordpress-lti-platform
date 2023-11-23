@@ -24,8 +24,8 @@ class Rest_Lxp_Student
 						'description' => 'user email name',  
 						'format' => 'email',
 						'validate_callback' => function($param, $request, $key) {
-							$user_by_email = get_user_by("email", trim($request->get_param('user_email')));
-							$user_by_login = get_user_by("login", trim($request->get_param('user_email')));
+							$user_by_email = get_user_by( "email", strtolower(trim($request->get_param('user_email'))) );
+							$user_by_login = get_user_by ("login", strtolower(trim($request->get_param('user_email'))) );
 							if ( $user_by_email && intval($request->get_param('student_post_id')) > 0 && $user_by_email->data->user_email !== trim($request->get_param('user_email_default')) ) {
 								return false;
 							} else if ($request->get_param('student_post_id') == 0) {
@@ -42,7 +42,7 @@ class Rest_Lxp_Student
 						'type' => 'string',
 						'description' => 'user first name',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return strlen( $param ) > 0;
 						}
 					),
 					'last_name' => array(
@@ -50,7 +50,7 @@ class Rest_Lxp_Student
 						'type' => 'string',
 						'description' => 'user last name',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return strlen( $param ) > 0;
 						}
 					),
 					'user_password' => array(
@@ -72,6 +72,14 @@ class Rest_Lxp_Student
 						'description' => 'user school id',
 						'validate_callback' => function($param, $request, $key) {
 							return strlen( $param ) > 0;
+						}
+					),
+					'teacher_id' => array(
+						'required' => true,
+						'type' => 'integer',
+						'description' => 'teacher id',
+						'validate_callback' => function($param, $request, $key) {
+							return intval( $param ) > 0;
 						}
 					),
 					'about' => array(
@@ -252,7 +260,7 @@ class Rest_Lxp_Student
 		// ============= Student Post =================================
 		$school_admin_id = $request->get_param('school_admin_id');
 		$student_post_id = intval($request->get_param('student_post_id'));
-		$student_name = trim($request->get_param('user_email'));
+		$student_name = strtolower( trim($request->get_param('user_email')) );
 		$student_description = trim($request->get_param('about'));
 		
 		$school_post_arg = array(
@@ -347,8 +355,8 @@ class Rest_Lxp_Student
 		
 		// ========== Student Admin ===========
 		$student_admin_data = array(
-			'user_login' => trim($request->get_param('user_email')),
-			'user_email' => trim($request->get_param('user_email')),
+			'user_login' => strtolower( trim($request->get_param('user_email')) ),
+			'user_email' => strtolower( trim($request->get_param('user_email')) ),
 			'first_name' => trim($request->get_param('first_name')),
 			'last_name' => trim($request->get_param('last_name')),
 			'display_name' => trim($request->get_param('first_name')) . ' ' . trim($request->get_param('last_name')),
@@ -381,7 +389,10 @@ class Rest_Lxp_Student
 				add_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')), true);
 			}
 		}
-	
+		
+		$lxp_teacher_id = $request->get_param('teacher_id');
+		update_post_meta($student_post_id, 'lxp_teacher_id', ($lxp_teacher_id ? $lxp_teacher_id : 0));
+
 		return wp_send_json_success("Student Saved!");
 	}
 
@@ -407,6 +418,8 @@ class Rest_Lxp_Student
 		$student_id = $request->get_param('student_id');
 		$student = get_post($student_id);
 		$student->grades = json_decode(get_post_meta($student_id, 'grades', true));
+		$teacher_id = get_post_meta($student_id, 'lxp_teacher_id', true);
+		$student->teacher_id = $teacher_id ? $teacher_id : 0;
 		$admin = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true));
 		$admin->data->first_name = get_user_meta($admin->ID, 'first_name', true);
 		$admin->data->last_name = get_user_meta($admin->ID, 'last_name', true);
@@ -430,7 +443,7 @@ class Rest_Lxp_Student
 						if (count($row) >= 4) {
 							$first_name = trim($row[0]);
 							$last_name = trim($row[1]);
-							$email = trim($row[2]);
+							$email = strtolower( trim($row[2]) );
 							$password = trim($row[3]);
 							if (!get_user_by('email', $email)) {
 								$student_post_arg = array(
@@ -459,6 +472,9 @@ class Rest_Lxp_Student
 									add_post_meta($student_post_id, 'lxp_student_admin_id', $student_admin_id, true);
 									add_post_meta($student_post_id, 'lxp_student_school_id', trim($request->get_param('student_school_id')), true);
 								}
+
+								$lxp_teacher_id = $request->get_param('teacher_id');
+								update_post_meta($student_post_id, 'lxp_teacher_id', ($lxp_teacher_id ? $lxp_teacher_id : 0));
 							}
 						}		
 					}
