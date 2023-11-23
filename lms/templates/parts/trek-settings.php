@@ -25,6 +25,16 @@
             echo '<br />';
         }
     ?>
+
+    <br />
+    <label for="sort"><strong>Version</strong></label>
+    <br />
+    <input type="radio" name="tekversion" id="v17" value="2017" <?php echo get_post_meta($post->ID, 'tekversion', true) == '2017' ? 'checked' : ''; ?> />
+    <label for="v17">2017 TEKS (Beta)</label>
+    <br />
+    <input type="radio" name="tekversion" value="2021" id="2021" <?php echo get_post_meta($post->ID, 'tekversion', true) == '2021' ? 'checked' : ''; ?> />
+    <label for="2021">2021 TEKS (New TEKS)</label>
+
    <br />
    <br />
    <input type="button" id="save-trek-settings-button" value="Save">
@@ -37,6 +47,7 @@
       $('#save-trek-settings-button').on("click", function(e) {
         e.preventDefault();
         var sort = $('#sort').val();
+        var tekversion = $('input[name=tekversion]:checked').val();
         // get strands elements and create array of checked strands
         var strands = [];
         $('input[type=checkbox]').each(function() {
@@ -52,11 +63,13 @@
                 sort: sort,
                 post_id: <?php echo $post->ID; ?>,
                 strands,
+                tekversion
             },
             success: function(response) {
                 console.log(response);
             }
         });
       });
+
    });
 </script>

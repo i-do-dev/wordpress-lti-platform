@@ -163,8 +163,8 @@ $is_page_builder_used = false;
 								<br>
 								
 								<?php
-								
-								$lxp_sections = get_post_meta(get_the_ID(), "lxp_sections", true);
+								$course_id = get_the_ID();
+								$lxp_sections = get_post_meta($course_id, "lxp_sections", true);
 								$lxp_sections = $lxp_sections ? json_decode($lxp_sections) : [];
 								
 								foreach ($lxp_sections as $lxp_section) {
@@ -174,6 +174,7 @@ $is_page_builder_used = false;
 										'order'   => 'ASC',
 										'post_type' => TL_LESSON_CPT,
 										'meta_query' => [
+												['key' => 'tl_course_id', 'value' => $course_id ],
 												['key' => 'lti_content_title', 'value' => $lxp_section]
 											]
 									) );

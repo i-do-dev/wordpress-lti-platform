@@ -333,6 +333,9 @@ class Rest_Lxp_Assignment
 				 $status = 'In Progress';
 			 } else if ($attempted && !is_null($submission) && $submission['lti_user_id'] && $submission['submission_id']) {
 				 $status = 'Completed';
+				 if (get_post_meta($submission['ID'], 'mark_as_graded', true) === 'true') {
+					$status = 'Graded';
+				 }
 			 }
 			$lxp_student_admin_id = get_post_meta($student->ID, 'lxp_student_admin_id', true);
 			$userdata = get_userdata($lxp_student_admin_id);
@@ -405,9 +408,9 @@ class Rest_Lxp_Assignment
 			$trek = get_post(get_post_meta($assignment->ID, 'trek_id', true));
 			$event = array();
 			$event["id"] = $assignment->ID;
-			$event["start"] = $calendar_selection_info->start;
-			$event["end"] = $calendar_selection_info->end;
-			$event["allDay"] = $calendar_selection_info->allDay;
+			$event["start"] = $calendar_selection_info && property_exists($calendar_selection_info, 'start') ? $calendar_selection_info->start : '';
+			$event["end"] = $calendar_selection_info && property_exists($calendar_selection_info, 'end') ? $calendar_selection_info->end : '';
+			$event["allDay"] = $calendar_selection_info && property_exists($calendar_selection_info, 'allDay') ? $calendar_selection_info->allDay : false;
 			$event["title"] = $trek_section->title;
 			$event["segment"] = implode("-", explode(" ", strtolower($trek_section->title))) ;
 			$event['trek'] = $trek ? $trek->post_title : '';

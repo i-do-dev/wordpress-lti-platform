@@ -197,8 +197,9 @@
          );
       $courses = get_posts( $args );
       $selectedCourse =  isset($_GET['courseid']) ? $_GET['courseid'] : get_post_meta($post->ID, 'tl_course_id', true);
+      $disabled = ( $selectedCourse && $selectedCourse > 0 ) ? 'disabled' : '';
       $output = '  <h4>Select Course</h4>';
-      $output .= '<select name="tl_course_id" style="margin-top:-10px"> 
+      $output .= '<select '.$disabled.' name="tl_course_id" style="margin-top:-10px"> 
                <option disabled selected>Select a course</option>';
       foreach($courses as $course){
          if($selectedCourse == $course->ID){
@@ -209,7 +210,8 @@
             $output .= '<option value="'.$course->ID .'" '.$selected.' >'. $course->post_title .' </option>';
       }
       $output .= '</select>';
-      echo $output ;
+      $output .= ( $selectedCourse && $selectedCourse > 0 ) ? '<input type="hidden" name="tl_course_id" value="'.$selectedCourse.'" />' : '';
+      echo $output;
       ?>
       <h4 >LTI Deep Linking</h4>
       <div style="width: 100%;margin-top:-10px">
@@ -228,6 +230,21 @@
    public function save_tl_post($post_id = null)
    {
        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_type']) && 'tl_lesson' == $_POST['post_type']) {
+              if ( isset($_POST['tl_course_id']) && $_POST['tl_course_id'] > 0 ) {
+                $_POST['tl_course_id'] = intval(trim($_POST['tl_course_id']));
+                $course_post_sections = get_post_meta($_POST['tl_course_id'], "lxp_sections", true);
+                $_POST['lti_content_title'] = ( isset($_POST['lti_content_title']) && $_POST['lti_content_title'] != '' ) ? trim($_POST['lti_content_title']) : "Section";
+                if ($course_post_sections) {
+                    $course_post_sections = json_decode($course_post_sections);
+                    $title_found = array_search($_POST['lti_content_title'], $course_post_sections, true);
+                    if (gettype($title_found) === "boolean" && !$title_found) {
+                      $course_post_sections[] = $_POST['lti_content_title'];
+                      update_post_meta($_POST['tl_course_id'],'lxp_sections', json_encode($course_post_sections));
+                    }
+                } else {
+                  add_post_meta($_POST['tl_course_id'], "lxp_sections", json_encode([$_POST['lti_content_title']]), true);
+                }
+              }
                update_post_meta($post_id, 'lti_tool_url',$_POST['lti_tool_url']);
                update_post_meta($post_id, 'lti_tool_code', $_POST['lti_tool_code']);
                update_post_meta($post_id, 'lti_content_title', $_POST['lti_content_title']);

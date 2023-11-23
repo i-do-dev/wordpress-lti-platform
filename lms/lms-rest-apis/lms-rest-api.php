@@ -1,5 +1,6 @@
 <?php
 
+require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/districts.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/teachers.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/students.php' );
 require_once( LMS__PLUGIN_DIR . 'lms-rest-apis/schools.php' );
@@ -21,6 +22,7 @@ class LMS_REST_API
 			return false;
 		}
 		
+		Rest_Lxp_District::init();
 		Rest_Lxp_Teacher::init();
 		Rest_Lxp_Student::init();
 		Rest_Lxp_School::init();
