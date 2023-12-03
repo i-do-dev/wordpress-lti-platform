@@ -12,18 +12,18 @@ class Rest_Lxp_Teacher
 			return false;
 		}
 
-		register_rest_route('lms/v1', '/teacher/treks/assigned', array(
+		register_rest_route('lms/v1', '/teacher/treks/restricted', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
-				'callback' => array('Rest_Lxp_Teacher', 'treks_assigned'),
+				'callback' => array('Rest_Lxp_Teacher', 'treks_restricted'),
 				'permission_callback' => '__return_true'
 			)
 		));
 
-		register_rest_route('lms/v1', '/teacher/treks/assign', array(
+		register_rest_route('lms/v1', '/teacher/treks/restrict', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
-				'callback' => array('Rest_Lxp_Teacher', 'treks_assign'),
+				'callback' => array('Rest_Lxp_Teacher', 'treks_restrict'),
 				'permission_callback' => '__return_true'
 			)
 		));
@@ -157,24 +157,24 @@ class Rest_Lxp_Teacher
 		
 	}
 
-	// get assigned treks
-	public static function treks_assigned($request) {
+	// get restricted treks
+	public static function treks_restricted($request) {
 		$teacher_post_id = intval($request->get_param('teacher_post_id'));
-		$treks_assigned = get_post_meta($teacher_post_id, 'treks_assigned');
-		return wp_send_json_success( ($treks_assigned ? $treks_assigned : array()) );
+		$treks_restricted = get_post_meta($teacher_post_id, 'treks_restricted');
+		return wp_send_json_success( ($treks_restricted ? $treks_restricted : array()) );
 	}
 
-	// save assigned treks
-	public static function treks_assign($request) {
+	// save restricted treks
+	public static function treks_restrict($request) {
 		$teacher_post_id = intval($request->get_param('teacher_post_id'));
 		$trek_ids = $request->get_param('treks');
 		$trek_ids = $trek_ids ? $trek_ids : array();
-		// add treacher 'treks_assigned' post metadata and remove existing
-		delete_post_meta($teacher_post_id, 'treks_assigned');
+		// add treacher 'treks_restricted' post metadata and remove existing
+		delete_post_meta($teacher_post_id, 'treks_restricted');
 		foreach ($trek_ids as $trek_id) {
-			add_post_meta($teacher_post_id, 'treks_assigned', $trek_id);
+			add_post_meta($teacher_post_id, 'treks_restricted', $trek_id);
 		}
-		return wp_send_json_success(get_post_meta($teacher_post_id, 'treks_assigned'));
+		return wp_send_json_success(get_post_meta($teacher_post_id, 'treks_restricted'));
 	}
 
 	public static function treks_saved($request) {
