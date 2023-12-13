@@ -215,7 +215,8 @@ class Rest_Lxp_Class
 		$lxp_student_ids = get_post_meta($class_id, 'lxp_student_ids');
 		$students = array_map(function($student_id) { 
 			$post = get_post($student_id); 
-			$user = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
+			$user_data = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
+			$user = ["ID" => $user_data->ID, "display_name" => $user_data->display_name, "user_email" => $user_data->user_email, "user_login" => $user_data->user_login];
 			return array('post' => $post, 'user' => $user);
 		} , $lxp_student_ids);
 
