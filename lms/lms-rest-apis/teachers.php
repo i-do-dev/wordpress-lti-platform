@@ -194,7 +194,7 @@ class Rest_Lxp_Teacher
 			$user_data = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
 			$user = ["ID" => $user_data->ID, "display_name" => $user_data->display_name, "user_email" => $user_data->user_email, "user_login" => $user_data->user_login];
 			return array('post' => $student_post, 'user' => $user);
-		}, $students);
+		}, array_values($students));
 		return wp_send_json_success( ["students" => ($students ? $students : array())] );
 	}
 
