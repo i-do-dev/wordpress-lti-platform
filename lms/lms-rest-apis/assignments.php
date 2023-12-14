@@ -90,14 +90,6 @@ class Rest_Lxp_Assignment
 							return intval( $param ) > 0;
 						}
 					),
-					'class_id' => array(
-						'required' => true,
-						'type' => 'integer',
-						'description' => 'assignment class id',
-						'validate_callback' => function($param, $request, $key) {
-							return intval( $param ) > 0;
-						}
-					),
 					'teacher_id' => array(
 						'required' => true,
 						'type' => 'integer',
@@ -172,8 +164,8 @@ class Rest_Lxp_Assignment
 
 		$segments_ids = json_decode($request->get_param('segments_ids'));
 		$segments_title = json_decode($request->get_param('segments_title'));
-		$class_id = $request->get_param('class_id');
-		$group_id = $request->get_param('group_id');
+		$class_id = $request->get_param('class_id') ? $request->get_param('class_id') : 0;
+		$group_id = $request->get_param('group_id') ? $request->get_param('group_id') : 0;
 		$calendar_selection_info = json_decode($request->get_param('calendar_selection_info'));
 		
 		$start = new DateTime($calendar_selection_info->startStr, new DateTimeZone('UTC'));
