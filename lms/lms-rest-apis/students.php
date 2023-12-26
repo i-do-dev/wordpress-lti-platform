@@ -24,7 +24,7 @@ class Rest_Lxp_Student
 						'description' => 'user email name',
 						'validate_callback' => function($param, $request, $key) {
 
-							if (is_email( strtolower(trim($request->get_param('username'))) )) {
+							if ( is_email( strtolower(trim($request->get_param('username'))) ) || strlen(trim($request->get_param('username'))) == 0 ) {
 								return false;
 							}
 
