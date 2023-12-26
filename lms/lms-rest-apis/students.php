@@ -382,12 +382,14 @@ class Rest_Lxp_Student
 		}
 	
 		$student_admin_id = null;
+		$username = wp_strip_all_tags(trim($request->get_param('username')));
+
 		$user_by_login = get_user_by ("login", strtolower(trim($request->get_param('username'))) );
 		if ( intval($request->get_param('student_post_id')) < 1 && !$user_by_login ) {
 			// create a new student user
-			$student_admin_data['user_login'] = strtolower( trim($request->get_param('username')) );
-			$student_admin_data['user_email'] = strtolower( trim($request->get_param('username')) ) . '@rpatreks.com';
-			$student_admin_data['user_nicename'] = strtolower( trim($request->get_param('username')) );
+			$student_admin_data['user_login'] = $username;
+			$student_admin_data['user_email'] = $username . '@rpatreks.com';
+			$student_admin_data['user_nicename'] = $username;
 			$student_admin_data['role'] = 'lxp_student';
 		} elseif ( $user_by_login && intval($request->get_param('student_post_id')) > 0  ) {
 			// update existing student user
@@ -395,13 +397,16 @@ class Rest_Lxp_Student
 			$student_admin_data['ID'] = $student_admin_id;
 			$student_admin_data['first_name'] = trim($request->get_param('first_name'));
 			$student_admin_data['last_name'] = trim($request->get_param('last_name'));
-		} elseif (!is_email($request->get_param('username')) && is_email($request->get_param('username_default'))) {
+			$student_admin_data['user_login'] = $username;
+		} elseif (!is_email($username) && is_email($request->get_param('username_default'))) {
 			// update the user which is already in the system as an email address
 			$user_by_login = get_user_by ("login", strtolower(trim($request->get_param('username_default'))) );
 			$student_admin_id = $user_by_login->data->ID;
+			global $wpdb;
+			$wpdb->update( $wpdb->users, array( 'user_login' => $username ), array( 'ID' => $student_admin_id ) );
 			$student_admin_data['ID'] = $student_admin_id;
-			$student_admin_data['user_login'] = $request->get_param('username');
-			$student_admin_data['user_nicename'] = $request->get_param('username');
+			$student_admin_data['user_login'] = $username;
+			$student_admin_data['user_nicename'] = $username;
 		}
 
 		$student_admin_id = wp_insert_user($student_admin_data);
