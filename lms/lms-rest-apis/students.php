@@ -484,11 +484,16 @@ class Rest_Lxp_Student
 						if (count($row) >= 4) {
 							$first_name = trim($row[0]);
 							$last_name = trim($row[1]);
-							$email = strtolower( trim($row[2]) );
+							$user_display_name = $last_name . ', ' . $first_name;
+							$username = strtolower( trim($row[2]) );
+							$email = strtolower( trim($row[2]) ) . '@rpatreks.com';
 							$password = trim($row[3]);
+							$grades = explode('-', trim($row[4]));
+							$student_id = explode('-', trim($row[5]));
+
 							if (!get_user_by('email', $email)) {
 								$student_post_arg = array(
-									'post_title'    => wp_strip_all_tags($email),
+									'post_title'    => wp_strip_all_tags($user_display_name),
 									'post_content'  => '',
 									'post_status'   => 'publish',
 									'post_author'   => $school_admin_id,
@@ -499,11 +504,11 @@ class Rest_Lxp_Student
 	
 								// ========== Student Admin ===========
 								$student_admin_data = array(
-									'user_login' => $email,
+									'user_login' => $username,
 									'user_email' => $email,
 									'first_name' => $first_name,
 									'last_name' => $last_name,
-									'display_name' => $first_name . ' ' . $last_name,
+									'display_name' => $user_display_name,
 									'user_pass' => $password,
 									'role' => 'lxp_student'
 								);
@@ -516,6 +521,8 @@ class Rest_Lxp_Student
 
 								$lxp_teacher_id = $request->get_param('teacher_id');
 								update_post_meta($student_post_id, 'lxp_teacher_id', ($lxp_teacher_id ? $lxp_teacher_id : 0));
+								update_post_meta($student_post_id, 'grades', json_encode($grades));
+								update_post_meta($student_post_id, 'student_id', ($student_id ? $student_id : 0));
 							}
 						}		
 					}
