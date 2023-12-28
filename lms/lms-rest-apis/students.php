@@ -489,7 +489,7 @@ class Rest_Lxp_Student
 							$email = strtolower( trim($row[2]) ) . '@rpatreks.com';
 							$password = trim($row[3]);
 							$grades = explode('-', trim($row[4]));
-							$student_id = explode('-', trim($row[5]));
+							$student_id = trim($row[5]);
 
 							if (!get_user_by('email', $email)) {
 								$student_post_arg = array(
