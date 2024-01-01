@@ -213,14 +213,22 @@ class Rest_Lxp_Class
     public static function get_students($request) {
 		$class_id = $request->get_param('class_id');
 		$lxp_student_ids = get_post_meta($class_id, 'lxp_student_ids');
-		$students = array_map(function($student_id) { 
-			$post = get_post($student_id); 
-			$user_data = get_userdata(get_post_meta($student_id, 'lxp_student_admin_id', true))->data;
+		// fetch student posts using WP_Query which includes ids form $lxp_student_ids
+		$students = new WP_Query(array(
+			'post_type' => TL_STUDENT_CPT,
+			'post__in' => $lxp_student_ids,
+			'posts_per_page' => -1,
+			'orderby' => 'title',
+			'order' => 'ASC'
+		));
+		$student_posts = $students->posts;
+		$student_posts_result = array_map(function($post) { 
+			$user_data = get_userdata(get_post_meta($post->ID, 'lxp_student_admin_id', true))->data;
 			$user = ["ID" => $user_data->ID, "display_name" => $user_data->display_name, "user_email" => $user_data->user_email, "user_login" => $user_data->user_login];
 			return array('post' => $post, 'user' => $user);
-		} , $lxp_student_ids);
+		} , $student_posts);
 
-		return wp_send_json_success(array("students" => $students));
+		return wp_send_json_success(array("students" => $student_posts_result));
 	}
 
     public static function get_one($request) {

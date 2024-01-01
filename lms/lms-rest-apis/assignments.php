@@ -168,15 +168,20 @@ class Rest_Lxp_Assignment
 		$group_id = $request->get_param('group_id') ? $request->get_param('group_id') : 0;
 		$calendar_selection_info = json_decode($request->get_param('calendar_selection_info'));
 		
-		$start = new DateTime($calendar_selection_info->startStr, new DateTimeZone('UTC'));
-		$end = new DateTime($calendar_selection_info->endStr, new DateTimeZone('UTC'));
+		// "startStr": "2024-01-04T12:00:00Z",
+		// "endStr": "2024-01-04T13:00:00Z",
+		// $start = new DateTime($calendar_selection_info->startStr, new DateTimeZone('UTC'));
+		// $end = new DateTime($calendar_selection_info->endStr, new DateTimeZone('UTC'));
+		
+		$start = new DateTime($calendar_selection_info->start);
+		$end = new DateTime($calendar_selection_info->end);
 		
 		$start_date = $start->format('Y-m-d');
 		$start_time = $start->format('H:i:s');
 		
-
 		$end_date = $end->format('Y-m-d');
 		$end_time = $end->format('H:i:s');
+
 		
 		global $wpdb;		
 		//foreach ($segments_ids as $segment_id) {
