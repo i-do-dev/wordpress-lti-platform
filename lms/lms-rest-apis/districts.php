@@ -40,6 +40,10 @@ class Rest_Lxp_District
 						'description' => 'user login name',  
 						'format' => 'email',
 						'validate_callback' => function($param, $request, $key) {
+							if (!trim($request->get_param('user_email'))) {
+								return false;
+							}
+
 							$user_by_email = get_user_by("email", trim($request->get_param('user_email')));
 							$user_by_login = get_user_by("login", trim($request->get_param('user_email')));
 							if ( $user_by_email && intval($request->get_param('district_post_id')) > 0 && $user_by_email->data->user_email !== trim($request->get_param('user_email_default')) ) {
@@ -53,20 +57,12 @@ class Rest_Lxp_District
 							}
 						}
 					),
-					'district_about' => array(
-						'required' => false,
-						'type' => 'string',
-						'description' => 'user about description',
-						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
-						}
-					),
 					'first_name' => array(
 						'required' => true,
 						'type' => 'string',
 						'description' => 'user first name',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return strlen( $param ) > 0;
 						}
 					),
 					'last_name' => array(
@@ -74,7 +70,7 @@ class Rest_Lxp_District
 						'type' => 'string',
 						'description' => 'user last name',
 						'validate_callback' => function($param, $request, $key) {
-							return strlen( $param ) > 1;
+							return strlen( $param ) > 0;
 						}
 					),
 					'user_password' => array(
@@ -109,7 +105,7 @@ class Rest_Lxp_District
 		$site_admin_id = $request->get_param('site_admin_id');
 		$district_post_id = intval($request->get_param('district_post_id'));
 		$district_name = trim($request->get_param('district_name'));
-		$district_description = trim($request->get_param('district_about'));
+		$district_description = $request->get_param('district_about') ? trim($request->get_param('district_about')) : '';
 		
 		$shool_post_arg = array(
 			'post_title'    => wp_strip_all_tags($district_name),
