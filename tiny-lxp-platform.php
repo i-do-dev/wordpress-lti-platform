@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,16 +18,16 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /*
-  Plugin Name: LTI Platform
-  Plugin URI: http://www.spvsoftwareproducts.com/php/wordpress-lti-platform/
-  Description: This plugin allows WordPress to act as a Platform using the IMS Learning Tools Interoperability (LTI) specification.
+  Plugin Name: Tiny Lxp
+  Plugin URI: https://github.com/i-do-dev/wordpress-lti-platform
+  Description: This plugin allows WordPress to act as a Platform using the IMS Learning Tools Interoperability (Tiny LXP) specification.
   Version: 2.0.3
-  Author: Stephen P Vickers
-  Author URI: http://www.celtic-project.org/
+  Author: Waqar Muneer
+  Author URI: https://github.com/i-do-dev/wordpress-lti-platform
   License: GPL3
  */
 
@@ -39,18 +39,18 @@ if (!defined('WPINC')) {
 /**
  * Current plugin name.
  */
-define('LTI_PLATFORM_NAME', 'lti-platform');
+define('Tiny_LXP_PLATFORM_NAME', 'lti-platform');
 
 /**
  * Current plugin version.
  */
-define('LTI_PLATFORM_VERSION', '2.0.3');
+define('Tiny_LXP_PLATFORM_VERSION', '2.0.3');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-lti-platform.php';
+require plugin_dir_path(__FILE__) . 'includes/class-tiny-lxp-platform.php';
 
 /**
  * Begins execution of the plugin.
@@ -61,12 +61,36 @@ require plugin_dir_path(__FILE__) . 'includes/class-lti-platform.php';
  *
  * @since    1.0.0
  */
-function run_lti_platform()
+function run_tiny_lxp_platform()
 {
-    $plugin = new LTI_Platform();
+    $plugin = new Tiny_LXP_Platform();
     if ($plugin->isOK()) {
         $plugin->run();
     }
 }
 
-run_lti_platform();
+// Function to run on plugin activation
+function my_plugin_activation_function() {
+    $theme = wp_get_theme('tiny-lxp');
+
+    if ($theme->exists()) {
+        switch_theme('tiny-lxp');
+    }
+}
+
+// Function to run on plugin deactivation
+function my_plugin_deactivation_function() {
+    $theme = wp_get_theme('twentytwentytwo');
+
+    if ($theme->exists()) {
+        switch_theme('twentytwentytwo');
+    }
+}
+
+// Register activation hook
+register_activation_hook(__FILE__, 'my_plugin_activation_function');
+
+// Register deactivation hook
+register_deactivation_hook(__FILE__, 'my_plugin_deactivation_function');
+
+run_tiny_lxp_platform();

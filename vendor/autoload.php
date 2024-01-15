@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**

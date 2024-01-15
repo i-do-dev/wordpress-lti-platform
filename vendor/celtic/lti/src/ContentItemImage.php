@@ -10,7 +10,7 @@ use ceLTIc\LTI\Content\Image;
  * @deprecated Use Content::Image instead
  * @see Content::Image
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3
  */

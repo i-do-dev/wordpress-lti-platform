@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,21 +18,21 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp-platform
  * @since      1.0.0
- * @package    LTI_Platform
- * @subpackage LTI_Platform/public
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @subpackage Tiny_LXP_Platform/public
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
 use ceLTIc\LTI;
 
-class LTI_Platform_Public
+class Tiny_LXP_Platform_Public
 {
 
     /**
@@ -68,7 +68,7 @@ class LTI_Platform_Public
 
     public function parse_request()
     {
-        if (isset($_GET[LTI_Platform::get_plugin_name()])) {
+        if (isset($_GET[Tiny_LXP_Platform::get_plugin_name()])) {
             if (!is_user_logged_in() && !isset($_GET['content']) && !isset($_GET['keys'])) {                                              
                 Activity::is_public();
             }
@@ -81,7 +81,7 @@ class LTI_Platform_Public
                 echo(json_encode($this->get_tool(sanitize_text_field($_GET['tool']))));
             } else if (isset($_GET['keys'])) {
                 $jwt = LTI\Jwt\Jwt::getJwtClient();
-                $options = LTI_Platform_Tool::getOptions();
+                $options = Tiny_LXP_Platform_Tool::getOptions();
                 $keys = $jwt::getJWKS($options['privatekey'], 'RS256', $options['kid']);
                 header('Content-type: application/json');
                 echo(json_encode($keys));
@@ -104,7 +104,7 @@ class LTI_Platform_Public
     {
         $ok = !empty($_REQUEST['client_id']);
         if ($ok) {
-            $tool = LTI_Platform_Tool::fromCode(sanitize_text_field($_REQUEST['client_id']), LTI_Platform::$ltiPlatformDataConnector);
+            $tool = Tiny_LXP_Platform_Tool::fromCode(sanitize_text_field($_REQUEST['client_id']), Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
             $ok = !empty($tool->created);
         }
         if ($ok) {
@@ -114,7 +114,7 @@ class LTI_Platform_Public
             $platform = $this->get_platform();
             $platform->handleRequest();
         } else {
-            $this->error_page(__('Tool not found.', LTI_Platform::get_plugin_name()));
+            $this->error_page(__('Tool not found.', Tiny_LXP_Platform::get_plugin_name()));
         }
     }
 
@@ -143,14 +143,14 @@ class LTI_Platform_Public
             }
         }
         if ($ok) {
-            $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+            $tool = Tiny_LXP_Platform_Tool::fromCode($link_atts['tool'], Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
             $ok = !empty($tool);
             if (!$ok) {
                 $reason = 'Tool not found';
             }
         }
         if ($ok) {
-            $url = esc_url(add_query_arg(array(LTI_Platform::get_plugin_name() => '', 'post' => $post->ID, 'id' => $link_atts['id']),
+            $url = esc_url(add_query_arg(array(Tiny_LXP_Platform::get_plugin_name() => '', 'post' => $post->ID, 'id' => $link_atts['id']),
                     get_site_url()));
             $width = $tool->getSetting('presentationWidth');
             if (!empty($atts['width'])) {
@@ -176,9 +176,9 @@ class LTI_Platform_Public
             $size = esc_attr($size);
             echo('            <iframe style="border: none; overflow: scroll;' . esc_attr($size) . '" class="" src="' . esc_attr($url) . '" allowfullscreen></iframe>');
         } else {
-            $message = __('Sorry, the LTI tool could not be launched.', LTI_Platform::get_plugin_name());
+            $message = __('Sorry, the Tiny LXP tool could not be launched.', Tiny_LXP_Platform::get_plugin_name());
             if (!empty($reason)) {
-                $options = LTI_Platform_Tool::getOptions();
+                $options = Tiny_LXP_Platform_Tool::getOptions();
                 $debug = $tool->debugMode || (isset($options['debug']) && ($options['debug'] === 'true'));
                 if ($debug) {
                     $message .= ' <em>[' . esc_html($reason) . ']</em>';
@@ -206,7 +206,7 @@ class LTI_Platform_Public
         } else if (!$deeplink) {
             $ok = !empty($_GET['id']);
             if (!$ok) {
-                $reason = __('Missing id attribute in link', LTI_Platform::get_plugin_name());
+                $reason = __('Missing id attribute in link', Tiny_LXP_Platform::get_plugin_name());
             }
         }
         if ($ok) {
@@ -214,34 +214,34 @@ class LTI_Platform_Public
                 $link_atts = $this->get_link_atts($post, sanitize_text_field($_GET['id']));
                 $ok = !empty($link_atts['tool']);
                 if (!$ok) {
-                    $reason = __('No tool specified', LTI_Platform::get_plugin_name());
+                    $reason = __('No tool specified', Tiny_LXP_Platform::get_plugin_name());
                 }
             } elseif (empty($_GET['tool'])) {
                 $ok = false;
-                $reason = __('Missing tool attribute in link', LTI_Platform::get_plugin_name());
+                $reason = __('Missing tool attribute in link', Tiny_LXP_Platform::get_plugin_name());
             } else {
                 $link_atts['tool'] = sanitize_text_field($_GET['tool']);
             }
         }
         if ($ok) {
-            $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+            $tool = Tiny_LXP_Platform_Tool::fromCode($link_atts['tool'], Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
             $ok = !empty($tool);
             if (!$ok) {
-                $reason = __('Tool not found', LTI_Platform::get_plugin_name());
+                $reason = __('Tool not found', Tiny_LXP_Platform::get_plugin_name());
             }
         }
         if ($ok && !$deeplink) {
             $debug = $tool->debugMode;
             $ok = !empty($link_atts['id']);
             if (!$ok) {
-                $reason = __('Duplicate id attribute in link', LTI_Platform::get_plugin_name());
+                $reason = __('Duplicate id attribute in link', Tiny_LXP_Platform::get_plugin_name());
             }
         }
         if ($ok) {
             $target = (!empty($link_atts['target'])) ? $link_atts['target'] : $tool->getSetting('presentationTarget', 'window');
             $ok = in_array($target, array('window', 'popup', 'iframe', 'embed'));
             if (!$ok) {
-                $reason = __('Invalid target specified', LTI_Platform::get_plugin_name());
+                $reason = __('Invalid target specified', Tiny_LXP_Platform::get_plugin_name());
             }
         }
         if ($ok) {
@@ -253,7 +253,7 @@ class LTI_Platform_Public
                 $url = $link_atts['url'];
             }  else {
                 $ok = false;
-                $reason = __('Invalid url attribute', LTI_Platform::get_plugin_name());
+                $reason = __('Invalid url attribute', Tiny_LXP_Platform::get_plugin_name());
             }
         }
         if(isset($post->post_type) && $post->post_type == "tl_lesson" && !$ok){
@@ -263,13 +263,13 @@ class LTI_Platform_Public
             $link_atts['custom'] = get_post_meta($post->ID, 'lti_custom_attr', true);
             $target = "embed";
             $link_atts['id'] = get_post_meta($post->ID, 'lti_post_attr_id', true);
-            $toolObj = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+            $toolObj = Tiny_LXP_Platform_Tool::fromCode($link_atts['tool'], Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
             $url = strpos($link_atts['url'], $toolObj->messageUrl) === false ? $toolObj->messageUrl.$link_atts['url'] : $link_atts['url'];
-            $tool = LTI_Platform_Tool::fromCode($link_atts['tool'], LTI_Platform::$ltiPlatformDataConnector);
+            $tool = Tiny_LXP_Platform_Tool::fromCode($link_atts['tool'], Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
             $ok = true;
         }
         if ($ok) {
-            $options = LTI_Platform_Tool::getOptions();
+            $options = Tiny_LXP_Platform_Tool::getOptions();
             $user = isset($_GET['student']) && intval($_GET['student']) > 0 ? get_user_by('ID', $_GET['student']) : wp_get_current_user();
             if (!empty($link_atts['title'])) {
                 $title = $link_atts['title'];
@@ -300,7 +300,7 @@ class LTI_Platform_Public
                 $params['accept_media_types'] = 'application/vnd.ims.lti.v1.ltilink,*/*';
                 $params['accept_multiple'] = 'false';
                 $params['accept_presentation_document_targets'] = 'embed,frame,iframe,window,popup';
-                $params['content_item_return_url'] = get_option('siteurl') . '/?' . LTI_Platform::get_plugin_name() . '&content&tool=' . urlencode($link_atts['tool']);
+                $params['content_item_return_url'] = get_option('siteurl') . '/?' . Tiny_LXP_Platform::get_plugin_name() . '&content&tool=' . urlencode($link_atts['tool']);
                 $url = $tool->contentItemUrl;
             }
             if (($target === 'popup') || ($target === 'iframe') || ($target === 'embed')) {
@@ -433,7 +433,7 @@ class LTI_Platform_Public
     public static function get_link_atts($post, $id)
     {
         $link_atts = array();
-        $pattern = get_shortcode_regex(array(LTI_Platform::get_plugin_name()));
+        $pattern = get_shortcode_regex(array(Tiny_LXP_Platform::get_plugin_name()));
         if (preg_match_all("/{$pattern}/", $post->post_content, $shortcodes, PREG_SET_ORDER) !== false) {
             $link_text = '';
             foreach ($shortcodes as $shortcode) {
@@ -458,8 +458,8 @@ class LTI_Platform_Public
 
     private function get_platform()
     {
-        $options = LTI_Platform_Tool::getOptions();
-        $platform = new LTI_Platform_Platform(LTI_platform::$ltiPlatformDataConnector);
+        $options = Tiny_LXP_Platform_Tool::getOptions();
+        $platform = new Tiny_LXP_Platform_Platform(Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
         $platform->setKey(LTI\Tool::$defaultTool->getKey());
         $platform->secret = LTI\Tool::$defaultTool->secret;
         $platform->platformId = get_option('siteurl');
@@ -469,7 +469,7 @@ class LTI_Platform_Public
         $platform->signatureMethod = 'RS256';
         $platform->kid = $options['kid'];
         $platform->rsaKey = $options['privatekey'];
-        if (!LTI\Tool::$defaultTool->canUseLTI13()) {
+        if (!LTI\Tool::$defaultTool->canUseTinyLXP13()) {
             $platform->ltiVersion = LTI\Util::LTI_VERSION1;
             $platform->signatureMethod = 'HMAC-SHA1';
         } else {
@@ -492,40 +492,40 @@ class LTI_Platform_Public
         $args = array(
             'post_status' => 'publish'
         );
-        $tools = LTI_Platform_Tool::all($args);
+        $tools = Tiny_LXP_Platform_Tool::all($args);
         if (is_multisite()) {
             switch_to_blog(1);
             $tools = array_merge($tools,
-                LTI_Platform_Tool::all(array_merge($args, array('post_type' => LTI_Platform_Tool::POST_TYPE_NETWORK))));
+                Tiny_LXP_Platform_Tool::all(array_merge($args, array('post_type' => Tiny_LXP_Platform_Tool::POST_TYPE_NETWORK))));
             restore_current_blog();
         }
         ksort($tools, SORT_STRING);
 
         $list = '
-        <div class="lti-platform-modal">
-        <div class="lti-platform-modal-content">
-            <h2>LTI Tool</h2>
+        <div class="tiny-lxp-platform-modal">
+        <div class="tiny-lxp-platform-modal-content">
+            <h2>Tiny LXP Tool</h2>
             <div>
 
         ';
         if (!empty($tools)) {
-            $list .= 'Select the LTI tool you want to add a link for:';
+            $list .= 'Select the Tiny LXP tool you want to add a link for:';
             $list .= ' <table style="width:100%">';
             foreach ($tools as $tool) {
                 $list .= '<tr class="tool-input-tr">';
-                $list .= '<td><input type="radio" name="tool" class="lti-platform-tool" value="'.$tool->code.'" toolname="'.$tool->name.'">' . $tool->name .'</td>';
+                $list .= '<td><input type="radio" name="tool" class="tiny-lxp-platform-tool" value="'.$tool->code.'" toolname="'.$tool->name.'">' . $tool->name .'</td>';
                 $list .= '<td><span class="dashicons dashicons-search"></span></td>';
                 $list .=  '</tr>';
             }
             $list .= ' </table>';
         } else {
-            $list .= 'There are no enabled LTI tools defined.';
+            $list .= 'There are no enabled Tiny LXP tools defined.';
         }
         $list .= '
             </div>
             <p>
-                <button class="button button-primary" id="lti-platform-select" disabled>Select</button>
-                <button class="button" id="lti-platform-cancel">Cancel</button>
+                <button class="button button-primary" id="tiny-lxp-platform-select" disabled>Select</button>
+                <button class="button" id="tiny-lxp-platform-cancel">Cancel</button>
             </p>
         </div>
         </div>
@@ -537,7 +537,7 @@ class LTI_Platform_Public
     private function get_tool($code)
     {
         $obj = new \stdClass();
-        $tool = LTI_Platform_Tool::fromCode($code, LTI_Platform::$ltiPlatformDataConnector);
+        $tool = Tiny_LXP_Platform_Tool::fromCode($code, Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
         $obj->useContentItem = $tool->useContentItem;
 
         return $obj;
@@ -545,8 +545,8 @@ class LTI_Platform_Public
 
     private function content($code)
     {
-        $tool = LTI_Platform_Tool::fromCode($code, LTI_Platform::$ltiPlatformDataConnector);
-        $platform = new LTI_Platform_Platform(LTI_platform::$ltiPlatformDataConnector);
+        $tool = Tiny_LXP_Platform_Tool::fromCode($code, Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
+        $platform = new Tiny_LXP_Platform_Platform(Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
         LTI\Tool::$defaultTool = $tool;
         $platform->handleRequest();
 
@@ -587,23 +587,23 @@ EOD;
                 $attr .= static::setAttribute('custom', $item->custom);
             }
             $activity = isset($item->custom['activity']) ? $item->custom['activity'] : "";
-            $plugin_name = LTI_Platform::get_plugin_name();
+            $plugin_name = Tiny_LXP_Platform::get_plugin_name();
             $html .= <<< EOD
             if (!wdw.LtiPlatformText) {
                 wdw.LtiPlatformText = '{$linktext}';
             }
             var id = Math.random().toString(16).substr(2, 8);
-            var ltiToolUrl =  wdw.document.getElementById("lti_tool_url");
-            var ltiToolCode =  wdw.document.getElementById("lti_tool_code");
-            var ltiContetntTitle =  wdw.document.getElementById("lti_content_title");
-            var ltiCustomAttr =  wdw.document.getElementById("lti_custom_attr");
-            var ltiPostAttrId =  wdw.document.getElementById("lti_post_attr_id");
-            if(ltiToolUrl){
-                ltiToolUrl.value= "{$item->url}";
-                ltiToolCode.value= "{$code}";
-                ltiContetntTitle.value= "{$item->title}";
-                ltiCustomAttr.value= "custom=activity={$activity}";
-                ltiPostAttrId.value= "{$randomId}";
+            var tinyLxpToolUrl =  wdw.document.getElementById("tiny_lxp_tool_url");
+            var tinyLxpToolCode =  wdw.document.getElementById("tiny_lxp_tool_code");
+            var tinyLxpContetntTitle =  wdw.document.getElementById("tiny_lxp_content_title");
+            var tinyLxpCustomAttr =  wdw.document.getElementById("tiny_lxp_custom_attr");
+            var tinyLxpPostAttrId =  wdw.document.getElementById("tiny_lxp_post_attr_id");
+            if(tinyLxpToolUrl){
+                tinyLxpToolUrl.value= "{$item->url}";
+                tinyLxpToolCode.value= "{$code}";
+                tinyLxpContetntTitle.value= "{$item->title}";
+                tinyLxpCustomAttr.value= "custom=activity={$activity}";
+                tinyLxpPostAttrId.value= "{$randomId}";
                var title =  wdw.document.getElementById("title");
                if(title){
                 title.value = "{$item->title}";
@@ -659,9 +659,9 @@ EOD;
     private function error_page($reason, $debug = false)
     {
         $allowed = array('em' => array());
-        $message = __('Sorry, the LTI tool could not be launched.', LTI_Platform::get_plugin_name());
+        $message = __('Sorry, the Tiny LXP tool could not be launched.', Tiny_LXP_Platform::get_plugin_name());
         if (!empty($reason)) {
-            $options = LTI_Platform_Tool::getOptions();
+            $options = Tiny_LXP_Platform_Tool::getOptions();
             $debug = $debug || (isset($options['debug']) && ($options['debug'] === 'true'));
             if ($debug) {
                 $message .= ' <em>[' . $reason . ']</em>';
@@ -669,7 +669,7 @@ EOD;
         }
         echo('<html>' . "\n");
         echo('  <head>' . "\n");
-        echo('    <title>' . esc_html__('LTI Tool launch error', LTI_Platform::get_plugin_name()) . '</title>' . "\n");
+        echo('    <title>' . esc_html__('Tiny LXP Tool launch error', Tiny_LXP_Platform::get_plugin_name()) . '</title>' . "\n");
         echo('  </head>' . "\n");
         echo('  <body>' . "\n");
         echo('    <p><strong>' . wp_kses($message, $allowed) . '</strong></p>' . "\n");

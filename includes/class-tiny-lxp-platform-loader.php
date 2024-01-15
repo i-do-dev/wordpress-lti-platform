@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
@@ -28,13 +28,13 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp-platform
  * @since      1.0.0
- * @package    LTI_Platform
- * @subpackage LTI_Platform/includes
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @subpackage Tiny_LXP_Platform/includes
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
-class LTI_Platform_Loader
+class Tiny_LXP_Platform_Loader
 {
 
     /**

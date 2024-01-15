@@ -13,7 +13,7 @@ use ceLTIc\LTI\Util;
 /**
  * Class to implement the JWT interface using the Firebase JWT library from https://github.com/firebase/php-jwt.
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license   GNU Lesser General Public License, version 3 (<http://www.gnu.org/licenses/lgpl.html>)
  */

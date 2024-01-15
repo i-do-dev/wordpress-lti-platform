@@ -5,7 +5,7 @@ namespace ceLTIc\LTI\OAuth;
 /**
  * Class to represent an %OAuth HMAC_SHA256 signature method
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @version  2015-11-30
  * @license  https://opensource.org/licenses/MIT The MIT License

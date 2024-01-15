@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,19 +18,19 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
- * The table of current LTI tools.
+ * The table of current Tiny LXP tools.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp
  * @since      1.0.0
- * @package    LTI_Platform
- * @subpackage LTI_Platform/admin
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @subpackage Tiny_LXP_Platform/admin
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
-class LTI_Platform_Tool_List_Table extends WP_List_Table
+class Tiny_LXP_Platform_Tool_List_Table extends WP_List_Table
 {
 
     private $mu_items = array();
@@ -46,10 +46,10 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
         add_filter('list_table_primary_column', array($this, 'set_primary_column'), 10, 2);
         if (!defined('WP_NETWORK_ADMIN') || !WP_NETWORK_ADMIN) {
             $args = array(
-                'post_type' => LTI_Platform_Tool::POST_TYPE_NETWORK,
+                'post_type' => Tiny_LXP_Platform_Tool::POST_TYPE_NETWORK,
                 'post_status' => 'publish'
             );
-            $this->mu_items = array_keys(LTI_Platform_Tool::all($args));
+            $this->mu_items = array_keys(Tiny_LXP_Platform_Tool::all($args));
         }
     }
 
@@ -62,13 +62,13 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     {
         $columns = array(
             'cb' => '<input type="checkbox">',
-            'name' => __('Name', LTI_Platform::get_plugin_name()),
-            'code' => __('Code', LTI_Platform::get_plugin_name()),
-            'enabled' => __('Enabled?', LTI_Platform::get_plugin_name()),
-            'debugMode' => __('Debug mode?', LTI_Platform::get_plugin_name()),
-            'lastAccess' => __('Last launch', LTI_Platform::get_plugin_name()),
-            'created' => __('Created', LTI_Platform::get_plugin_name()),
-            'modified' => __('Modified', LTI_Platform::get_plugin_name()),
+            'name' => __('Name', Tiny_LXP_Platform::get_plugin_name()),
+            'code' => __('Code', Tiny_LXP_Platform::get_plugin_name()),
+            'enabled' => __('Enabled?', Tiny_LXP_Platform::get_plugin_name()),
+            'debugMode' => __('Debug mode?', Tiny_LXP_Platform::get_plugin_name()),
+            'lastAccess' => __('Last launch', Tiny_LXP_Platform::get_plugin_name()),
+            'created' => __('Created', Tiny_LXP_Platform::get_plugin_name()),
+            'modified' => __('Modified', Tiny_LXP_Platform::get_plugin_name()),
         );
 
         return $columns;
@@ -78,7 +78,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     {
         global $wpdb;
 
-        if (isset($wp_query->query['post_type']) && ($wp_query->query['post_type'] === LTI_Platform::$postType)) {
+        if (isset($wp_query->query['post_type']) && ($wp_query->query['post_type'] === Tiny_LXP_Platform::$postType)) {
             if ($wp_query->query['orderby'] === 'enabled') {
                 $args = "{$wpdb->posts}.post_status {$wp_query->query['order']}, {$wpdb->posts}.post_name ASC";
             } elseif ($wp_query->query['orderby'] === 'debugMode') {
@@ -96,78 +96,78 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     public function trash_notice_success()
     {
         echo('    <div class="notice notice-success is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('Tool(s) moved to the Bin.', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('Tool(s) moved to the Bin.', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function trash_notice_error()
     {
         echo('    <div class="notice notice-error is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('An error occurred when moving tool(s) to the Bin.', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('An error occurred when moving tool(s) to the Bin.', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function delete_notice_success()
     {
         echo('    <div class="notice notice-success is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('Tool(s) deleted.', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('Tool(s) deleted.', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function delete_notice_error()
     {
         echo('    <div class="notice notice-error is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('An error occurred when deleting tool(s).', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('An error occurred when deleting tool(s).', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function restore_notice_success()
     {
         echo('    <div class="notice notice-success is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('Tool(s) restored.', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('Tool(s) restored.', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function restore_notice_error()
     {
         echo('    <div class="notice notice-error is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('An error occurred when restoring tool(s).', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('An error occurred when restoring tool(s).', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function enable_notice_success()
     {
         echo('    <div class="notice notice-success is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('Tool(s) enabled.', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('Tool(s) enabled.', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function enable_notice_denied()
     {
         echo('    <div class="notice notice-warning is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('Tools cannot be enabled if they are not fully configured for either LTI 1.0/1.1/1.2 or LTI 1.3, or no private key has been defined.',
-            LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('Tools cannot be enabled if they are not fully configured for either Tiny LXP 1.0/1.1/1.2 or Tiny LXP 1.3, or no private key has been defined.',
+            Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function enable_notice_error()
     {
         echo('    <div class="notice notice-error is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('An error occurred when enabling tool(s).', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('An error occurred when enabling tool(s).', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function disable_notice_success()
     {
         echo('    <div class="notice notice-success is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('Tool(s) disabled.', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('Tool(s) disabled.', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
     public function disable_notice_error()
     {
         echo('    <div class="notice notice-error is-dismissible">' . "\n");
-        echo('        <p>' . esc_html__('An error occurred when disablng tool(s).', LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+        echo('        <p>' . esc_html__('An error occurred when disablng tool(s).', Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
         echo('    </div>' . "\n");
     }
 
@@ -181,7 +181,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
             $ok = true;
             if ($this->current_action() === 'trash') {
                 foreach ($ids as $id) {
-                    $tool = LTI_Platform_Tool::fromRecordId(intval($id), LTI_Platform::$ltiPlatformDataConnector);
+                    $tool = Tiny_LXP_Platform_Tool::fromRecordId(intval($id), Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
                     $ok = $ok && $tool->trash();
                 }
                 if ($ok) {
@@ -191,7 +191,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
                 }
             } elseif ($this->current_action() === 'untrash') {
                 foreach ($ids as $id) {
-                    $tool = LTI_Platform_Tool::fromRecordId(intval($id), LTI_Platform::$ltiPlatformDataConnector);
+                    $tool = Tiny_LXP_Platform_Tool::fromRecordId(intval($id), Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
                     $ok = $ok && $tool->restore();
                 }
                 if ($ok) {
@@ -201,7 +201,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
                 }
             } elseif ($this->current_action() === 'delete') {
                 foreach ($ids as $id) {
-                    $tool = new LTI_Platform_Tool(LTI_platform::$ltiPlatformDataConnector);
+                    $tool = new Tiny_LXP_Platform_Tool(Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
                     $tool->setRecordId(intval($id));
                     $ok = $ok && $tool->delete();
                 }
@@ -213,7 +213,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
             } else if ($this->current_action() === 'enable') {
                 $denied = false;
                 foreach ($ids as $id) {
-                    $tool = LTI_Platform_Tool::fromRecordId(intval($id), LTI_Platform::$ltiPlatformDataConnector);
+                    $tool = Tiny_LXP_Platform_Tool::fromRecordId(intval($id), Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
                     if ($tool->canBeEnabled()) {
                         $tool->enabled = true;
                         $ok = $ok && $tool->save(true);
@@ -230,7 +230,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
                 }
             } else if ($this->current_action() === 'disable') {
                 foreach ($ids as $id) {
-                    $tool = LTI_Platform_Tool::fromRecordId(intval($id), LTI_Platform::$ltiPlatformDataConnector);
+                    $tool = Tiny_LXP_Platform_Tool::fromRecordId(intval($id), Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
                     $tool->enabled = false;
                     $ok = $ok && $tool->save(true);
                 }
@@ -245,10 +245,10 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
 
     public function prepare_items()
     {
-        if (!isset($_REQUEST['_wpnonce']) || wp_verify_nonce($_REQUEST['_wpnonce'], LTI_Platform::get_plugin_name() . '-nonce')) {
+        if (!isset($_REQUEST['_wpnonce']) || wp_verify_nonce($_REQUEST['_wpnonce'], Tiny_LXP_Platform::get_plugin_name() . '-nonce')) {
             $this->process_action();
 
-            $per_page = $this->get_items_per_page(LTI_Platform::get_plugin_name() . '-tool_per_page');
+            $per_page = $this->get_items_per_page(Tiny_LXP_Platform::get_plugin_name() . '-tool_per_page');
 
             $args = array(
                 'posts_per_page' => $per_page,
@@ -289,8 +289,8 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
                 }
             }
 
-            $this->items = array_values(LTI_Platform_Tool::all($args));
-            $tool_counts = (array) wp_count_posts(LTI_Platform::$postType, 'readable');
+            $this->items = array_values(Tiny_LXP_Platform_Tool::all($args));
+            $tool_counts = (array) wp_count_posts(Tiny_LXP_Platform::$postType, 'readable');
             if (isset($_REQUEST['post_status'])) {
                 $total_items = $tool_counts[sanitize_text_field($_REQUEST['post_status'])];
             } else {
@@ -311,7 +311,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     protected function get_views()
     {
         $views = array();
-        $num_tools = wp_count_posts(LTI_Platform::$postType, 'readable');
+        $num_tools = wp_count_posts(Tiny_LXP_Platform::$postType, 'readable');
         $total_tools = array_sum((array) $num_tools) - $num_tools->trash;
 
         $class = (count($_GET) <= 1) ? $class = 'current' : '';
@@ -364,14 +364,14 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     {
         if (!$this->is_trash) {
             $actions = array(
-                'enable' => __('Enable', LTI_Platform::get_plugin_name()),
-                'disable' => __('Disable', LTI_Platform::get_plugin_name()),
-                'trash' => __('Move to Bin', LTI_Platform::get_plugin_name())
+                'enable' => __('Enable', Tiny_LXP_Platform::get_plugin_name()),
+                'disable' => __('Disable', Tiny_LXP_Platform::get_plugin_name()),
+                'trash' => __('Move to Bin', Tiny_LXP_Platform::get_plugin_name())
             );
         } else {
             $actions = array(
-                'untrash' => __('Restore', LTI_Platform::get_plugin_name()),
-                'delete' => __('Delete permanently', LTI_Platform::get_plugin_name())
+                'untrash' => __('Restore', Tiny_LXP_Platform::get_plugin_name()),
+                'delete' => __('Delete permanently', Tiny_LXP_Platform::get_plugin_name())
             );
         }
 
@@ -388,7 +388,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     public function column_name($item)
     {
         if (in_array($item->code, $this->mu_items)) {
-            return sprintf('<span style="text-decoration: line-through;" title="Network LTI tool exists with same code">%1$s</span>',
+            return sprintf('<span style="text-decoration: line-through;" title="Network Tiny LXP tool exists with same code">%1$s</span>',
                 esc_html($item->name));
         } else {
             return sprintf('<strong>%1$s</strong>', esc_html($item->name));
@@ -403,53 +403,53 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
 
         if (defined('WP_NETWORK_ADMIN') && WP_NETWORK_ADMIN) {
             $page = 'settings.php';
-            $url = network_admin_url(add_query_arg('page', LTI_Platform::get_plugin_name(), 'settings.php'));
+            $url = network_admin_url(add_query_arg('page', Tiny_LXP_Platform::get_plugin_name(), 'settings.php'));
         } else {
             $page = 'options-general.php';
-            $url = menu_page_url(LTI_Platform::get_plugin_name(), false);
+            $url = menu_page_url(Tiny_LXP_Platform::get_plugin_name(), false);
         }
         $actions = array();
         if (!$item->deleted) {
-            $edit_link = add_query_arg(array('page' => LTI_Platform::get_plugin_name() . '-edit', 'tool' => absint($item->getRecordId())),
+            $edit_link = add_query_arg(array('page' => Tiny_LXP_Platform::get_plugin_name() . '-edit', 'tool' => absint($item->getRecordId())),
                 $page);
             $actions['edit'] = sprintf(
                 '<a href = "%1$s" aria-label = "%2$s">%3$s</a>', esc_url($edit_link),
-                esc_attr(sprintf(__('Edit &#8220;%s&#8221;', LTI_Platform::get_plugin_name()), $item->name)),
-                esc_html(__('Edit', LTI_Platform::get_plugin_name()))
+                esc_attr(sprintf(__('Edit &#8220;%s&#8221;', Tiny_LXP_Platform::get_plugin_name()), $item->name)),
+                esc_html(__('Edit', Tiny_LXP_Platform::get_plugin_name()))
             );
             if (!$item->enabled) {
                 $enable_link = add_query_arg(array('action' => 'enable', 'tool' => absint($item->getRecordId())), $url);
                 $actions['enable'] = sprintf(
                     '<a href="%1$s" aria-label="%2$s">%3$s</a>', esc_url($enable_link),
-                    esc_attr(sprintf(__('Enable &#8220;%s&#8221;', LTI_Platform::get_plugin_name()), $item->name)),
-                    esc_html__('Enable', LTI_Platform::get_plugin_name())
+                    esc_attr(sprintf(__('Enable &#8220;%s&#8221;', Tiny_LXP_Platform::get_plugin_name()), $item->name)),
+                    esc_html__('Enable', Tiny_LXP_Platform::get_plugin_name())
                 );
             } else {
                 $disable_link = add_query_arg(array('action' => 'disable', 'tool' => absint($item->getRecordId())), $url);
                 $actions['disable'] = sprintf(
                     '<a href="%1$s" aria-label="%2$s">%3$s</a>', esc_url($disable_link),
-                    esc_attr(sprintf(__('Disable &#8220;%s&#8221;', LTI_Platform::get_plugin_name()), $item->name)),
-                    esc_html__('Disable', LTI_Platform::get_plugin_name())
+                    esc_attr(sprintf(__('Disable &#8220;%s&#8221;', Tiny_LXP_Platform::get_plugin_name()), $item->name)),
+                    esc_html__('Disable', Tiny_LXP_Platform::get_plugin_name())
                 );
             }
             $trash_link = add_query_arg(array('action' => 'trash', 'tool' => absint($item->getRecordId())), $url);
             $actions['trash'] = sprintf(
                 '<a href="%1$s" aria-label="%2$s">%3$s</a>', esc_url($trash_link),
-                esc_attr(sprintf(__('Bin &#8220;%s&#8221;', LTI_Platform::get_plugin_name()), $item->name)),
-                esc_html__('Bin', LTI_Platform::get_plugin_name())
+                esc_attr(sprintf(__('Bin &#8220;%s&#8221;', Tiny_LXP_Platform::get_plugin_name()), $item->name)),
+                esc_html__('Bin', Tiny_LXP_Platform::get_plugin_name())
             );
         } else {
             $untrash_link = add_query_arg(array('action' => 'untrash', 'tool' => absint($item->getRecordId())), $url);
             $actions['untrash'] = sprintf(
                 '<a href="%1$s" aria-label="%2$s">%3$s</a>', esc_url($untrash_link),
-                esc_attr(sprintf(__('Disable &#8220;%s&#8221;', LTI_Platform::get_plugin_name()), $item->name)),
-                esc_html__('Restore', LTI_Platform::get_plugin_name())
+                esc_attr(sprintf(__('Disable &#8220;%s&#8221;', Tiny_LXP_Platform::get_plugin_name()), $item->name)),
+                esc_html__('Restore', Tiny_LXP_Platform::get_plugin_name())
             );
             $delete_link = add_query_arg(array('action' => 'delete', 'tool' => absint($item->getRecordId())), $url);
             $actions['delete'] = sprintf(
                 '<a href="%1$s" aria-label="%2$s">%3$s</a>', esc_url($delete_link),
-                esc_attr(sprintf(__('Permanently delete &#8220;%s&#8221;', LTI_Platform::get_plugin_name()), $item->name)),
-                esc_html__('Delete permanently', LTI_Platform::get_plugin_name())
+                esc_attr(sprintf(__('Permanently delete &#8220;%s&#8221;', Tiny_LXP_Platform::get_plugin_name()), $item->name)),
+                esc_html__('Delete permanently', Tiny_LXP_Platform::get_plugin_name())
             );
         }
 
@@ -464,7 +464,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
             return;
         }
 
-        return esc_html__($item->enabled ? 'Yes' : 'No', LTI_Platform::get_plugin_name());
+        return esc_html__($item->enabled ? 'Yes' : 'No', Tiny_LXP_Platform::get_plugin_name());
     }
 
     public function column_debugMode($item)
@@ -475,7 +475,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
             return;
         }
 
-        return esc_html__($item->debugMode ? 'Yes' : 'No', LTI_Platform::get_plugin_name());
+        return esc_html__($item->debugMode ? 'Yes' : 'No', Tiny_LXP_Platform::get_plugin_name());
     }
 
     public function column_code($item)
@@ -492,7 +492,7 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
         if ($item->lastAccess) {
             $last_access = date('Y/m/d', $item->lastAccess);
         } else {
-            $last_access = esc_html__('None', LTI_Platform::get_plugin_name());
+            $last_access = esc_html__('None', Tiny_LXP_Platform::get_plugin_name());
         }
 
         return esc_html($last_access);
@@ -519,19 +519,19 @@ class LTI_Platform_Tool_List_Table extends WP_List_Table
     public function no_items()
     {
         if (defined('WP_NETWORK_ADMIN') && WP_NETWORK_ADMIN) {
-            esc_html_e('No Network LTI tools found.', LTI_Platform::get_plugin_name());
+            esc_html_e('No Network Tiny LXP tools found.', Tiny_LXP_Platform::get_plugin_name());
         } else {
-            esc_html_e('No LTI tools found.', LTI_Platform::get_plugin_name());
+            esc_html_e('No Tiny LXP tools found.', Tiny_LXP_Platform::get_plugin_name());
         }
     }
 
     private function get_edit_link($args, $label, $class = '')
     {
         if (defined('WP_NETWORK_ADMIN') && WP_NETWORK_ADMIN) {
-            $args['page'] = LTI_Platform::get_plugin_name();
+            $args['page'] = Tiny_LXP_Platform::get_plugin_name();
             $url = network_admin_url(add_query_arg($args, 'settings.php'));
         } else {
-            $url = add_query_arg($args, menu_page_url(LTI_Platform::get_plugin_name(), false));
+            $url = add_query_arg($args, menu_page_url(Tiny_LXP_Platform::get_plugin_name(), false));
         }
         $class_html = '';
         $aria_current = '';

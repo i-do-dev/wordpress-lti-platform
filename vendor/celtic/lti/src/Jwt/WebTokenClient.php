@@ -13,7 +13,7 @@ use ceLTIc\LTI\Http\HttpMessage;
 /**
  * Class to implement the JWT interface using the Web Token JWT Framework library from https://web-token.spomky-labs.com.
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license   GNU Lesser General Public License, version 3 (<http://www.gnu.org/licenses/lgpl.html>)
  */

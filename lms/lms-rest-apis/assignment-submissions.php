@@ -198,10 +198,10 @@ class Rest_Lxp_Assignment_Submission
                 update_post_meta($assignment_submission_post_id, 'lxp_assignment_id', $assignmentId);
                 update_post_meta($assignment_submission_post_id, 'lxp_student_id', $user_post->ID);
 
-                // get 'ltiUserId', 'submissionId from $request and add as post meta data
-                $ltiUserId = $request->get_param('ltiUserId');
+                // get 'tinyLxpUserId', 'submissionId from $request and add as post meta data
+                $tinyLxpUserId = $request->get_param('ltiUserId');
                 $submissionId = $request->get_param('submissionId');
-                update_post_meta($assignment_submission_post_id, 'lti_user_id', $ltiUserId);
+                update_post_meta($assignment_submission_post_id, 'lti_user_id', $tinyLxpUserId);
                 update_post_meta($assignment_submission_post_id, 'submission_id', $submissionId);
 
                 // get array values for 'min', 'max', 'raw' and 'scaled' from 'score' array key of $request paramter 'result' and add as assignment submission post meta data

@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,28 +18,28 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
  * Fired when the plugin is uninstalled.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp-platform
  * @since      1.0.0
- * @package    LTI_Platform
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
 // If uninstall not called from WordPress, then exit.
 if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-require_once('lti-platform.php');
-require_once('includes/class-lti-platform.php');
+require_once('tiny-lxp-platform.php');
+require_once('includes/class-tiny-lxp-platform.php');
 
 global $wpdb;
 
-function lti_platform_delete_tools($post_type)
+function tiny_lxp_platform_delete_tools($post_type)
 {
     $tools = get_posts(array(
         'post_type' => $post_type,
@@ -56,16 +56,16 @@ function lti_platform_delete_tools($post_type)
 
 // Check if data should be deleted on uninstall
 if (is_multisite()) {
-    $options = get_site_option(LTI_Platform::get_settings_name(), array());
+    $options = get_site_option(Tiny_LXP_Platform::get_settings_name(), array());
 } else {
-    $options = get_option(LTI_Platform::get_settings_name(), array());
+    $options = get_option(Tiny_LXP_Platform::get_settings_name(), array());
 }
 if (!is_array($options)) {
     $options = array();
 }
 if (!empty($options['uninstall']) && ($options['uninstall'] === 'true')) {
     // Delete plugin options.
-    $plugin_name = LTI_Platform::get_settings_name();
+    $plugin_name = Tiny_LXP_Platform::get_settings_name();
     delete_option($plugin_name);
 
     // Delete plugin user meta.
@@ -77,8 +77,8 @@ if (!empty($options['uninstall']) && ($options['uninstall'] === 'true')) {
     $sites = get_sites();
     foreach ($sites as $site) {
         switch_to_blog($site->blog_id);
-        lti_platform_delete_tools(LTI_Platform_Tool::POST_TYPE);
+        tiny_lxp_platform_delete_tools(Tiny_LXP_Platform_Tool::POST_TYPE);
         restore_current_blog();
     }
-    lti_platform_delete_tools(LTI_Platform_Tool::POST_TYPE_NETWORK);
+    tiny_lxp_platform_delete_tools(Tiny_LXP_Platform_Tool::POST_TYPE_NETWORK);
 }

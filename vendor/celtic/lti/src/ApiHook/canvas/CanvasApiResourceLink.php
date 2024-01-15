@@ -9,7 +9,7 @@ use ceLTIc\LTI\UserResult;
  * Class to implement Resource Link services for a Canvas platform via its proprietary API.
  *
  * @author  Simon Booth <s.p.booth@stir.ac.uk>
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3
  */
