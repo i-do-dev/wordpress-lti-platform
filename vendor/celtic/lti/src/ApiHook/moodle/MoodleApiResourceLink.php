@@ -8,7 +8,7 @@ use ceLTIc\LTI\ApiHook\ApiResourceLink;
  * Class to implement Resource Link services for a Moodle platform via its web services.
  *
  * @author  Tony Butler <a.butler4@lancaster.ac.uk>
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3
  */

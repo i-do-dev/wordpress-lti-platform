@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,19 +18,19 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
- * The WordPress LTI data connector class.
+ * The WordPress Tiny LXP data connector class.
  *
- * This is used to define the methods for loading and saving LTI tools from/to the database.
+ * This is used to define the methods for loading and saving Tiny LXP tools from/to the database.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp-platform
  * @since      1.0.0
- * @package    LTI_Platform
- * @subpackage LTI_Platform/includes
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @subpackage Tiny_LXP_Platform/includes
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
 use ceLTIc\LTI\Tool;
 use ceLTIc\LTI\DataConnector;
@@ -57,13 +57,13 @@ class DataConnector_wp extends DataConnector\DataConnector
             if (is_multisite()) {
                 switch_to_blog($blogId);
             }
-            $post = get_post($tool->getRecordId(), OBJECT, LTI_Platform::$postType);
+            $post = get_post($tool->getRecordId(), OBJECT, Tiny_LXP_Platform::$postType);
             if (is_multisite()) {
                 restore_current_blog();
             }
         } elseif (!empty($tool->code)) {
             $blogId = get_current_blog_id();
-            $post = get_page_by_path($code, OBJECT, LTI_Platform::$postType);
+            $post = get_page_by_path($code, OBJECT, Tiny_LXP_Platform::$postType);
         } else {
             $post = null;
         }
@@ -96,7 +96,7 @@ class DataConnector_wp extends DataConnector\DataConnector
             $status = 'draft';
         }
         $post = array(
-            'post_type' => LTI_Platform::$postType,
+            'post_type' => Tiny_LXP_Platform::$postType,
             'post_name' => $tool->code,
             'post_title' => $tool->name,
             'post_content' => $settingsValue,
@@ -194,7 +194,7 @@ class DataConnector_wp extends DataConnector\DataConnector
     {
         $tools = array();
         $default_args = array(
-            'post_type' => LTI_Platform::$postType,
+            'post_type' => Tiny_LXP_Platform::$postType,
             'post_status' => 'any',
             'numberposts' => -1,
             'offset' => 0
@@ -202,7 +202,7 @@ class DataConnector_wp extends DataConnector\DataConnector
         $args = array_merge($default_args, $args);
         $posts = get_posts($args);
         foreach ($posts as $post) {
-            $tool = new LTI_Platform_Tool(LTI_Platform::$ltiPlatformDataConnector);
+            $tool = new Tiny_LXP_Platform_Tool(Tiny_LXP_Platform::$tinyLxpPlatformDataConnector);
             $this->fromPost($tool, $post, get_current_blog_id());
             $tools[$tool->code] = $tool;
         }

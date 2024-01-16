@@ -17,7 +17,7 @@ use ceLTIc\LTI\Util;
  *
  * This class assumes no data persistence - it should be extended for specific database connections.
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3
  */

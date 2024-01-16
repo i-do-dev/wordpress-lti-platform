@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,36 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
  * This file is used to markup the page for the plugin's settings.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp-platform
  * @since      1.0.0
- * @package    LTI_Platform
- * @subpackage LTI_Platform/admin/partials
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @subpackage Tiny_LXP_Platform/admin/partials
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
 if (defined('WP_NETWORK_ADMIN') && WP_NETWORK_ADMIN) {
     $page = 'settings.php';
-    $url = 'edit.php?action=' . LTI_Platform::get_plugin_name() . '-settings';
+    $url = 'edit.php?action=' . Tiny_LXP_Platform::get_plugin_name() . '-settings';
 } else {
     $page = 'options-general.php';
     $url = 'options.php';
 }
 echo('<div class="wrap">' . "\n");
 echo('  <h1>' . "\n");
-echo('    ' . esc_html__('LTI Platform Settings', LTI_Platform::get_plugin_name()) . "\n");
-echo('    <a href="' . esc_url($page . '?page=' . LTI_Platform::get_plugin_name()) . '" class="page-title-action">LTI Tools List</a>' . "\n");
+echo('    ' . esc_html__('Tiny LXP Platform Settings', Tiny_LXP_Platform::get_plugin_name()) . "\n");
+echo('    <a href="' . esc_url($page . '?page=' . Tiny_LXP_Platform::get_plugin_name()) . '" class="page-title-action">Tiny LXP Tools List</a>' . "\n");
 echo('  </h1>' . "\n");
 echo('  <form action="' . esc_url($url) . '" method="post">' . "\n");
 do_action('all_admin_notices');
 
 submit_button(null, 'primary', 'submit', true, array('id' => 'submit_top'));
-settings_fields(LTI_Platform::get_plugin_name());
-do_settings_sections(LTI_Platform::get_plugin_name());
+settings_fields(Tiny_LXP_Platform::get_plugin_name());
+do_settings_sections(Tiny_LXP_Platform::get_plugin_name());
 submit_button(null, 'primary', 'submit', true, array('id' => 'submit_bottom'));
 
 echo('  </form>' . "\n");

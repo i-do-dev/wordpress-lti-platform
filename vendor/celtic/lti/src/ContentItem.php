@@ -11,7 +11,7 @@ use ceLTIc\LTI\Content\ContentItemPlacement;
  * @deprecated Use Content::Item instead
  * @see Content::Item
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3
  */

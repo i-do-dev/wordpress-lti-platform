@@ -2,13 +2,13 @@
   "name": "celtic/lti",
   "description": "PHP class library for building LTI integrations",
   "keywords": ["LTI"],
-  "homepage": "https://github.com/celtic-project/LTI-PHP",
+  "homepage": "https://github.com/i-do-dev/wordpress-lti-platform",
   "type": "library",
   "license": "LGPL-3.0-or-later",
   "authors": [
     {
-      "name": "Stephen P Vickers",
-      "email": "stephen@spvsoftwareproducts.com"
+      "name": "Waqar Muneer",
+      "email": "waqarmuneer@gmail.com"
     }
   ],
   "require": {

@@ -8,7 +8,7 @@ $title =  isset($content['lti_content_title'][0]) ? $content['lti_content_title'
 $toolCode =  isset($content['lti_tool_code'][0]) ? $content['lti_tool_code'][0] : "";
 $customAttr =  isset($content['lti_custom_attr'][0]) ? $content['lti_custom_attr'][0] : "";
 $toolUrl =  isset($content['lti_tool_url'][0]) ? $content['lti_tool_url'][0] : "";
-$plugin_name = LTI_Platform::get_plugin_name();
+$plugin_name = Tiny_LXP_Platform::get_plugin_name();
 $content = '<p>' . $post->post_content . '</p>';
 if ($attrId) {
 	$content .= '<p> [' . $plugin_name . ' tool=' . $toolCode . ' id=' . $attrId . ' title=\"' . $title . '\" url=' . $toolUrl . ' custom=' . $customAttr . ']' . "" . '[/' . $plugin_name . ']  </p>';

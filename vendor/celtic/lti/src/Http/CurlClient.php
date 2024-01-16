@@ -5,7 +5,7 @@ namespace ceLTIc\LTI\Http;
 /**
  * Class to implement the HTTP message interface using the Curl library
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license   GNU Lesser General Public License, version 3 (<http://www.gnu.org/licenses/lgpl.html>)
  */

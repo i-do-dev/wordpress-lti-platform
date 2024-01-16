@@ -5,7 +5,7 @@ namespace ceLTIc\LTI\MediaType;
 /**
  * Class to represent an LTI Message
  *
- * @author  Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @author  Waqar Muneer <waqarmuneer@gmail.com>
  * @copyright  SPV Software Products
  * @license  http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3
  */

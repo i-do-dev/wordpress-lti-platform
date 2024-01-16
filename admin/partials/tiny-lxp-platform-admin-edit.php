@@ -1,8 +1,8 @@
 <?php
 /*
- *  wordpress-lti-platform - Enable WordPress to act as an LTI Platform.
+ *  wordpress-tiny-lxp-platform - Enable WordPress to act as an Tiny LXP Platform.
 
- *  Copyright (C) 2022  Stephen P Vickers
+ *  Copyright (C) 2022  Waqar Muneer
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,17 +18,17 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- *  Contact: Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ *  Contact: Waqar Muneer <waqarmuneer@gmail.com>
  */
 
 /**
- * This file is used to markup the page for editing an LTI tool configuration.
+ * This file is used to markup the page for editing an Tiny LXP tool configuration.
  *
- * @link       http://www.spvsoftwareproducts.com/php/wordpress-lti-platform
+ * @link       http://www.spvsoftwareproducts.com/php/wordpress-tiny-lxp-platform
  * @since      1.0.0
- * @package    LTI_Platform
- * @subpackage LTI_Platform/admin/partials
- * @author     Stephen P Vickers <stephen@spvsoftwareproducts.com>
+ * @package    Tiny_LXP_Platform
+ * @subpackage Tiny_LXP_Platform/admin/partials
+ * @author     Waqar Muneer <waqarmuneer@gmail.com>
  */
 wp_enqueue_script('wp-ajax-response');
 
@@ -42,28 +42,28 @@ if (defined('WP_NETWORK_ADMIN') && WP_NETWORK_ADMIN) {
 } else {
     $page = 'options-general.php';
 }
-$url = add_query_arg(array('page' => LTI_Platform::get_plugin_name() . '-edit', 'tool' => absint($tool->getRecordId())), $page);
+$url = add_query_arg(array('page' => Tiny_LXP_Platform::get_plugin_name() . '-edit', 'tool' => absint($tool->getRecordId())), $page);
 
 echo('<div class="wrap">' . "\n");
 echo('  <h1>' . "\n");
-echo('    ' . esc_html($verb) . ' LTI Tool' . "\n");
-echo('    <a href="' . esc_attr($page) . '?page=' . LTI_Platform::get_plugin_name() . '" class="page-title-action">LTI Tools List</a>' . "\n");
+echo('    ' . esc_html($verb) . ' Tiny LXP Tool' . "\n");
+echo('    <a href="' . esc_attr($page) . '?page=' . Tiny_LXP_Platform::get_plugin_name() . '" class="page-title-action">Tiny LXP Tools List</a>' . "\n");
 echo('  </h1>' . "\n");
 echo('  <form action="' . esc_url($url) . '" name="a" id="a" method="post" class="validate" novalidate="novalidate">' . "\n");
-wp_nonce_field(LTI_Platform::get_plugin_name() . '-nonce');
+wp_nonce_field(Tiny_LXP_Platform::get_plugin_name() . '-nonce');
 do_action('all_admin_notices');
 submit_button(null, 'primary', 'submit', true, array('id' => 'submit_top'));
 
-echo('    <h2>' . esc_html__('General Details', LTI_Platform::get_plugin_name()) . '</h2>' . "\n");
+echo('    <h2>' . esc_html__('General Details', Tiny_LXP_Platform::get_plugin_name()) . '</h2>' . "\n");
 echo("\n");
 echo('    <table class="form-table">' . "\n");
 echo('      <tbody>' . "\n");
 echo('        <tr class="form-field form-required">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_name">' . "\n");
-echo('              ' . esc_html__('Name', LTI_Platform::get_plugin_name()) . '' . "\n");
-echo('              <span class="description">' . esc_html__('(required)', LTI_Platform::get_plugin_name(),
-    LTI_Platform::get_plugin_name()) . '</span>' . "\n");
+echo('              ' . esc_html__('Name', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
+echo('              <span class="description">' . esc_html__('(required)', Tiny_LXP_Platform::get_plugin_name(),
+    Tiny_LXP_Platform::get_plugin_name()) . '</span>' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -73,8 +73,8 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field form-required">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_code">' . "\n");
-echo('              ' . esc_html__('Code', LTI_Platform::get_plugin_name()) . '' . "\n");
-echo('              <span class="description">' . esc_html__('(required)', LTI_Platform::get_plugin_name()) . '</span>' . "\n");
+echo('              ' . esc_html__('Code', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
+echo('              <span class="description">' . esc_html__('(required)', Tiny_LXP_Platform::get_plugin_name()) . '</span>' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -84,34 +84,34 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_enabled">' . "\n");
-echo('              ' . esc_html__('Enabled?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Enabled?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
 echo('            <input id="id_enabled" type="checkbox" aria-required="false" value="true" name="enabled"' . checked($tool->enabled,
     true, false) . '>' . "\n");
 echo('            <p class="description">' . esc_html__('The tool will not be available for use unless this box is checked.',
-    LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
 echo('          </td>' . "\n");
 echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_debugmode">' . "\n");
-echo('              ' . esc_html__('Debug mode?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Debug mode?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
 echo('            <input id="id_debugmode" type="checkbox" aria-required="false" value="true" name="debugmode"' . checked($tool->debugMode,
     true, false) . '>' . "\n");
-echo('            <p class="description">' . esc_html__('Check this box to include details of the LTI messages sent and received in the WordPress log file.',
-    LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+echo('            <p class="description">' . esc_html__('Check this box to include details of the Tiny LXP messages sent and received in the WordPress log file.',
+    Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
 echo('          </td>' . "\n");
 echo('        </tr>' . "\n");
 echo('        <tr class="form-field form-required">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_messageurl">' . "\n");
-echo('              ' . esc_html__('Launch message URL', LTI_Platform::get_plugin_name()) . '' . "\n");
-echo('              <span class="description">' . esc_html__('(required)', LTI_Platform::get_plugin_name()) . '</span>' . "\n");
+echo('              ' . esc_html__('Launch message URL', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
+echo('              <span class="description">' . esc_html__('(required)', Tiny_LXP_Platform::get_plugin_name()) . '</span>' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -121,70 +121,70 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_usecontentitem">' . "\n");
-echo('              ' . esc_html__('Use Content-Item/Deep Linking?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Use Content-Item/Deep Linking?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
 echo('            <input id="id_usecontentitem" type="checkbox" aria-required="false" value="true" name="usecontentitem"' . checked($tool->useContentItem,
     true, false) . '>' . "\n");
 echo('            <p class="description">' . esc_html__('Check this box to use the Content-Item/Deep Linking message when creating a link to this tool.',
-    LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
 echo('          </td>' . "\n");
 echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_contentitemurl">' . "\n");
-echo('              ' . esc_html__('Content-Item/Deep Linking URL', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Content-Item/Deep Linking URL', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
 echo('            <input id="id_contentitemurl" type="text" value="' . esc_attr($tool->contentItemUrl) . '" name="contentitemurl" class="regular-text">' . "\n");
 echo('            <p class="description">' . esc_html__('Enter the URL to which content-item/deep linking messages should be sent if different from the launch message URL.',
-    LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
 echo('          </td>' . "\n");
 echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_custom">' . "\n");
-echo('              ' . esc_html__('Custom parameters', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Custom parameters', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
 echo('            <textarea id="id_custom" name="custom" class="regular-text">' . esc_textarea($tool->getSetting('custom')) . '</textarea>' . "\n");
 echo('            <p class="description">' . esc_html__('Use a format of "name=value", one per line.',
-    LTI_Platform::get_plugin_name()) . '</p>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</p>' . "\n");
 echo('          </td>' . "\n");
 echo('        </tr>' . "\n");
 echo('      </tbody>' . "\n");
 echo('    </table>' . "\n");
 echo('' . "\n");
-echo('    <h2>' . esc_html__('Presentation Settings', LTI_Platform::get_plugin_name()) . '</h2>' . "\n");
+echo('    <h2>' . esc_html__('Presentation Settings', Tiny_LXP_Platform::get_plugin_name()) . '</h2>' . "\n");
 echo('' . "\n");
 echo('    <table class="form-table">' . "\n");
 echo('      <tbody>' . "\n");
 echo('        <tr class="form-field form-required">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_presentationtarget">' . "\n");
-echo('              ' . esc_html__('Presentation target', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Presentation target', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
 echo('            <select id="id_presentationtarget" aria-required="true" name="presentationtarget">' . "\n");
 echo('              <option value="window"' . selected($tool->getSetting('presentationTarget') === 'window', true, false) . '>' . esc_html__('New window',
-    LTI_Platform::get_plugin_name()) . '</option>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</option>' . "\n");
 echo('              <option value="popup"' . selected($tool->getSetting('presentationTarget'), 'popup', true, false) . '>' . esc_html__('Popup window',
-    LTI_Platform::get_plugin_name()) . '</option>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</option>' . "\n");
 echo('              <option value="iframe"' . selected($tool->getSetting('presentationTarget'), 'iframe', true, false) . '>' . esc_html__('iFrame',
-    LTI_Platform::get_plugin_name()) . '</option>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</option>' . "\n");
 echo('              <option value="embed"' . selected($tool->getSetting('presentationTarget'), 'embed', true, false) . '>' . esc_html__('Embed',
-    LTI_Platform::get_plugin_name()) . '</option>' . "\n");
+    Tiny_LXP_Platform::get_plugin_name()) . '</option>' . "\n");
 echo('            </select>' . "\n");
 echo('          </td>' . "\n");
 echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_presentationwidth">' . "\n");
-echo('              ' . esc_html__('Width of popup window', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Width of popup window', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -194,7 +194,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_presentationheight">' . "\n");
-echo('              ' . esc_html__('Height of popup window', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Height of popup window', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -204,14 +204,14 @@ echo('        </tr>' . "\n");
 echo('      </tbody>' . "\n");
 echo('    </table>' . "\n");
 echo('' . "\n");
-echo('    <h2>' . esc_html__('Privacy Settings', LTI_Platform::get_plugin_name()) . '</h2>' . "\n");
+echo('    <h2>' . esc_html__('Privacy Settings', Tiny_LXP_Platform::get_plugin_name()) . '</h2>' . "\n");
 echo('' . "\n");
 echo('    <table class="form-table">' . "\n");
 echo('      <tbody>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_sendusername">' . "\n");
-echo('              ' . esc_html__('Send user\'s name?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Send user\'s name?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -223,7 +223,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_senduserid">' . "\n");
-echo('              ' . esc_html__('Send user\'s ID?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Send user\'s ID?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -235,7 +235,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_senduseremail">' . "\n");
-echo('              ' . esc_html__('Send user\'s email?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Send user\'s email?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -247,7 +247,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_senduserrole">' . "\n");
-echo('              ' . esc_html__('Send user\'s role?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Send user\'s role?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -259,7 +259,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_senduserusername">' . "\n");
-echo('              ' . esc_html__('Send user\'s username?', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Send user\'s username?', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -271,14 +271,14 @@ echo('        </tr>' . "\n");
 echo('      </tbody>' . "\n");
 echo('    </table>' . "\n");
 echo('' . "\n");
-echo('    <h2>' . esc_html__('LTI 1.0/1.1/1.2 Configuration', LTI_Platform::get_plugin_name()) . '</h2>' . "\n");
+echo('    <h2>' . esc_html__('Tiny LXP 1.0/1.1/1.2 Configuration', Tiny_LXP_Platform::get_plugin_name()) . '</h2>' . "\n");
 echo('' . "\n");
 echo('    <table class="form-table">' . "\n");
 echo('      <tbody>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_consumerkey">' . "\n");
-echo('              ' . esc_html__('Consumer Key', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Consumer Key', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -288,7 +288,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_sharedsecret">' . "\n");
-echo('              ' . esc_html__('Shared secret', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Shared secret', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -298,14 +298,14 @@ echo('        </tr>' . "\n");
 echo('      </tbody>' . "\n");
 echo('    </table>' . "\n");
 echo('' . "\n");
-echo('    <h2>' . esc_html__('LTI 1.3 Configuration', LTI_Platform::get_plugin_name()) . '</h2>' . "\n");
+echo('    <h2>' . esc_html__('Tiny LXP 1.3 Configuration', Tiny_LXP_Platform::get_plugin_name()) . '</h2>' . "\n");
 echo('' . "\n");
 echo('    <table class="form-table">' . "\n");
 echo('      <tbody>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_initiateloginurl">' . "\n");
-echo('              ' . esc_html__('Initiate Login URL', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Initiate Login URL', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -315,7 +315,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_redirectionuris">' . "\n");
-echo('              ' . esc_html__('Redirection URI(s)', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Redirection URI(s)', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -329,7 +329,7 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_jwksurl">' . "\n");
-echo('              ' . esc_html__('Public Keyset URL', LTI_Platform::get_plugin_name()) . '' . "\n");
+echo('              ' . esc_html__('Public Keyset URL', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -339,8 +339,8 @@ echo('        </tr>' . "\n");
 echo('        <tr class="form-field">' . "\n");
 echo('          <th scope="row">' . "\n");
 echo('            <label for="id_publickey">' . "\n");
-echo('              ' . esc_html__('Public key', LTI_Platform::get_plugin_name()) . '' . "\n");
-echo('              <span class="description">' . esc_html__('(PEM format)', LTI_Platform::get_plugin_name()) . '</span>' . "\n");
+echo('              ' . esc_html__('Public key', Tiny_LXP_Platform::get_plugin_name()) . '' . "\n");
+echo('              <span class="description">' . esc_html__('(PEM format)', Tiny_LXP_Platform::get_plugin_name()) . '</span>' . "\n");
 echo('            </label>' . "\n");
 echo('          </th>' . "\n");
 echo('          <td>' . "\n");
@@ -350,17 +350,17 @@ echo('        </tr>' . "\n");
 echo('      </tbody>' . "\n");
 echo('    </table>' . "\n");
 echo('' . "\n");
-if ($tool->canUseLTI13()) {
+if ($tool->canUseTinyLXP13()) {
     echo('    <div class="card">' . "\n");
     echo('      <h3 class="title">' . esc_html__('Platform configuration to share with this tool') . '</h3>' . "\n");
     echo('      <div class="inside">' . "\n");
     echo('        <table>' . "\n");
     echo('          <tbody>' . "\n");
-    echo('            <tr><th class="alignleft">' . esc_html__('Platform ID', LTI_Platform::get_plugin_name()) . '</th><td>' . esc_url(get_option('siteurl')) . '</td></tr>' . "\n");
-    echo('            <tr><th class="alignleft">' . esc_html__('Client ID', LTI_Platform::get_plugin_name()) . '</th><td>' . esc_html($tool->code) . '</td></tr>' . "\n");
-    echo('            <tr><th class="alignleft">' . esc_html__('Deployment ID', LTI_Platform::get_plugin_name()) . '</th><td>' . esc_html(get_current_blog_id()) . '</td></tr>' . "\n");
-    echo('            <tr><th class="alignleft">' . esc_html__('Public Keyset URL', LTI_Platform::get_plugin_name()) . '</th><td>' . esc_url(get_option('siteurl') . '/?' . LTI_Platform::get_plugin_name() . '&amp;keys') . '</td></tr>' . "\n");
-    echo('            <tr><th class="alignleft">' . esc_html__('Authentication request URL', LTI_Platform::get_plugin_name()) . '</th><td>' . esc_url(get_option('siteurl') . '/?' . LTI_Platform::get_plugin_name() . '&amp;auth') . '</td></tr>' . "\n");
+    echo('            <tr><th class="alignleft">' . esc_html__('Platform ID', Tiny_LXP_Platform::get_plugin_name()) . '</th><td>' . esc_url(get_option('siteurl')) . '</td></tr>' . "\n");
+    echo('            <tr><th class="alignleft">' . esc_html__('Client ID', Tiny_LXP_Platform::get_plugin_name()) . '</th><td>' . esc_html($tool->code) . '</td></tr>' . "\n");
+    echo('            <tr><th class="alignleft">' . esc_html__('Deployment ID', Tiny_LXP_Platform::get_plugin_name()) . '</th><td>' . esc_html(get_current_blog_id()) . '</td></tr>' . "\n");
+    echo('            <tr><th class="alignleft">' . esc_html__('Public Keyset URL', Tiny_LXP_Platform::get_plugin_name()) . '</th><td>' . esc_url(get_option('siteurl') . '/?' . Tiny_LXP_Platform::get_plugin_name() . '&amp;keys') . '</td></tr>' . "\n");
+    echo('            <tr><th class="alignleft">' . esc_html__('Authentication request URL', Tiny_LXP_Platform::get_plugin_name()) . '</th><td>' . esc_url(get_option('siteurl') . '/?' . Tiny_LXP_Platform::get_plugin_name() . '&amp;auth') . '</td></tr>' . "\n");
     echo('          </tbody>' . "\n");
     echo('        </table>' . "\n");
     echo('      </div>' . "\n");
