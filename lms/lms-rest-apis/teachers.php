@@ -15,7 +15,7 @@ class Rest_Lxp_Teacher
 		register_rest_route('lms/v1', '/teacher/treks/assigned', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
-				'callback' => array('Rest_Lxp_Teacher', 'treks_assigned'),
+				'callback' => array('Rest_Lxp_Teacher', 'get_restricted_courses'),
 				'permission_callback' => '__return_true'
 			)
 		));
@@ -23,7 +23,7 @@ class Rest_Lxp_Teacher
 		register_rest_route('lms/v1', '/teacher/treks/assign', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
-				'callback' => array('Rest_Lxp_Teacher', 'treks_assign'),
+				'callback' => array('Rest_Lxp_Teacher', 'set_restricted_courses'),
 				'permission_callback' => '__return_true'
 			)
 		));
@@ -44,6 +44,14 @@ class Rest_Lxp_Teacher
 			)
 		));
 		
+		register_rest_route('lms/v1', '/teachers/import', array(
+			array(
+				'methods' => WP_REST_Server::EDITABLE,
+				'callback' => array('Rest_Lxp_Teacher', 'import'),
+				'permission_callback' => '__return_true'
+			),
+		));
+
 		register_rest_route('lms/v1', '/teachers/save', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -164,24 +172,24 @@ class Rest_Lxp_Teacher
 		));
 	}
 
-	// get assigned treks
-	public static function treks_assigned($request) {
+	// get restricted treks
+	public static function get_restricted_courses($request) {
 		$teacher_post_id = intval($request->get_param('teacher_post_id'));
-		$treks_assigned = get_post_meta($teacher_post_id, 'treks_assigned');
-		return wp_send_json_success( ($treks_assigned ? $treks_assigned : array()) );
+		$restricted_courses = get_post_meta($teacher_post_id, 'restricted_courses');
+		return wp_send_json_success( ($restricted_courses ? $restricted_courses : array()) );
 	}
 
-	// save assigned treks
-	public static function treks_assign($request) {
+	// save restricted courses
+	public static function set_restricted_courses($request) {
 		$teacher_post_id = intval($request->get_param('teacher_post_id'));
-		$trek_ids = $request->get_param('treks');
-		$trek_ids = $trek_ids ? $trek_ids : array();
-		// add treacher 'treks_assigned' post metadata and remove existing
-		delete_post_meta($teacher_post_id, 'treks_assigned');
-		foreach ($trek_ids as $trek_id) {
-			add_post_meta($teacher_post_id, 'treks_assigned', $trek_id);
+		$course_ids = $request->get_param('treks');
+		$course_ids = $course_ids ? $course_ids : array();
+		// add treacher 'restricted_course' post metadata and remove existing
+		delete_post_meta($teacher_post_id, 'restricted_courses');
+		foreach ($course_ids as $trek_id) {
+			add_post_meta($teacher_post_id, 'restricted_courses', $trek_id);
 		}
-		return wp_send_json_success(get_post_meta($teacher_post_id, 'treks_assigned'));
+		return wp_send_json_success(get_post_meta($teacher_post_id, 'restricted_courses'));
 	}
 
 	public static function treks_saved($request) {
@@ -203,8 +211,8 @@ class Rest_Lxp_Teacher
 		// ============= Teacher Post =================================
 		$school_admin_id = $request->get_param('school_admin_id');
 		$teacher_post_id = intval($request->get_param('teacher_post_id'));
-		$teacher_name = trim($request->get_param('user_email'));
-		$teacher_description = trim($request->get_param('about'));
+		$teacher_name = wp_strip_all_tags(trim($request->get_param('last_name')) . ', ' . trim($request->get_param('first_name')));
+		$teacher_description = trim($request->get_param('about')) ? trim($request->get_param('about')) : '';
 		
 		$shool_post_arg = array(
 			'post_title'    => wp_strip_all_tags($teacher_name),
@@ -288,10 +296,10 @@ class Rest_Lxp_Teacher
 				// Define attachment metadata
 				$attach_data = wp_generate_attachment_metadata( $attach_id, $file );
 	
-				// Assign metadata to attachment
+				// restrict metadata to attachment
 				wp_update_attachment_metadata( $attach_id, $attach_data );
 	
-				// And finally assign featured image to post
+				// And finally restrict featured image to post
 				set_post_thumbnail( $teacher_post_id, $attach_id );	
 			}	
 		} */
@@ -302,7 +310,7 @@ class Rest_Lxp_Teacher
 			'user_email' => trim($request->get_param('user_email')),
 			'first_name' => trim($request->get_param('first_name')),
 			'last_name' => trim($request->get_param('last_name')),
-			'display_name' => trim($request->get_param('first_name')) . ' ' . trim($request->get_param('last_name')),
+			'display_name' =>  wp_strip_all_tags($teacher_name),
 			'role' => 'lxp_teacher'
 		);
 		
@@ -359,6 +367,74 @@ class Rest_Lxp_Teacher
          );
          wp_send_json_success (wp_update_user($user_data));
 		 
+	}
+
+	public static function import($request)
+	{
+		$school_admin_id = $request->get_param('school_admin_id');
+		$file = $request->get_file_params();
+		$teachers_csv = isset($file['teachers']) ? $file['teachers'] : null;
+		if ($teachers_csv['size'] > 0 && $teachers_csv['type'] == 'text/csv') {
+			
+			$overrides = array('test_form' => false);
+			$upload = wp_handle_upload( $teachers_csv, $overrides );
+			if ( $upload && !isset( $upload['error'] ) ) {
+				$csv_file_url = $upload["url"];
+				
+				if (($handle = fopen($csv_file_url, "r")) !== false) {
+					while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+						if (count($row) >= 4) {
+							$first_name = trim($row[0]);
+							$last_name = trim($row[1]);
+							$user_display_name = $last_name . ', ' . $first_name;
+							$email = strtolower( trim($row[2]) );
+							$password = trim($row[3]);
+							$grades = explode('-', trim($row[4]));
+							
+							if (!get_user_by('email', $email)) {
+								$teacher_post_arg = array(
+									'post_title'    => wp_strip_all_tags($user_display_name),
+									'post_content'  => '',
+									'post_status'   => 'publish',
+									'post_author'   => $school_admin_id,
+									'post_type'   => TL_TEACHER_CPT
+								);
+								// Insert teacher post
+								$teacher_post_id = wp_insert_post($teacher_post_arg);
+	
+								// ========== teacher Admin ===========
+								$teacher_admin_data = array(
+									'user_login' => $email,
+									'user_email' => $email,
+									'first_name' => $first_name,
+									'last_name' => $last_name,
+									'display_name' => $user_display_name,
+									'user_pass' => $password,
+									'role' => 'lxp_teacher'
+								);
+								$teacher_admin_id  = wp_insert_user($teacher_admin_data);
+								if ($teacher_admin_id) {
+									wp_set_password( $password, $teacher_admin_id );
+									add_post_meta($teacher_post_id, 'lxp_teacher_admin_id', $teacher_admin_id, true);
+									add_post_meta($teacher_post_id, 'lxp_teacher_school_id', trim($request->get_param('teacher_school_id')), true);
+									update_post_meta($teacher_post_id, 'grades', json_encode($grades));
+								}
+							}
+						}		
+					}
+					fclose($handle);
+					return wp_send_json_success("teachers imported successfully.");
+				}
+				
+			} else {
+				return  wp_send_json_error("File could not uploaded.", 400);
+			} 
+
+		} else {
+			return  wp_send_json_error("Invalid file . Upload valid CSV file.", 400);
+		}
+
+		return wp_send_json_success("");
 	}
 
 	public static function courses_saved($request) {
