@@ -168,7 +168,7 @@ class Rest_Lxp_Class
 		
 		// Insert / Update
 		$class_post_id = wp_insert_post($class_post_arg);
-		if(get_post_meta($class_post_id, 'grade', true)) {
+		if(get_post_meta($class_post_id, 'lxp_class_teacher_id', true)) {
 			update_post_meta($class_post_id, 'grade', $request->get_param('grade'));
 		} else {
 			add_post_meta($class_post_id, 'grade', $request->get_param('grade'), true);
