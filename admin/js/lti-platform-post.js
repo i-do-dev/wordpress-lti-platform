@@ -177,6 +177,25 @@ var currentsectionId = 0;
         });
       });
 
+      // #btnSaveCssStyles
+      $('body').on('click', '#btnSaveCssStyles', function () {
+        var content = jQuery('#trek-css-styles-text').val();
+        var postID = $('#post_ID').val();
+        // post content to server
+        jQuery.ajax({
+          type: "post",
+          dataType: "json",
+          url: window.location.origin + ajaxurl,
+          data: { action: 'trek_css_styles', content: content, post_id: postID },
+          success: function (response) {
+            console.log('response >>>>>>>>>> ', response);
+            if (response.status == 200) {
+              alert("CSS Styles saved successfully");
+            }
+          }
+        });
+      });
+
       $('body').on('click', '#btnSaveSection', function () {
         
         var title = $('#option-title-select-box').val();

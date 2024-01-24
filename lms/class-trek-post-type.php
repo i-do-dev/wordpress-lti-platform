@@ -40,6 +40,17 @@ class TL_TREK_Post_Type extends TL_Post_Type
 
       add_action("wp_ajax_trek_settings", array($this, "trek_settings"));
       add_action("wp_ajax_trek_student_section", array($this, "trek_student_section"));
+      // adding ajax action for saving css styles
+      add_action("wp_ajax_trek_css_styles", array($this, "trek_css_styles"));
+   }
+
+   function trek_css_styles()
+   {
+      $post_id = $_POST['post_id'];
+      // update post meta 'css_styles' section using 'content' posted data
+      update_post_meta($post_id, 'css_styles', $_POST['content']);
+      echo json_encode(array('success' => true));
+      wp_die();
    }
 
    function trek_student_section()
@@ -195,6 +206,17 @@ class TL_TREK_Post_Type extends TL_Post_Type
          'default',         // Priority
          'show_in_rest' => true,
       ]);
+
+      // meta box for css styles
+      $this->add_meta_box([
+         'trek-css-styles-id',      // Unique ID
+         esc_html__('CSS Styles', 'css_styles'),    // Title
+         array(self::instance(), 'trek_css_styles_metabox_html'),   // Callback function
+         $this->_post_type,         // Admin page (or post type)
+         'advanced',         // Context
+         'default',         // Priority
+         'show_in_rest' => true,
+      ]);
    }
 
    function post_meta_request_params($args, $request)
@@ -269,6 +291,20 @@ class TL_TREK_Post_Type extends TL_Post_Type
       $output .=  '<div>
                   </div>';
       $output .=  "<br /><button type='button' id='btnSaveStudentSection' class='button button-primary'>Save</button>";
+      $output .=  '</div>';
+      echo $output;
+   }
+
+   public function trek_css_styles_metabox_html($post = null)
+   {
+      $css_styles = get_post_meta($post->ID, 'css_styles', true);
+      $output = '';
+      $output .= '<div id="appendme" class="container" >';
+      $append =   "<br><h3><b>CSS Styles</b></h3> <textarea id='trek-css-styles-text'  rows='12' cols='70' name='css_styles'>" . $css_styles . "</textarea> ";
+      $output .=  "<div class='row option-body'  id='option-body'>" . $append . "</div>";
+      $output .=  '<div>
+                  </div>';
+      $output .=  "<br /><button type='button' id='btnSaveCssStyles' class='button button-primary'>Save</button>";
       $output .=  '</div>';
       echo $output;
    }
