@@ -4,7 +4,7 @@ class Rest_Lxp_Teacher
 {
 	/**
 	 * Register the REST API routes.
-	 */
+	 **/
 	public static function init()
 	{
 		if (!function_exists('register_rest_route')) {
