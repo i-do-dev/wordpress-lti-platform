@@ -4,13 +4,31 @@ class Rest_Lxp_Teacher
 {
 	/**
 	 * Register the REST API routes.
-	 **/
+	 */
 	public static function init()
 	{
 		if (!function_exists('register_rest_route')) {
 			// The REST API wasn't integrated into core until 4.4, and we support 4.0+ (for now).
 			return false;
 		}
+
+		// /teacher/settings/update
+		register_rest_route('lms/v1', '/teacher/settings/update', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Teacher', 'update_settings'),
+				'permission_callback' => '__return_true'
+			)
+		));
+
+		// /teacher/settings
+		register_rest_route('lms/v1', '/teacher/settings', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_Teacher', 'get_settings'),
+				'permission_callback' => '__return_true'
+			)
+		));
 
 		register_rest_route('lms/v1', '/teacher/students', array(
 			array(
@@ -66,30 +84,30 @@ class Rest_Lxp_Teacher
 				'callback' => array('Rest_Lxp_Teacher', 'create'),
 				'permission_callback' => '__return_true',
 				'args' => array(
-					'user_email' => array(
+					'lxp_user_email' => array(
 					   'required' => true,
 					   'type' => 'string',
 					   'description' => 'user email name',  
 					   'format' => 'email',
 					   'validate_callback' => function($param, $request, $key) {
-							if (strlen(trim($request->get_param('user_email'))) == 0) {
+							if (strlen(trim($request->get_param('lxp_user_email'))) == 0) {
 								return false;
 							}
 							
-							$user_by_email = get_user_by("email", trim($request->get_param('user_email')));
-							$user_by_login = get_user_by("login", trim($request->get_param('user_email')));
-							if ( $user_by_email && intval($request->get_param('teacher_post_id')) > 0 && $user_by_email->data->user_email !== trim($request->get_param('user_email_default')) ) {
+							$user_by_email = get_user_by("email", trim($request->get_param('lxp_user_email')));
+							$user_by_login = get_user_by("login", trim($request->get_param('lxp_user_email')));
+							if ( $user_by_email && intval($request->get_param('teacher_post_id')) > 0 && $user_by_email->data->user_email !== trim($request->get_param('lxp_user_email_default')) ) {
 								return false;
 							} else if ($request->get_param('teacher_post_id') == 0) {
 								return ( !($user_by_email || $user_by_login) ? true : false );
-							} if ( trim($request->get_param('user_email')) == '' ) {
+							} if ( trim($request->get_param('lxp_user_email')) == '' ) {
 								return false;
 							} else {
 								return true;
 							}
 						}
 				  	),
-					'first_name' => array(
+					'lxp_first_name' => array(
 						'required' => true,
 						'type' => 'string',
 						'description' => 'user first name',
@@ -97,7 +115,7 @@ class Rest_Lxp_Teacher
 							return strlen( $param ) > 1;
 						}
 					),
-					'last_name' => array(
+					'lxp_last_name' => array(
 						'required' => true,
 						'type' => 'string',
 						'description' => 'user last name',
@@ -105,7 +123,7 @@ class Rest_Lxp_Teacher
 							return strlen( $param ) > 1;
 						}
 					),
-					'user_password' => array(
+					'lxp_user_password' => array(
 						'required' => true,
 						'type' => 'string',
 						'description' => 'user login password',
@@ -167,6 +185,21 @@ class Rest_Lxp_Teacher
 			),
 		));
 		
+	}
+
+	public static function update_settings($request) {
+		$teacher_post_id = intval($request->get_param('teacher_post_id'));		
+		$active = $request->get_param('active');
+		update_post_meta($teacher_post_id, 'settings_active', $active);
+		return wp_send_json_success( "Settings Saved!" );
+	}
+
+	public static function get_settings($request) {
+		$teacher_post_id = intval($request->get_param('teacher_post_id'));
+		// get 'settings_active' post metadata and return it as 'active' attribute in response
+		$active = get_post_meta($teacher_post_id, 'settings_active', true);
+		$active = $active && $active === 'false' ? false : true;
+		return wp_send_json_success( ["active" => $active] );
 	}
 
 	public static function lxp_get_school_students($school_id)
@@ -236,7 +269,7 @@ class Rest_Lxp_Teacher
 		// ============= Teacher Post =================================
 		$school_admin_id = $request->get_param('school_admin_id');
 		$teacher_post_id = intval($request->get_param('teacher_post_id'));
-		$teacher_name = wp_strip_all_tags(trim($request->get_param('last_name')) . ', ' . trim($request->get_param('first_name')));
+		$teacher_name = wp_strip_all_tags(trim($request->get_param('lxp_last_name')) . ', ' . trim($request->get_param('lxp_first_name')));
 		$teacher_description = trim($request->get_param('about')) ? trim($request->get_param('about')) : '';
 		
 		$shool_post_arg = array(
@@ -331,16 +364,16 @@ class Rest_Lxp_Teacher
 		
 		// ========== Teacher Admin ===========
 		$teacher_admin_data = array(
-			'user_login' => trim($request->get_param('user_email')),
-			'user_email' => trim($request->get_param('user_email')),
-			'first_name' => trim($request->get_param('first_name')),
-			'last_name' => trim($request->get_param('last_name')),
+			'user_login' => trim($request->get_param('lxp_user_email')),
+			'user_email' => trim($request->get_param('lxp_user_email')),
+			'first_name' => trim($request->get_param('lxp_first_name')),
+			'last_name' => trim($request->get_param('lxp_last_name')),
 			'display_name' =>  wp_strip_all_tags($teacher_name),
 			'role' => 'lxp_teacher'
 		);
 		
-		if (trim($request->get_param('user_password'))) {
-			$teacher_admin_data['user_pass'] = trim($request->get_param('user_password'));
+		if (trim($request->get_param('lxp_user_password'))) {
+			$teacher_admin_data['user_pass'] = trim($request->get_param('lxp_user_password'));
 		}
 
 		$lxp_teacher_admin_id = get_post_meta($teacher_post_id, 'lxp_teacher_admin_id', true);
@@ -348,8 +381,8 @@ class Rest_Lxp_Teacher
 			$teacher_admin_data["ID"] = $lxp_teacher_admin_id;
 		}
 		$teacher_admin_id  = wp_insert_user($teacher_admin_data);
-		if (trim($request->get_param('user_password'))) {
-			wp_set_password( trim($request->get_param('user_password')), $teacher_admin_id );
+		if (trim($request->get_param('lxp_user_password'))) {
+			wp_set_password( trim($request->get_param('lxp_user_password')), $teacher_admin_id );
 		}
 
 		if (!boolval($lxp_teacher_admin_id) && $teacher_admin_id) {
