@@ -188,16 +188,16 @@ class Rest_Lxp_Teacher
 	}
 
 	public static function update_settings($request) {
-		$teacher_post_id = intval($request->get_param('teacher_post_id'));		
+		$entity_post_id = intval($request->get_param('entity_post_id'));		
 		$active = $request->get_param('active');
-		update_post_meta($teacher_post_id, 'settings_active', $active);
+		update_post_meta($entity_post_id, 'settings_active', $active);
 		return wp_send_json_success( "Settings Saved!" );
 	}
 
 	public static function get_settings($request) {
-		$teacher_post_id = intval($request->get_param('teacher_post_id'));
+		$entity_post_id = intval($request->get_param('entity_post_id'));
 		// get 'settings_active' post metadata and return it as 'active' attribute in response
-		$active = get_post_meta($teacher_post_id, 'settings_active', true);
+		$active = get_post_meta($entity_post_id, 'settings_active', true);
 		$active = $active && $active === 'false' ? false : true;
 		return wp_send_json_success( ["active" => $active] );
 	}

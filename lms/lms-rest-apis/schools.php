@@ -12,6 +12,24 @@ class Rest_Lxp_School
 			return false;
         }
 
+		// /school/settings/update
+		register_rest_route('lms/v1', '/school/settings/update', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_School', 'update_settings'),
+				'permission_callback' => '__return_true',
+			)
+		));
+
+		// /school/settings
+		register_rest_route('lms/v1', '/school/settings', array(
+			array(
+				'methods' => WP_REST_Server::ALLMETHODS,
+				'callback' => array('Rest_Lxp_School', 'get_settings'),
+				'permission_callback' => '__return_true',
+			)
+		));
+
         register_rest_route('lms/v1', '/schools', array(
 			array(
 				'methods' => WP_REST_Server::EDITABLE,
@@ -106,6 +124,21 @@ class Rest_Lxp_School
             )
         ));
     }
+
+	public static function update_settings($request) {
+		$entity_post_id = intval($request->get_param('entity_post_id'));		
+		$active = $request->get_param('active');
+		update_post_meta($entity_post_id, 'settings_active', $active);
+		return wp_send_json_success( "Settings Saved!" );
+	}
+
+	public static function get_settings($request) {
+		$entity_post_id = intval($request->get_param('entity_post_id'));
+		// get 'settings_active' post metadata and return it as 'active' attribute in response
+		$active = get_post_meta($entity_post_id, 'settings_active', true);
+		$active = $active && $active === 'false' ? false : true;
+		return wp_send_json_success( ["active" => $active] );
+	}
 
     public static function create($request) {		
 
