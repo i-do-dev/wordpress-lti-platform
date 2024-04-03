@@ -103,9 +103,37 @@ class TL_District_Post_Type extends TL_Post_Type
          // )
       );
       add_theme_support('post-thumbnails');
+      $this->logout_inactive_user();
       return $args;
    }
 
+   // logout school user
+   public function logout_inactive_user()
+   {
+      // get current logged in user and check if it is 'lxp_client_admin' role
+      $user = wp_get_current_user();
+      if (in_array('lxp_client_admin', (array) $user->roles) ) {
+         // get post type 'tl_district' by 'lxp_district_admin_id' post metadata which is equal to current user id
+         $args = array(
+            'post_type' => 'tl_district',
+            'meta_key' => 'lxp_district_admin',
+            'meta_value' => $user->ID,
+            'number' => -1
+         );
+         $districts = get_posts($args);
+         $district = count($districts) > 0 ? $districts[0] : null;
+         // is $district 'settings_active' metadata is not equal to 'false'.
+         $isInActive = get_post_meta($district->ID, 'settings_active', true) === 'false';
+
+         if ($isInActive) {
+            // logout user
+            wp_logout();
+            // redirect to home page
+            wp_redirect(home_url());
+            exit;
+         }
+      }
+   }
 
    public function add_meta_boxes()
    {

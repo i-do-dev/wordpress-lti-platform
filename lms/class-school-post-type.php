@@ -103,9 +103,37 @@ class TL_School_Post_Type extends TL_Post_Type
          // )
       );
       add_theme_support('post-thumbnails');
+      $this->logout_inactive_user();
       return $args;
    }
 
+   // logout school user
+   public function logout_inactive_user()
+   {
+      // get current logged in user and check if it is 'lxp_school_admin' role
+      $user = wp_get_current_user();
+      if (in_array('lxp_school_admin', (array) $user->roles) ) {
+         // get post type 'tl_school' by 'lxp_school_admin_id' post metadata which is equal to current user id
+         $args = array(
+            'post_type' => 'tl_school',
+            'meta_key' => 'lxp_school_admin_id',
+            'meta_value' => $user->ID,
+            'number' => -1
+         );
+         $schools = get_posts($args);
+         $school = count($schools) > 0 ? $schools[0] : null;
+         // is $school 'settings_active' metadata is not equal to 'false'.
+         $isInActive = get_post_meta($school->ID, 'settings_active', true) === 'false';
+
+         if ($isInActive) {
+            // logout user
+            wp_logout();
+            // redirect to home page
+            wp_redirect(home_url());
+            exit;
+         }
+      }
+   }
 
    public function add_meta_boxes()
    {
